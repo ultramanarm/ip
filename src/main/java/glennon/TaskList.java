@@ -15,6 +15,12 @@ public class TaskList {
     private final List<Task> missions = new ArrayList<>();
 
     /**
+     * Creates an empty mission list for a new Glennon session.
+     */
+    public TaskList() {
+    }
+
+    /**
      * Adds a mission to the end of the log.
      *
      * @param mission mission to store

@@ -8,6 +8,12 @@ import glennon.task.Task;
  */
 public class Glennon {
     /**
+     * Prevents instantiation of this application entry-point class.
+     */
+    private Glennon() {
+    }
+
+    /**
      * Greets the user, stores missions, lists or updates their completion status
      * on request, and exits when the user enters {@code bye}.
      *
@@ -53,7 +59,8 @@ public class Glennon {
                 case EVENT -> addMission(missions, Parser.parseEvent(command), ui);
                 case UNKNOWN -> throw new GlennonException(
                         "Glennon doesn't recognize that command.\n"
-                                + "Try: todo, deadline, event, list, mark, unmark, delete, or bye.");
+                                + "Try: todo, deadline, event, list, mark, unmark, "
+                                + "delete, or bye.");
                 }
             } catch (GlennonException e) {
                 ui.showError(e.getMessage());
