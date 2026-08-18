@@ -41,6 +41,7 @@ public class Glennon {
             boolean isTodoCommand = command.equals("todo") || command.startsWith("todo ");
             boolean isDeadlineCommand = command.equals("deadline")
                     || command.startsWith("deadline ");
+            boolean isEventCommand = command.equals("event") || command.startsWith("event ");
             System.out.println(divider);
 
             if (command.equals("bye")) {
@@ -95,6 +96,25 @@ public class Glennon {
                     String description = details.substring(0, bySeparatorIndex).trim();
                     String by = details.substring(bySeparatorIndex + " /by ".length()).trim();
                     addMission(missions, new Deadline(description, by));
+                }
+            } else if (isEventCommand) {
+                String details = command.substring("event".length()).trim();
+                int fromSeparatorIndex = details.indexOf(" /from ");
+                int fromValueIndex = fromSeparatorIndex + " /from ".length();
+                int toSeparatorIndex = details.indexOf(" /to ", fromValueIndex);
+                if (fromSeparatorIndex <= 0
+                        || toSeparatorIndex <= fromValueIndex
+                        || toSeparatorIndex + " /to ".length() >= details.length()) {
+                    System.out.println("Use: event <mission> /from <start> /to <end>.");
+                } else {
+                    String description = details.substring(0, fromSeparatorIndex).trim();
+                    String from = details.substring(fromValueIndex, toSeparatorIndex).trim();
+                    String to = details.substring(toSeparatorIndex + " /to ".length()).trim();
+                    if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+                        System.out.println("Use: event <mission> /from <start> /to <end>.");
+                    } else {
+                        addMission(missions, new Event(description, from, to));
+                    }
                 }
             } else {
                 missions.add(new Task(command));
