@@ -7,8 +7,8 @@ import java.util.Scanner;
  */
 public class Glennon {
     /**
-     * Greets the user, stores missions, lists or marks them on request, and exits
-     * when the user enters {@code bye}.
+     * Greets the user, stores missions, lists or updates their completion status
+     * on request, and exits when the user enters {@code bye}.
      *
      * @param args command-line arguments; currently unused
      */
@@ -37,6 +37,8 @@ public class Glennon {
         List<Boolean> completedMissions = new ArrayList<>();
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
+            boolean isMarkCommand = command.equals("mark") || command.startsWith("mark ");
+            boolean isUnmarkCommand = command.equals("unmark") || command.startsWith("unmark ");
             System.out.println(divider);
 
             if (command.equals("bye")) {
@@ -51,16 +53,22 @@ public class Glennon {
                     String status = completedMissions.get(i) ? "X" : " ";
                     System.out.println((i + 1) + ". [" + status + "] " + missions.get(i));
                 }
-            } else if (command.equals("mark") || command.startsWith("mark ")) {
-                String missionNumber = command.substring("mark".length()).trim();
+            } else if (isMarkCommand || isUnmarkCommand) {
+                boolean shouldCompleteMission = isMarkCommand;
+                String commandName = shouldCompleteMission ? "mark" : "unmark";
+                String missionNumber = command.substring(commandName.length()).trim();
                 try {
                     int missionIndex = Integer.parseInt(missionNumber) - 1;
                     if (missionIndex < 0 || missionIndex >= missions.size()) {
                         System.out.println("Please enter a valid mission number.");
                     } else {
-                        completedMissions.set(missionIndex, true);
-                        System.out.println("Mission marked complete:");
-                        System.out.println("  [X] " + missions.get(missionIndex));
+                        completedMissions.set(missionIndex, shouldCompleteMission);
+                        String status = shouldCompleteMission ? "X" : " ";
+                        String message = shouldCompleteMission
+                                ? "Mission marked complete:"
+                                : "Mission marked incomplete:";
+                        System.out.println(message);
+                        System.out.println("  [" + status + "] " + missions.get(missionIndex));
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Please enter a valid mission number.");
