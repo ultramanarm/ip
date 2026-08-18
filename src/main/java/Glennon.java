@@ -38,6 +38,7 @@ public class Glennon {
             String command = scanner.nextLine();
             boolean isMarkCommand = command.equals("mark") || command.startsWith("mark ");
             boolean isUnmarkCommand = command.equals("unmark") || command.startsWith("unmark ");
+            boolean isTodoCommand = command.equals("todo") || command.startsWith("todo ");
             System.out.println(divider);
 
             if (command.equals("bye")) {
@@ -75,6 +76,13 @@ public class Glennon {
                 } catch (NumberFormatException e) {
                     System.out.println("Please enter a valid mission number.");
                 }
+            } else if (isTodoCommand) {
+                String description = command.substring("todo".length()).trim();
+                if (description.isEmpty()) {
+                    System.out.println("Please enter a mission after todo.");
+                } else {
+                    addMission(missions, new Todo(description));
+                }
             } else {
                 missions.add(new Task(command));
                 System.out.println("Mission added: " + command);
@@ -83,5 +91,16 @@ public class Glennon {
         }
 
         scanner.close();
+    }
+
+    /**
+     * Adds a typed mission and displays its type-specific representation.
+     *
+     * @param missions mission list for the current session
+     * @param mission mission to add
+     */
+    private static void addMission(List<Task> missions, Task mission) {
+        missions.add(mission);
+        System.out.println("Mission added: " + mission);
     }
 }
