@@ -1,10 +1,7 @@
 package glennon;
 
 import glennon.exception.GlennonException;
-import glennon.task.Deadline;
-import glennon.task.Event;
 import glennon.task.Task;
-import glennon.task.Todo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,40 +44,33 @@ public class Glennon {
             System.out.println(divider);
 
             try {
-                boolean isMarkCommand = command.equals("mark") || command.startsWith("mark ");
-                boolean isUnmarkCommand = command.equals("unmark")
-                        || command.startsWith("unmark ");
-                boolean isDeleteCommand = command.equals("delete")
-                        || command.startsWith("delete ");
-                boolean isTodoCommand = command.equals("todo") || command.startsWith("todo ");
-                boolean isDeadlineCommand = command.equals("deadline")
-                        || command.startsWith("deadline ");
-                boolean isEventCommand = command.equals("event")
-                        || command.startsWith("event ");
+                Parser.CommandType commandType = Parser.parseCommandType(command);
 
-                if (command.equals("bye")) {
+                if (commandType == Parser.CommandType.BYE) {
                     System.out.println("Signing off. Catch you on the next mission!");
                     System.out.println(divider);
                     break;
                 }
 
-                if (command.equals("list")) {
+                switch (commandType) {
+                case LIST -> {
                     System.out.println("Mission log:");
                     for (int i = 0; i < missions.size(); i++) {
                         System.out.println((i + 1) + ". " + missions.get(i));
                     }
-                } else if (isDeleteCommand) {
-                    String missionNumber = command.substring("delete".length()).trim();
-                    int missionIndex = parseMissionIndex(missionNumber, missions.size());
+                }
+                case DELETE -> {
+                    int missionIndex = Parser.parseMissionIndex(
+                            command, commandType, missions.size());
                     Task removedMission = missions.remove(missionIndex);
                     System.out.println("Mission removed:");
                     System.out.println("  " + removedMission);
                     printMissionCount(missions);
-                } else if (isMarkCommand || isUnmarkCommand) {
-                    boolean shouldCompleteMission = isMarkCommand;
-                    String commandName = shouldCompleteMission ? "mark" : "unmark";
-                    String missionNumber = command.substring(commandName.length()).trim();
-                    int missionIndex = parseMissionIndex(missionNumber, missions.size());
+                }
+                case MARK, UNMARK -> {
+                    boolean shouldCompleteMission = commandType == Parser.CommandType.MARK;
+                    int missionIndex = Parser.parseMissionIndex(
+                            command, commandType, missions.size());
                     Task mission = missions.get(missionIndex);
                     if (shouldCompleteMission) {
                         mission.markAsDone();
@@ -92,46 +82,15 @@ public class Glennon {
                             : "Mission marked incomplete:";
                     System.out.println(message);
                     System.out.println("  " + mission);
-                } else if (isTodoCommand) {
-                    String description = command.substring("todo".length()).trim();
-                    if (description.isEmpty()) {
-                        throw new GlennonException("Please enter a mission after todo.");
-                    }
-                    addMission(missions, new Todo(description));
-                } else if (isDeadlineCommand) {
-                    String details = command.substring("deadline".length()).trim();
-                    int bySeparatorIndex = details.indexOf(" /by ");
-                    if (bySeparatorIndex <= 0
-                            || bySeparatorIndex + " /by ".length() >= details.length()) {
-                        throw new GlennonException(
-                                "Use: deadline <mission> /by <date or time>.");
-                    }
-                    String description = details.substring(0, bySeparatorIndex).trim();
-                    String by = details.substring(bySeparatorIndex + " /by ".length()).trim();
-                    addMission(missions, new Deadline(description, by));
-                } else if (isEventCommand) {
-                    String details = command.substring("event".length()).trim();
-                    int fromSeparatorIndex = details.indexOf(" /from ");
-                    int fromValueIndex = fromSeparatorIndex + " /from ".length();
-                    int toSeparatorIndex = details.indexOf(" /to ", fromValueIndex);
-                    if (fromSeparatorIndex <= 0
-                            || toSeparatorIndex <= fromValueIndex
-                            || toSeparatorIndex + " /to ".length() >= details.length()) {
-                        throw new GlennonException(
-                                "Use: event <mission> /from <start> /to <end>.");
-                    }
-                    String description = details.substring(0, fromSeparatorIndex).trim();
-                    String from = details.substring(fromValueIndex, toSeparatorIndex).trim();
-                    String to = details.substring(toSeparatorIndex + " /to ".length()).trim();
-                    if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-                        throw new GlennonException(
-                                "Use: event <mission> /from <start> /to <end>.");
-                    }
-                    addMission(missions, new Event(description, from, to));
-                } else {
-                    throw new GlennonException(
-                            "Glennon doesn't recognize that command.\n"
-                                    + "Try: todo, deadline, event, list, mark, unmark, delete, or bye.");
+                }
+                case TODO -> addMission(missions, Parser.parseTodo(command));
+                case DEADLINE -> addMission(missions, Parser.parseDeadline(command));
+                case EVENT -> addMission(missions, Parser.parseEvent(command));
+                case UNKNOWN -> throw new GlennonException(
+                        "Glennon doesn't recognize that command.\n"
+                                + "Try: todo, deadline, event, list, mark, unmark, delete, or bye.");
+                case BYE -> throw new IllegalStateException(
+                        "Bye should be handled before dispatch.");
                 }
             } catch (GlennonException e) {
                 System.out.println("Mission control alert!");
@@ -166,24 +125,4 @@ public class Glennon {
         System.out.println("Mission log now has " + missionCount + " " + missionLabel + ".");
     }
 
-    /**
-     * Converts a one-based mission number into a valid list index.
-     *
-     * @param missionNumber user-provided mission number
-     * @param missionCount number of missions currently stored
-     * @return zero-based mission index
-     * @throws GlennonException if the number is missing, malformed, or out of range
-     */
-    private static int parseMissionIndex(String missionNumber, int missionCount)
-            throws GlennonException {
-        try {
-            int missionIndex = Integer.parseInt(missionNumber) - 1;
-            if (missionIndex < 0 || missionIndex >= missionCount) {
-                throw new GlennonException("Please enter a valid mission number.");
-            }
-            return missionIndex;
-        } catch (NumberFormatException e) {
-            throw new GlennonException("Please enter a valid mission number.", e);
-        }
-    }
 }
