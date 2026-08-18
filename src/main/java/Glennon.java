@@ -119,6 +119,7 @@ public class Glennon {
             } else {
                 missions.add(new Task(command));
                 System.out.println("Mission added: " + command);
+                printMissionCount(missions);
             }
             System.out.println(divider);
         }
@@ -135,5 +136,17 @@ public class Glennon {
     private static void addMission(List<Task> missions, Task mission) {
         missions.add(mission);
         System.out.println("Mission added: " + mission);
+        printMissionCount(missions);
+    }
+
+    /**
+     * Displays the current mission total using the correct singular or plural noun.
+     *
+     * @param missions mission list for the current session
+     */
+    private static void printMissionCount(List<Task> missions) {
+        int missionCount = missions.size();
+        String missionLabel = missionCount == 1 ? "mission" : "missions";
+        System.out.println("Mission log now has " + missionCount + " " + missionLabel + ".");
     }
 }
