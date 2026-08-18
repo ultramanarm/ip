@@ -1,3 +1,5 @@
+package glennon.task;
+
 /**
  * Represents a mission tracked by Glennon and its completion status.
  */

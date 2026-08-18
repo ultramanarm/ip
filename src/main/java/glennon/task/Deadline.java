@@ -1,3 +1,5 @@
+package glennon.task;
+
 /**
  * Represents a task that must be completed by a specified date or time.
  * The deadline is stored as user-provided text without date parsing.

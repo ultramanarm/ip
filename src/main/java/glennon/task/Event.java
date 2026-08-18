@@ -1,3 +1,5 @@
+package glennon.task;
+
 /**
  * Represents a task that occurs between user-provided start and end times.
  * The time values are stored as text without date or time parsing.
