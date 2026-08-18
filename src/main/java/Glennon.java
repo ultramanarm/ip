@@ -33,8 +33,7 @@ public class Glennon {
         System.out.println(divider);
 
         Scanner scanner = new Scanner(System.in);
-        List<String> missions = new ArrayList<>();
-        List<Boolean> completedMissions = new ArrayList<>();
+        List<Task> missions = new ArrayList<>();
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
             boolean isMarkCommand = command.equals("mark") || command.startsWith("mark ");
@@ -50,8 +49,7 @@ public class Glennon {
             if (command.equals("list")) {
                 System.out.println("Mission log:");
                 for (int i = 0; i < missions.size(); i++) {
-                    String status = completedMissions.get(i) ? "X" : " ";
-                    System.out.println((i + 1) + ". [" + status + "] " + missions.get(i));
+                    System.out.println((i + 1) + ". " + missions.get(i));
                 }
             } else if (isMarkCommand || isUnmarkCommand) {
                 boolean shouldCompleteMission = isMarkCommand;
@@ -62,20 +60,23 @@ public class Glennon {
                     if (missionIndex < 0 || missionIndex >= missions.size()) {
                         System.out.println("Please enter a valid mission number.");
                     } else {
-                        completedMissions.set(missionIndex, shouldCompleteMission);
-                        String status = shouldCompleteMission ? "X" : " ";
+                        Task mission = missions.get(missionIndex);
+                        if (shouldCompleteMission) {
+                            mission.markAsDone();
+                        } else {
+                            mission.markAsNotDone();
+                        }
                         String message = shouldCompleteMission
                                 ? "Mission marked complete:"
                                 : "Mission marked incomplete:";
                         System.out.println(message);
-                        System.out.println("  [" + status + "] " + missions.get(missionIndex));
+                        System.out.println("  " + mission);
                     }
                 } catch (NumberFormatException e) {
                     System.out.println("Please enter a valid mission number.");
                 }
             } else {
-                missions.add(command);
-                completedMissions.add(false);
+                missions.add(new Task(command));
                 System.out.println("Mission added: " + command);
             }
             System.out.println(divider);
