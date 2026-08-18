@@ -136,23 +136,19 @@ public final class Parser {
     }
 
     /**
-     * Converts a command's one-based mission number into a valid list index.
+     * Converts a command's one-based mission number into a zero-based index.
+     * The caller checks the index against the stored missions.
      *
      * @param input complete command containing the mission number
      * @param commandType command whose arguments contain the number
-     * @param missionCount number of missions currently stored
      * @return zero-based mission index
-     * @throws GlennonException if the number is missing, malformed, or out of range
+     * @throws GlennonException if the number is missing or not an integer
      */
     public static int parseMissionIndex(
-            String input, CommandType commandType, int missionCount) throws GlennonException {
+            String input, CommandType commandType) throws GlennonException {
         String missionNumber = parseArguments(input, commandType);
         try {
-            int missionIndex = Integer.parseInt(missionNumber) - 1;
-            if (missionIndex < 0 || missionIndex >= missionCount) {
-                throw new GlennonException("Please enter a valid mission number.");
-            }
-            return missionIndex;
+            return Integer.parseInt(missionNumber) - 1;
         } catch (NumberFormatException e) {
             throw new GlennonException("Please enter a valid mission number.", e);
         }

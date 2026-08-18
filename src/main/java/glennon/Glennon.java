@@ -3,9 +3,6 @@ package glennon;
 import glennon.exception.GlennonException;
 import glennon.task.Task;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Starts the Glennon chatbot.
  */
@@ -20,7 +17,7 @@ public class Glennon {
         Ui ui = new Ui();
         ui.showWelcome();
 
-        List<Task> missions = new ArrayList<>();
+        TaskList missions = new TaskList();
         while (ui.hasNextCommand()) {
             String command = ui.readCommand();
             ui.showDivider();
@@ -35,17 +32,15 @@ public class Glennon {
                 }
 
                 switch (commandType) {
-                case LIST -> ui.showMissionList(missions);
+                case LIST -> ui.showMissionList(missions.asList());
                 case DELETE -> {
-                    int missionIndex = Parser.parseMissionIndex(
-                            command, commandType, missions.size());
+                    int missionIndex = Parser.parseMissionIndex(command, commandType);
                     Task removedMission = missions.remove(missionIndex);
                     ui.showMissionRemoved(removedMission, missions.size());
                 }
                 case MARK, UNMARK -> {
                     boolean shouldCompleteMission = commandType == Parser.CommandType.MARK;
-                    int missionIndex = Parser.parseMissionIndex(
-                            command, commandType, missions.size());
+                    int missionIndex = Parser.parseMissionIndex(command, commandType);
                     Task mission = missions.get(missionIndex);
                     if (shouldCompleteMission) {
                         mission.markAsDone();
@@ -79,7 +74,7 @@ public class Glennon {
      * @param mission mission to add
      * @param ui interface used to confirm the addition
      */
-    private static void addMission(List<Task> missions, Task mission, Ui ui) {
+    private static void addMission(TaskList missions, Task mission, Ui ui) {
         missions.add(mission);
         ui.showMissionAdded(mission, missions.size());
     }
