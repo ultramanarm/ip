@@ -50,6 +50,8 @@ public class Glennon {
                 boolean isMarkCommand = command.equals("mark") || command.startsWith("mark ");
                 boolean isUnmarkCommand = command.equals("unmark")
                         || command.startsWith("unmark ");
+                boolean isDeleteCommand = command.equals("delete")
+                        || command.startsWith("delete ");
                 boolean isTodoCommand = command.equals("todo") || command.startsWith("todo ");
                 boolean isDeadlineCommand = command.equals("deadline")
                         || command.startsWith("deadline ");
@@ -67,6 +69,13 @@ public class Glennon {
                     for (int i = 0; i < missions.size(); i++) {
                         System.out.println((i + 1) + ". " + missions.get(i));
                     }
+                } else if (isDeleteCommand) {
+                    String missionNumber = command.substring("delete".length()).trim();
+                    int missionIndex = parseMissionIndex(missionNumber, missions.size());
+                    Task removedMission = missions.remove(missionIndex);
+                    System.out.println("Mission removed:");
+                    System.out.println("  " + removedMission);
+                    printMissionCount(missions);
                 } else if (isMarkCommand || isUnmarkCommand) {
                     boolean shouldCompleteMission = isMarkCommand;
                     String commandName = shouldCompleteMission ? "mark" : "unmark";
@@ -122,7 +131,7 @@ public class Glennon {
                 } else {
                     throw new GlennonException(
                             "Glennon doesn't recognize that command.\n"
-                                    + "Try: todo, deadline, event, list, mark, unmark, or bye.");
+                                    + "Try: todo, deadline, event, list, mark, unmark, delete, or bye.");
                 }
             } catch (GlennonException e) {
                 System.out.println("Mission control alert!");
