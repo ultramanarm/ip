@@ -39,6 +39,8 @@ public class Glennon {
             boolean isMarkCommand = command.equals("mark") || command.startsWith("mark ");
             boolean isUnmarkCommand = command.equals("unmark") || command.startsWith("unmark ");
             boolean isTodoCommand = command.equals("todo") || command.startsWith("todo ");
+            boolean isDeadlineCommand = command.equals("deadline")
+                    || command.startsWith("deadline ");
             System.out.println(divider);
 
             if (command.equals("bye")) {
@@ -82,6 +84,17 @@ public class Glennon {
                     System.out.println("Please enter a mission after todo.");
                 } else {
                     addMission(missions, new Todo(description));
+                }
+            } else if (isDeadlineCommand) {
+                String details = command.substring("deadline".length()).trim();
+                int bySeparatorIndex = details.indexOf(" /by ");
+                if (bySeparatorIndex <= 0
+                        || bySeparatorIndex + " /by ".length() >= details.length()) {
+                    System.out.println("Use: deadline <mission> /by <date or time>.");
+                } else {
+                    String description = details.substring(0, bySeparatorIndex).trim();
+                    String by = details.substring(bySeparatorIndex + " /by ".length()).trim();
+                    addMission(missions, new Deadline(description, by));
                 }
             } else {
                 missions.add(new Task(command));
