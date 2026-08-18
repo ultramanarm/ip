@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -5,7 +7,8 @@ import java.util.Scanner;
  */
 public class Glennon {
     /**
-     * Greets the user, echoes commands, and exits when the user enters {@code bye}.
+     * Greets the user, stores missions, lists them on request, and exits when the
+     * user enters {@code bye}.
      *
      * @param args command-line arguments; currently unused
      */
@@ -30,6 +33,7 @@ public class Glennon {
         System.out.println(divider);
 
         Scanner scanner = new Scanner(System.in);
+        List<String> missions = new ArrayList<>();
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
             System.out.println(divider);
@@ -40,7 +44,15 @@ public class Glennon {
                 break;
             }
 
-            System.out.println(command);
+            if (command.equals("list")) {
+                System.out.println("Mission log:");
+                for (int i = 0; i < missions.size(); i++) {
+                    System.out.println((i + 1) + ". " + missions.get(i));
+                }
+            } else {
+                missions.add(command);
+                System.out.println("Mission added: " + command);
+            }
             System.out.println(divider);
         }
 
