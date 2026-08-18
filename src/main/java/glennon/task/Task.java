@@ -2,8 +2,10 @@ package glennon.task;
 
 /**
  * Represents a mission tracked by Glennon and its completion status.
+ * Subclasses supply the type marker shown to the user, so this class is
+ * never instantiated on its own.
  */
-public class Task {
+public abstract class Task {
     protected String description;
     protected boolean isDone;
 
@@ -12,7 +14,7 @@ public class Task {
      *
      * @param description description of the mission
      */
-    public Task(String description) {
+    protected Task(String description) {
         this.description = description;
         this.isDone = false;
     }
