@@ -53,6 +53,23 @@ public final class Parser {
         }
     }
 
+    /** Separates a deadline's description from its date text. */
+    private static final String BY_SEPARATOR = " /by ";
+
+    /** Separates an event's description from its start time. */
+    private static final String FROM_SEPARATOR = " /from ";
+
+    /** Separates an event's start time from its end time. */
+    private static final String TO_SEPARATOR = " /to ";
+
+    /** Guidance shown when a deadline command cannot be parsed. */
+    private static final String DEADLINE_USAGE =
+            "Use: deadline <mission> /by <date or time>.";
+
+    /** Guidance shown when an event command cannot be parsed. */
+    private static final String EVENT_USAGE =
+            "Use: event <mission> /from <start> /to <end>.";
+
     /** Prevents creation of this stateless utility class. */
     private Parser() {
     }
@@ -97,13 +114,13 @@ public final class Parser {
      */
     public static Deadline parseDeadline(String input) throws GlennonException {
         String details = parseArguments(input, CommandType.DEADLINE);
-        int bySeparatorIndex = details.indexOf(" /by ");
+        int bySeparatorIndex = details.indexOf(BY_SEPARATOR);
         if (bySeparatorIndex <= 0
-                || bySeparatorIndex + " /by ".length() >= details.length()) {
-            throw new GlennonException("Use: deadline <mission> /by <date or time>.");
+                || bySeparatorIndex + BY_SEPARATOR.length() >= details.length()) {
+            throw new GlennonException(DEADLINE_USAGE);
         }
         String description = details.substring(0, bySeparatorIndex).trim();
-        String by = details.substring(bySeparatorIndex + " /by ".length()).trim();
+        String by = details.substring(bySeparatorIndex + BY_SEPARATOR.length()).trim();
         return new Deadline(description, by);
     }
 
@@ -116,21 +133,19 @@ public final class Parser {
      */
     public static Event parseEvent(String input) throws GlennonException {
         String details = parseArguments(input, CommandType.EVENT);
-        int fromSeparatorIndex = details.indexOf(" /from ");
-        int fromValueIndex = fromSeparatorIndex + " /from ".length();
-        int toSeparatorIndex = details.indexOf(" /to ", fromValueIndex);
+        int fromSeparatorIndex = details.indexOf(FROM_SEPARATOR);
+        int fromValueIndex = fromSeparatorIndex + FROM_SEPARATOR.length();
+        int toSeparatorIndex = details.indexOf(TO_SEPARATOR, fromValueIndex);
         if (fromSeparatorIndex <= 0
                 || toSeparatorIndex <= fromValueIndex
-                || toSeparatorIndex + " /to ".length() >= details.length()) {
-            throw new GlennonException(
-                    "Use: event <mission> /from <start> /to <end>.");
+                || toSeparatorIndex + TO_SEPARATOR.length() >= details.length()) {
+            throw new GlennonException(EVENT_USAGE);
         }
         String description = details.substring(0, fromSeparatorIndex).trim();
         String from = details.substring(fromValueIndex, toSeparatorIndex).trim();
-        String to = details.substring(toSeparatorIndex + " /to ".length()).trim();
+        String to = details.substring(toSeparatorIndex + TO_SEPARATOR.length()).trim();
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            throw new GlennonException(
-                    "Use: event <mission> /from <start> /to <end>.");
+            throw new GlennonException(EVENT_USAGE);
         }
         return new Event(description, from, to);
     }

@@ -6,8 +6,8 @@ package glennon.task;
  * never instantiated on its own.
  */
 public abstract class Task {
-    protected String description;
-    protected boolean isDone;
+    private final String description;
+    private boolean isDone;
 
     /**
      * Creates a pending task with the given description.

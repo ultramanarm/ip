@@ -18,20 +18,19 @@ public class Glennon {
         ui.showWelcome();
 
         TaskList missions = new TaskList();
-        while (ui.hasNextCommand()) {
+        boolean isSigningOff = false;
+        while (!isSigningOff && ui.hasNextCommand()) {
             String command = ui.readCommand();
             ui.showDivider();
 
             try {
                 Parser.CommandType commandType = Parser.parseCommandType(command);
 
-                if (commandType == Parser.CommandType.BYE) {
-                    ui.showGoodbye();
-                    ui.showDivider();
-                    break;
-                }
-
                 switch (commandType) {
+                case BYE -> {
+                    ui.showGoodbye();
+                    isSigningOff = true;
+                }
                 case LIST -> ui.showMissionList(missions.asList());
                 case DELETE -> {
                     int missionIndex = Parser.parseMissionIndex(command, commandType);
@@ -55,8 +54,6 @@ public class Glennon {
                 case UNKNOWN -> throw new GlennonException(
                         "Glennon doesn't recognize that command.\n"
                                 + "Try: todo, deadline, event, list, mark, unmark, delete, or bye.");
-                case BYE -> throw new IllegalStateException(
-                        "Bye should be handled before dispatch.");
                 }
             } catch (GlennonException e) {
                 ui.showError(e.getMessage());
