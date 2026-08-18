@@ -1,9 +1,11 @@
+import java.util.Scanner;
+
 /**
  * Starts the Glennon chatbot.
  */
 public class Glennon {
     /**
-     * Greets the user, displays a farewell message, and then exits.
+     * Greets the user, echoes commands, and exits when the user enters {@code bye}.
      *
      * @param args command-line arguments; currently unused
      */
@@ -26,7 +28,22 @@ public class Glennon {
         System.out.println("Hey there! Glennon online.");
         System.out.println("What's the mission?");
         System.out.println(divider);
-        System.out.println("Signing off. Catch you on the next mission!");
-        System.out.println(divider);
+
+        Scanner scanner = new Scanner(System.in);
+        while (scanner.hasNextLine()) {
+            String command = scanner.nextLine();
+            System.out.println(divider);
+
+            if (command.equals("bye")) {
+                System.out.println("Signing off. Catch you on the next mission!");
+                System.out.println(divider);
+                break;
+            }
+
+            System.out.println(command);
+            System.out.println(divider);
+        }
+
+        scanner.close();
     }
 }
