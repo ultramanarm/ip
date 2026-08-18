@@ -7,8 +7,8 @@ import java.util.Scanner;
  */
 public class Glennon {
     /**
-     * Greets the user, stores missions, lists them on request, and exits when the
-     * user enters {@code bye}.
+     * Greets the user, stores missions, lists or marks them on request, and exits
+     * when the user enters {@code bye}.
      *
      * @param args command-line arguments; currently unused
      */
@@ -34,6 +34,7 @@ public class Glennon {
 
         Scanner scanner = new Scanner(System.in);
         List<String> missions = new ArrayList<>();
+        List<Boolean> completedMissions = new ArrayList<>();
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
             System.out.println(divider);
@@ -47,10 +48,26 @@ public class Glennon {
             if (command.equals("list")) {
                 System.out.println("Mission log:");
                 for (int i = 0; i < missions.size(); i++) {
-                    System.out.println((i + 1) + ". " + missions.get(i));
+                    String status = completedMissions.get(i) ? "X" : " ";
+                    System.out.println((i + 1) + ". [" + status + "] " + missions.get(i));
+                }
+            } else if (command.equals("mark") || command.startsWith("mark ")) {
+                String missionNumber = command.substring("mark".length()).trim();
+                try {
+                    int missionIndex = Integer.parseInt(missionNumber) - 1;
+                    if (missionIndex < 0 || missionIndex >= missions.size()) {
+                        System.out.println("Please enter a valid mission number.");
+                    } else {
+                        completedMissions.set(missionIndex, true);
+                        System.out.println("Mission marked complete:");
+                        System.out.println("  [X] " + missions.get(missionIndex));
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter a valid mission number.");
                 }
             } else {
                 missions.add(command);
+                completedMissions.add(false);
                 System.out.println("Mission added: " + command);
             }
             System.out.println(divider);
