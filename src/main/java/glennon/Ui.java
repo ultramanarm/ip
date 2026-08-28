@@ -87,7 +87,7 @@ public class Ui {
     /**
      * Displays every stored mission with its one-based position.
      *
-     * @param missions missions to display
+     * @param missions missions to display.
      */
     public void showMissionList(List<Task> missions) {
         System.out.println("Mission log:");
@@ -97,10 +97,22 @@ public class Ui {
     }
 
     /**
+     * Displays missions whose descriptions contain a search keyword.
+     *
+     * @param missions matching missions in their original order.
+     */
+    public void showMatchingMissions(List<Task> missions) {
+        System.out.println("Here are the matching tasks in your list:");
+        for (int i = 0; i < missions.size(); i++) {
+            System.out.println((i + 1) + "." + missions.get(i));
+        }
+    }
+
+    /**
      * Displays the deadlines and events occurring on a particular date.
      *
-     * @param date date selected by the user
-     * @param missions missions scheduled on that date
+     * @param date date selected by the user.
+     * @param missions missions scheduled on that date.
      */
     public void showScheduledMissions(LocalDate date, List<Task> missions) {
         System.out.println("Missions on " + date.format(DATE_DISPLAY_FORMAT) + ":");
@@ -112,8 +124,8 @@ public class Ui {
     /**
      * Confirms that a mission was added.
      *
-     * @param mission mission that was added
-     * @param missionCount number of missions now stored
+     * @param mission mission that was added.
+     * @param missionCount number of missions now stored.
      */
     public void showMissionAdded(Task mission, int missionCount) {
         System.out.println("Mission added: " + mission);
@@ -123,8 +135,8 @@ public class Ui {
     /**
      * Confirms that a mission was removed.
      *
-     * @param mission mission that was removed
-     * @param missionCount number of missions now stored
+     * @param mission mission that was removed.
+     * @param missionCount number of missions now stored.
      */
     public void showMissionRemoved(Task mission, int missionCount) {
         System.out.println("Mission removed:");
@@ -135,8 +147,8 @@ public class Ui {
     /**
      * Confirms that a mission's completion status changed.
      *
-     * @param mission mission whose status changed
-     * @param isComplete true when the mission was marked complete
+     * @param mission mission whose status changed.
+     * @param isComplete true when the mission was marked complete.
      */
     public void showMissionStatusChanged(Task mission, boolean isComplete) {
         System.out.println(isComplete
@@ -148,7 +160,7 @@ public class Ui {
     /**
      * Displays an error raised while carrying out a command.
      *
-     * @param message explanation shown to the user
+     * @param message explanation shown to the user.
      */
     public void showError(String message) {
         System.out.println("Mission control alert!");
@@ -165,7 +177,7 @@ public class Ui {
     /**
      * Displays the mission total using the correct singular or plural noun.
      *
-     * @param missionCount number of missions currently stored
+     * @param missionCount number of missions currently stored.
      */
     private void showMissionCount(int missionCount) {
         String missionLabel = missionCount == 1 ? "mission" : "missions";

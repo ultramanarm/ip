@@ -24,7 +24,7 @@ public class TaskList {
     /**
      * Creates a mission list containing missions loaded from storage.
      *
-     * @param missions missions to place in the log
+     * @param missions missions to place in the log.
      */
     public TaskList(List<Task> missions) {
         this.missions = new ArrayList<>(missions);
@@ -33,7 +33,7 @@ public class TaskList {
     /**
      * Adds a mission to the end of the log.
      *
-     * @param mission mission to store
+     * @param mission mission to store.
      */
     public void add(Task mission) {
         missions.add(mission);
@@ -42,7 +42,7 @@ public class TaskList {
     /**
      * Returns the mission at the given position.
      *
-     * @param missionIndex zero-based position of the mission
+     * @param missionIndex zero-based position of the mission.
      * @return the stored mission
      * @throws GlennonException if the position is outside the log
      */
@@ -54,7 +54,7 @@ public class TaskList {
     /**
      * Marks the mission at the specified position as complete.
      *
-     * @param missionIndex zero-based position of the mission
+     * @param missionIndex zero-based position of the mission.
      * @return mission whose status was changed
      * @throws GlennonException if the position is outside the log
      */
@@ -67,7 +67,7 @@ public class TaskList {
     /**
      * Marks the mission at the specified position as incomplete.
      *
-     * @param missionIndex zero-based position of the mission
+     * @param missionIndex zero-based position of the mission.
      * @return mission whose status was changed
      * @throws GlennonException if the position is outside the log
      */
@@ -80,7 +80,7 @@ public class TaskList {
     /**
      * Removes the mission at the given position and returns it.
      *
-     * @param missionIndex zero-based position of the mission
+     * @param missionIndex zero-based position of the mission.
      * @return the mission that was removed
      * @throws GlennonException if the position is outside the log
      */
@@ -108,10 +108,27 @@ public class TaskList {
     }
 
     /**
+     * Returns missions whose descriptions contain the specified keyword,
+     * preserving their order in the mission log.
+     *
+     * @param keyword case-sensitive keyword to find in mission descriptions.
+     * @return matching missions in insertion order.
+     */
+    public List<Task> findByDescription(String keyword) {
+        List<Task> matchingMissions = new ArrayList<>();
+        for (Task mission : missions) {
+            if (mission.getDescription().contains(keyword)) {
+                matchingMissions.add(mission);
+            }
+        }
+        return Collections.unmodifiableList(matchingMissions);
+    }
+
+    /**
      * Returns deadlines and events occurring on the specified date, preserving
      * their order in the mission log.
      *
-     * @param date date whose scheduled missions should be returned
+     * @param date date whose scheduled missions should be returned.
      * @return matching scheduled missions
      */
     public List<Task> occurringOn(LocalDate date) {
@@ -127,7 +144,7 @@ public class TaskList {
     /**
      * Rejects a position that no mission occupies.
      *
-     * @param missionIndex zero-based position to check
+     * @param missionIndex zero-based position to check.
      * @throws GlennonException if the position is outside the log
      */
     private void requireInRange(int missionIndex) throws GlennonException {
