@@ -20,6 +20,7 @@ public class Ui {
     private static final DateTimeFormatter DATE_DISPLAY_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu", Locale.ENGLISH);
 
+    /** Glennon title art displayed when a session starts. */
     private static final String BANNER = """
             +==========================================================+
             |                                                          |
@@ -32,6 +33,7 @@ public class Ui {
             +==========================================================+
             """;
 
+    /** Reads commands from standard input. */
     private final Scanner scanner;
 
     /**

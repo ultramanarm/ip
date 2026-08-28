@@ -8,7 +8,10 @@ import java.time.LocalDate;
  * never instantiated on its own.
  */
 public abstract class Task {
+    /** User-provided description of the mission. */
     private final String description;
+
+    /** Whether the mission has been completed. */
     private boolean isDone;
 
     /**

@@ -27,15 +27,34 @@ public final class Parser {
      * Identifies the command represented by a line of user input.
      */
     public enum CommandType {
+        /** Ends the current application session. */
         BYE("bye", false),
+
+        /** Displays every mission in the log. */
         LIST("list", false),
+
+        /** Displays scheduled missions occurring on a date. */
         ON("on", true),
+
+        /** Marks a mission as complete. */
         MARK("mark", true),
+
+        /** Marks a mission as incomplete. */
         UNMARK("unmark", true),
+
+        /** Removes a mission from the log. */
         DELETE("delete", true),
+
+        /** Adds a mission without a date or time. */
         TODO("todo", true),
+
+        /** Adds a mission with a completion deadline. */
         DEADLINE("deadline", true),
+
+        /** Adds a mission with a start and end time. */
         EVENT("event", true),
+
+        /** Represents input that does not match a supported command. */
         UNKNOWN("", false);
 
         /** Keyword entered by the user to invoke this command. */
