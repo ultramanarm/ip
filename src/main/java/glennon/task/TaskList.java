@@ -12,6 +12,7 @@ import java.util.List;
  * mission number, so callers cannot reach a position outside the log.
  */
 public class TaskList {
+    /** Missions stored in their display order. */
     private final List<Task> missions;
 
     /**

@@ -9,6 +9,12 @@ import glennon.task.TaskList;
  */
 public final class ListCommand extends Command {
     /**
+     * Creates a command that displays the current mission log.
+     */
+    public ListCommand() {
+    }
+
+    /**
      * Displays the current mission list without changing it.
      *
      * @param missions missions in the current session

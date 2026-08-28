@@ -26,6 +26,7 @@ public class Storage {
     /** Separates fields without conflicting with Base64-encoded task text. */
     private static final String FIELD_SEPARATOR = "\t";
 
+    /** Location of the mission data managed by this storage instance. */
     private final Path dataPath;
 
     /**

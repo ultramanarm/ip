@@ -10,6 +10,12 @@ import glennon.task.TaskList;
  */
 public abstract class Command {
     /**
+     * Creates a command for Glennon to execute.
+     */
+    public Command() {
+    }
+
+    /**
      * Executes this command using the application's collaborators.
      *
      * @param missions missions in the current session

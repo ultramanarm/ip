@@ -9,6 +9,12 @@ import glennon.task.TaskList;
  */
 public final class ExitCommand extends Command {
     /**
+     * Creates a command that ends the current session.
+     */
+    public ExitCommand() {
+    }
+
+    /**
      * Displays Glennon's goodbye message.
      *
      * @param missions missions in the current session
