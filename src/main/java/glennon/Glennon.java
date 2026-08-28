@@ -23,7 +23,16 @@ public class Glennon {
         Ui ui = new Ui();
         ui.showWelcome();
 
-        TaskList missions = new TaskList();
+        Storage storage = new Storage();
+        TaskList missions;
+        try {
+            missions = new TaskList(storage.loadMissions());
+        } catch (GlennonException e) {
+            ui.showError(e.getMessage());
+            ui.close();
+            return;
+        }
+
         boolean isSigningOff = false;
         while (!isSigningOff && ui.hasNextCommand()) {
             String command = ui.readCommand();
@@ -41,6 +50,7 @@ public class Glennon {
                 case DELETE -> {
                     int missionIndex = Parser.parseMissionIndex(command, commandType);
                     Task removedMission = missions.remove(missionIndex);
+                    storage.saveMissions(missions.asList());
                     ui.showMissionRemoved(removedMission, missions.size());
                 }
                 case MARK, UNMARK -> {
@@ -52,11 +62,15 @@ public class Glennon {
                     } else {
                         mission.markAsNotDone();
                     }
+                    storage.saveMissions(missions.asList());
                     ui.showMissionStatusChanged(mission, shouldCompleteMission);
                 }
-                case TODO -> addMission(missions, Parser.parseTodo(command), ui);
-                case DEADLINE -> addMission(missions, Parser.parseDeadline(command), ui);
-                case EVENT -> addMission(missions, Parser.parseEvent(command), ui);
+                case TODO -> addMission(
+                        missions, Parser.parseTodo(command), storage, ui);
+                case DEADLINE -> addMission(
+                        missions, Parser.parseDeadline(command), storage, ui);
+                case EVENT -> addMission(
+                        missions, Parser.parseEvent(command), storage, ui);
                 case UNKNOWN -> throw new GlennonException(
                         "Glennon doesn't recognize that command.\n"
                                 + "Try: todo, deadline, event, list, mark, unmark, "
@@ -76,10 +90,15 @@ public class Glennon {
      *
      * @param missions mission list for the current session
      * @param mission mission to add
+     * @param storage storage used to persist the updated mission list
      * @param ui interface used to confirm the addition
+     * @throws GlennonException if the updated mission list cannot be saved
      */
-    private static void addMission(TaskList missions, Task mission, Ui ui) {
+    private static void addMission(
+            TaskList missions, Task mission, Storage storage, Ui ui)
+            throws GlennonException {
         missions.add(mission);
+        storage.saveMissions(missions.asList());
         ui.showMissionAdded(mission, missions.size());
     }
 
