@@ -22,7 +22,7 @@ public class Glennon {
     /**
      * Creates a Glennon application using the specified data file.
      *
-     * @param dataPath path of the file used to persist missions
+     * @param dataPath path of the file used to persist missions.
      */
     public Glennon(String dataPath) {
         this.ui = new Ui();
@@ -67,7 +67,7 @@ public class Glennon {
     /**
      * Starts Glennon using its standard mission data file.
      *
-     * @param args command-line arguments; currently unused
+     * @param args command-line arguments; currently unused.
      */
     public static void main(String[] args) {
         new Glennon("data/glennon.txt").run();

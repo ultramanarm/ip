@@ -16,7 +16,7 @@ public final class AddCommand extends Command {
     /**
      * Creates a command that adds the specified mission.
      *
-     * @param mission parsed mission to add
+     * @param mission parsed mission to add.
      */
     public AddCommand(Task mission) {
         this.mission = mission;
@@ -25,9 +25,9 @@ public final class AddCommand extends Command {
     /**
      * Adds, saves, and displays the mission.
      *
-     * @param missions missions in the current session
-     * @param ui interface used to display the result
-     * @param storage storage used to persist the change
+     * @param missions missions in the current session.
+     * @param ui interface used to display the result.
+     * @param storage storage used to persist the change.
      * @throws GlennonException if the updated mission list cannot be saved
      */
     @Override

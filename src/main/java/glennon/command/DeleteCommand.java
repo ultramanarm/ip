@@ -16,7 +16,7 @@ public final class DeleteCommand extends Command {
     /**
      * Creates a mission-deletion command.
      *
-     * @param missionIndex zero-based position of the mission to delete
+     * @param missionIndex zero-based position of the mission to delete.
      */
     public DeleteCommand(int missionIndex) {
         this.missionIndex = missionIndex;
@@ -25,9 +25,9 @@ public final class DeleteCommand extends Command {
     /**
      * Removes, saves, and displays the selected mission.
      *
-     * @param missions missions in the current session
-     * @param ui interface used to display the result
-     * @param storage storage used to persist the change
+     * @param missions missions in the current session.
+     * @param ui interface used to display the result.
+     * @param storage storage used to persist the change.
      * @throws GlennonException if the index or save operation fails
      */
     @Override

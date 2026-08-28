@@ -11,7 +11,7 @@ public class GlennonException extends Exception {
     /**
      * Creates an exception with user-facing guidance.
      *
-     * @param message explanation of the input error and how to correct it
+     * @param message explanation of the input error and how to correct it.
      */
     public GlennonException(String message) {
         super(message);
@@ -20,8 +20,8 @@ public class GlennonException extends Exception {
     /**
      * Creates an exception that preserves the lower-level parsing failure.
      *
-     * @param message explanation of the input error and how to correct it
-     * @param cause parsing failure that caused this exception
+     * @param message explanation of the input error and how to correct it.
+     * @param cause parsing failure that caused this exception.
      */
     public GlennonException(String message, Throwable cause) {
         super(message, cause);
