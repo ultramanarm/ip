@@ -48,7 +48,11 @@ jar {
 }
 
 shadowJar {
-    archiveFileName = 'duke.jar'
+    archiveFileName = 'Glennon.jar'
+
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
 }
 
 run {

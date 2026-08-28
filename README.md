@@ -45,3 +45,30 @@ date. To-dos are excluded because they have no date:
 ```text
 on 2/12/2019
 ```
+
+## Creating an executable JAR
+
+The Shadow plugin packages Glennon and all of its runtime dependencies into one
+executable (or "fat") JAR. From the project root, run:
+
+```shell
+./gradlew clean shadowJar
+```
+
+On Windows, use `gradlew.bat clean shadowJar` instead. The generated file is:
+
+```text
+build/libs/Glennon.jar
+```
+
+To test the distributable in the same way as an end user, copy `Glennon.jar`
+into an empty folder, open a terminal in that folder, and run:
+
+```shell
+java -jar "Glennon.jar"
+```
+
+Glennon reads and writes its `data/glennon.txt` save file relative to the folder
+from which the JAR is run. The `build/` directory is ignored by Git, so the
+generated JAR should be attached to a GitHub release instead of committed to
+the repository.
