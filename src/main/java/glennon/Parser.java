@@ -47,8 +47,8 @@ public final class Parser {
         /**
          * Creates a command type with its keyword and argument policy.
          *
-         * @param keyword command keyword
-         * @param acceptsArguments whether text may follow the keyword
+         * @param keyword command keyword.
+         * @param acceptsArguments whether text may follow the keyword.
          */
         CommandType(String keyword, boolean acceptsArguments) {
             this.keyword = keyword;
@@ -58,7 +58,7 @@ public final class Parser {
         /**
          * Checks whether the input represents this command type.
          *
-         * @param input complete user input
+         * @param input complete user input.
          * @return true when the input starts with this command correctly
          */
         private boolean matches(String input) {
@@ -113,26 +113,26 @@ public final class Parser {
     /**
      * Converts one complete line of user input into an executable command.
      *
-     * @param input complete user input
+     * @param input complete user input.
      * @return command containing all parsed arguments
      * @throws GlennonException if the command or any argument is invalid
      */
     public static Command parse(String input) throws GlennonException {
         CommandType commandType = parseCommandType(input);
         return switch (commandType) {
-        case BYE -> new ExitCommand();
-        case LIST -> new ListCommand();
-        case ON -> new OnCommand(parseDate(input));
-        case MARK -> new MarkCommand(parseMissionIndex(input, commandType), true);
-        case UNMARK -> new MarkCommand(parseMissionIndex(input, commandType), false);
-        case DELETE -> new DeleteCommand(parseMissionIndex(input, commandType));
-        case TODO -> new AddCommand(parseTodo(input));
-        case DEADLINE -> new AddCommand(parseDeadline(input));
-        case EVENT -> new AddCommand(parseEvent(input));
-        case UNKNOWN -> throw new GlennonException(
-                "Glennon doesn't recognize that command.\n"
-                        + "Try: todo, deadline, event, list, on, mark, unmark, "
-                        + "delete, or bye.");
+            case BYE -> new ExitCommand();
+            case LIST -> new ListCommand();
+            case ON -> new OnCommand(parseDate(input));
+            case MARK -> new MarkCommand(parseMissionIndex(input, commandType), true);
+            case UNMARK -> new MarkCommand(parseMissionIndex(input, commandType), false);
+            case DELETE -> new DeleteCommand(parseMissionIndex(input, commandType));
+            case TODO -> new AddCommand(parseTodo(input));
+            case DEADLINE -> new AddCommand(parseDeadline(input));
+            case EVENT -> new AddCommand(parseEvent(input));
+            case UNKNOWN -> throw new GlennonException(
+                    "Glennon doesn't recognize that command.\n"
+                            + "Try: todo, deadline, event, list, on, mark, unmark, "
+                            + "delete, or bye.");
         };
     }
 
@@ -140,7 +140,7 @@ public final class Parser {
      * Identifies the command type while preserving Glennon's case-sensitive
      * command syntax.
      *
-     * @param input complete user input
+     * @param input complete user input.
      * @return matching command type, or {@link CommandType#UNKNOWN}
      */
     public static CommandType parseCommandType(String input) {
@@ -155,7 +155,7 @@ public final class Parser {
     /**
      * Parses a to-do command into a pending to-do mission.
      *
-     * @param input complete to-do command
+     * @param input complete to-do command.
      * @return parsed to-do mission
      * @throws GlennonException if the description is missing
      */
@@ -170,7 +170,7 @@ public final class Parser {
     /**
      * Parses a deadline command into a pending deadline mission.
      *
-     * @param input complete deadline command
+     * @param input complete deadline command.
      * @return parsed deadline mission
      * @throws GlennonException if the description or deadline is missing
      */
@@ -189,7 +189,7 @@ public final class Parser {
     /**
      * Parses an event command into a pending event mission.
      *
-     * @param input complete event command
+     * @param input complete event command.
      * @return parsed event mission
      * @throws GlennonException if its description, start, or end is missing
      */
@@ -221,8 +221,8 @@ public final class Parser {
      * Converts a command's one-based mission number into a zero-based index.
      * The caller checks the index against the stored missions.
      *
-     * @param input complete command containing the mission number
-     * @param commandType command whose arguments contain the number
+     * @param input complete command containing the mission number.
+     * @param commandType command whose arguments contain the number.
      * @return zero-based mission index
      * @throws GlennonException if the number is missing or not an integer
      */
@@ -239,7 +239,7 @@ public final class Parser {
     /**
      * Parses the date supplied to an {@code on} command.
      *
-     * @param input complete date-filter command
+     * @param input complete date-filter command.
      * @return parsed calendar date
      * @throws GlennonException if the date is missing, malformed, or impossible
      */
@@ -255,8 +255,8 @@ public final class Parser {
     /**
      * Removes a recognized command's keyword and surrounding argument spaces.
      *
-     * @param input complete user input
-     * @param commandType recognized command type
+     * @param input complete user input.
+     * @param commandType recognized command type.
      * @return trimmed command arguments
      */
     private static String parseArguments(String input, CommandType commandType) {
@@ -266,7 +266,7 @@ public final class Parser {
     /**
      * Converts a user-entered date-time into a strongly typed value.
      *
-     * @param value date-time text in {@code d/M/yyyy HHmm} format
+     * @param value date-time text in {@code d/M/yyyy HHmm} format.
      * @return parsed date and time
      * @throws GlennonException if the value is malformed or is not a real date
      */

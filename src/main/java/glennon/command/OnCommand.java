@@ -16,7 +16,7 @@ public final class OnCommand extends Command {
     /**
      * Creates a date-filter command.
      *
-     * @param date date whose missions should be displayed
+     * @param date date whose missions should be displayed.
      */
     public OnCommand(LocalDate date) {
         this.date = date;
@@ -25,9 +25,9 @@ public final class OnCommand extends Command {
     /**
      * Displays deadlines and events occurring on the selected date.
      *
-     * @param missions missions in the current session
-     * @param ui interface used to display the result
-     * @param storage storage used by the application
+     * @param missions missions in the current session.
+     * @param ui interface used to display the result.
+     * @param storage storage used by the application.
      */
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage) {

@@ -12,9 +12,9 @@ public abstract class Command {
     /**
      * Executes this command using the application's collaborators.
      *
-     * @param missions missions in the current session
-     * @param ui interface used to display the result
-     * @param storage storage used when persistent state changes
+     * @param missions missions in the current session.
+     * @param ui interface used to display the result.
+     * @param storage storage used when persistent state changes.
      * @throws GlennonException if the command cannot be completed
      */
     public abstract void execute(TaskList missions, Ui ui, Storage storage)

@@ -19,8 +19,8 @@ public final class MarkCommand extends Command {
     /**
      * Creates a mission-status command.
      *
-     * @param missionIndex zero-based position of the mission
-     * @param shouldCompleteMission true to mark complete, false to mark incomplete
+     * @param missionIndex zero-based position of the mission.
+     * @param shouldCompleteMission true to mark complete, false to mark incomplete.
      */
     public MarkCommand(int missionIndex, boolean shouldCompleteMission) {
         this.missionIndex = missionIndex;
@@ -30,9 +30,9 @@ public final class MarkCommand extends Command {
     /**
      * Updates, saves, and displays the selected mission.
      *
-     * @param missions missions in the current session
-     * @param ui interface used to display the result
-     * @param storage storage used to persist the change
+     * @param missions missions in the current session.
+     * @param ui interface used to display the result.
+     * @param storage storage used to persist the change.
      * @throws GlennonException if the index or save operation fails
      */
     @Override

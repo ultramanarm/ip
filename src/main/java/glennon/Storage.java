@@ -38,7 +38,7 @@ public class Storage {
     /**
      * Creates storage that uses the specified data file.
      *
-     * @param dataPath path of the data file
+     * @param dataPath path of the data file.
      */
     public Storage(Path dataPath) {
         this.dataPath = dataPath;
@@ -72,7 +72,7 @@ public class Storage {
      * Replaces the data file with the specified missions, creating its parent
      * folder when necessary.
      *
-     * @param missions missions to save
+     * @param missions missions to save.
      * @throws GlennonException if the folder or data file cannot be written
      */
     public void saveMissions(List<Task> missions) throws GlennonException {
@@ -95,7 +95,7 @@ public class Storage {
     /**
      * Converts one task into Glennon's storage format.
      *
-     * @param mission mission to convert
+     * @param mission mission to convert.
      * @return storage-ready line
      * @throws GlennonException if the task type is unsupported
      */
@@ -128,8 +128,8 @@ public class Storage {
     /**
      * Converts one stored line into its task subtype and completion state.
      *
-     * @param line stored mission data
-     * @param lineNumber one-based line number used in error messages
+     * @param line stored mission data.
+     * @param lineNumber one-based line number used in error messages.
      * @return restored mission
      * @throws GlennonException if the line is not valid mission data
      */
@@ -138,14 +138,14 @@ public class Storage {
             String[] fields = line.split(FIELD_SEPARATOR, -1);
             requireFieldCount(fields);
             Task mission = switch (fields[0]) {
-            case "T" -> new Todo(decode(fields[2]));
-            case "D" -> new Deadline(
-                    decode(fields[2]), LocalDateTime.parse(decode(fields[3])));
-            case "E" -> new Event(
-                    decode(fields[2]),
-                    LocalDateTime.parse(decode(fields[3])),
-                    LocalDateTime.parse(decode(fields[4])));
-            default -> throw new IllegalArgumentException();
+                case "T" -> new Todo(decode(fields[2]));
+                case "D" -> new Deadline(
+                        decode(fields[2]), LocalDateTime.parse(decode(fields[3])));
+                case "E" -> new Event(
+                        decode(fields[2]),
+                        LocalDateTime.parse(decode(fields[3])),
+                        LocalDateTime.parse(decode(fields[4])));
+                default -> throw new IllegalArgumentException();
             };
 
             if (fields[1].equals("1")) {
@@ -164,7 +164,7 @@ public class Storage {
      * Checks that a stored mission has the number of fields required by its
      * type marker.
      *
-     * @param fields stored mission fields
+     * @param fields stored mission fields.
      */
     private void requireFieldCount(String[] fields) {
         if (fields.length < 1
@@ -178,7 +178,7 @@ public class Storage {
     /**
      * Encodes user-provided text so field separators remain unambiguous.
      *
-     * @param value text to encode
+     * @param value text to encode.
      * @return Base64-encoded text
      */
     private String encode(String value) {
@@ -188,7 +188,7 @@ public class Storage {
     /**
      * Decodes text stored in one mission field.
      *
-     * @param value Base64-encoded text
+     * @param value Base64-encoded text.
      * @return decoded user-provided text
      */
     private String decode(String value) {

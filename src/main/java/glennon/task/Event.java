@@ -22,9 +22,9 @@ public class Event extends Task {
     /**
      * Creates a pending event task with the given description and time range.
      *
-     * @param description description of the event
-     * @param from date and time when the event starts
-     * @param to date and time when the event ends
+     * @param description description of the event.
+     * @param from date and time when the event starts.
+     * @param to date and time when the event ends.
      */
     public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
@@ -54,7 +54,7 @@ public class Event extends Task {
      * Checks whether any part of this event occurs on the given date. Both the
      * start and end dates are included for events spanning multiple days.
      *
-     * @param date date to check
+     * @param date date to check.
      * @return true when the event overlaps that date
      */
     @Override

@@ -14,7 +14,7 @@ public abstract class Task {
     /**
      * Creates a pending task with the given description.
      *
-     * @param description description of the mission
+     * @param description description of the mission.
      */
     protected Task(String description) {
         this.description = description;
@@ -66,7 +66,7 @@ public abstract class Task {
      * Checks whether this task is scheduled on a particular date. Tasks with
      * no date are not scheduled on any date by default.
      *
-     * @param date date to check
+     * @param date date to check.
      * @return true when this task occurs on the given date
      */
     public boolean occursOn(LocalDate date) {

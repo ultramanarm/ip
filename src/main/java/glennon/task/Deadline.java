@@ -19,8 +19,8 @@ public class Deadline extends Task {
     /**
      * Creates a pending deadline task with the given description and deadline.
      *
-     * @param description description of the task
-     * @param by date and time by which the task should be completed
+     * @param description description of the task.
+     * @param by date and time by which the task should be completed.
      */
     public Deadline(String description, LocalDateTime by) {
         super(description);
@@ -39,7 +39,7 @@ public class Deadline extends Task {
     /**
      * Checks whether this deadline is due on the given date.
      *
-     * @param date date to check
+     * @param date date to check.
      * @return true when the deadline is due on that date
      */
     @Override
