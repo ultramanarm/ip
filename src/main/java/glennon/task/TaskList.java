@@ -1,7 +1,6 @@
-package glennon;
+package glennon.task;
 
 import glennon.exception.GlennonException;
-import glennon.task.Task;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

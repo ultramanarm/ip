@@ -1,9 +1,9 @@
 package glennon.command;
 
 import glennon.Storage;
-import glennon.TaskList;
 import glennon.Ui;
 import glennon.exception.GlennonException;
+import glennon.task.TaskList;
 
 /**
  * Represents one parsed user instruction that can act on the application.
