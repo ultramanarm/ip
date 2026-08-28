@@ -29,6 +29,24 @@ public abstract class Task {
     }
 
     /**
+     * Returns the description supplied for this task.
+     *
+     * @return task description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Checks whether this task has been completed.
+     *
+     * @return true when the task is complete
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /**
      * Marks this task as complete.
      */
     public void markAsDone() {

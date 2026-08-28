@@ -12,12 +12,22 @@ import java.util.List;
  * mission number, so callers cannot reach a position outside the log.
  */
 public class TaskList {
-    private final List<Task> missions = new ArrayList<>();
+    private final List<Task> missions;
 
     /**
      * Creates an empty mission list for a new Glennon session.
      */
     public TaskList() {
+        this(Collections.emptyList());
+    }
+
+    /**
+     * Creates a mission list containing missions loaded from storage.
+     *
+     * @param missions missions to place in the log
+     */
+    public TaskList(List<Task> missions) {
+        this.missions = new ArrayList<>(missions);
     }
 
     /**
