@@ -1,5 +1,12 @@
 package glennon;
 
+import glennon.command.AddCommand;
+import glennon.command.Command;
+import glennon.command.DeleteCommand;
+import glennon.command.ExitCommand;
+import glennon.command.ListCommand;
+import glennon.command.MarkCommand;
+import glennon.command.OnCommand;
 import glennon.exception.GlennonException;
 import glennon.task.Deadline;
 import glennon.task.Event;
@@ -101,6 +108,32 @@ public final class Parser {
 
     /** Prevents creation of this stateless utility class. */
     private Parser() {
+    }
+
+    /**
+     * Converts one complete line of user input into an executable command.
+     *
+     * @param input complete user input
+     * @return command containing all parsed arguments
+     * @throws GlennonException if the command or any argument is invalid
+     */
+    public static Command parse(String input) throws GlennonException {
+        CommandType commandType = parseCommandType(input);
+        return switch (commandType) {
+        case BYE -> new ExitCommand();
+        case LIST -> new ListCommand();
+        case ON -> new OnCommand(parseDate(input));
+        case MARK -> new MarkCommand(parseMissionIndex(input, commandType), true);
+        case UNMARK -> new MarkCommand(parseMissionIndex(input, commandType), false);
+        case DELETE -> new DeleteCommand(parseMissionIndex(input, commandType));
+        case TODO -> new AddCommand(parseTodo(input));
+        case DEADLINE -> new AddCommand(parseDeadline(input));
+        case EVENT -> new AddCommand(parseEvent(input));
+        case UNKNOWN -> throw new GlennonException(
+                "Glennon doesn't recognize that command.\n"
+                        + "Try: todo, deadline, event, list, on, mark, unmark, "
+                        + "delete, or bye.");
+        };
     }
 
     /**

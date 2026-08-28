@@ -53,6 +53,32 @@ public class TaskList {
     }
 
     /**
+     * Marks the mission at the specified position as complete.
+     *
+     * @param missionIndex zero-based position of the mission
+     * @return mission whose status was changed
+     * @throws GlennonException if the position is outside the log
+     */
+    public Task mark(int missionIndex) throws GlennonException {
+        Task mission = get(missionIndex);
+        mission.markAsDone();
+        return mission;
+    }
+
+    /**
+     * Marks the mission at the specified position as incomplete.
+     *
+     * @param missionIndex zero-based position of the mission
+     * @return mission whose status was changed
+     * @throws GlennonException if the position is outside the log
+     */
+    public Task unmark(int missionIndex) throws GlennonException {
+        Task mission = get(missionIndex);
+        mission.markAsNotDone();
+        return mission;
+    }
+
+    /**
      * Removes the mission at the given position and returns it.
      *
      * @param missionIndex zero-based position of the mission

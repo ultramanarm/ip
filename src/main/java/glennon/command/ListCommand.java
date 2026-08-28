@@ -1,0 +1,22 @@
+package glennon.command;
+
+import glennon.Storage;
+import glennon.TaskList;
+import glennon.Ui;
+
+/**
+ * Displays every mission in the mission log.
+ */
+public final class ListCommand extends Command {
+    /**
+     * Displays the current mission list without changing it.
+     *
+     * @param missions missions in the current session
+     * @param ui interface used to display the result
+     * @param storage storage used by the application
+     */
+    @Override
+    public void execute(TaskList missions, Ui ui, Storage storage) {
+        ui.showMissionList(missions.asList());
+    }
+}
