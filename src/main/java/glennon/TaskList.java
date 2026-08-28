@@ -3,6 +3,7 @@ package glennon;
 import glennon.exception.GlennonException;
 import glennon.task.Task;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,6 +80,23 @@ public class TaskList {
      */
     public List<Task> asList() {
         return Collections.unmodifiableList(missions);
+    }
+
+    /**
+     * Returns deadlines and events occurring on the specified date, preserving
+     * their order in the mission log.
+     *
+     * @param date date whose scheduled missions should be returned
+     * @return matching scheduled missions
+     */
+    public List<Task> occurringOn(LocalDate date) {
+        List<Task> matchingMissions = new ArrayList<>();
+        for (Task mission : missions) {
+            if (mission.occursOn(date)) {
+                matchingMissions.add(mission);
+            }
+        }
+        return Collections.unmodifiableList(matchingMissions);
     }
 
     /**

@@ -1,5 +1,6 @@
 package glennon.task;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -47,6 +48,20 @@ public class Event extends Task {
      */
     public LocalDateTime getTo() {
         return to;
+    }
+
+    /**
+     * Checks whether any part of this event occurs on the given date. Both the
+     * start and end dates are included for events spanning multiple days.
+     *
+     * @param date date to check
+     * @return true when the event overlaps that date
+     */
+    @Override
+    public boolean occursOn(LocalDate date) {
+        LocalDate startDate = from.toLocalDate();
+        LocalDate endDate = to.toLocalDate();
+        return !date.isBefore(startDate) && !date.isAfter(endDate);
     }
 
     /**

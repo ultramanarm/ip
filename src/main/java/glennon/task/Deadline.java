@@ -1,5 +1,6 @@
 package glennon.task;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -33,6 +34,17 @@ public class Deadline extends Task {
      */
     public LocalDateTime getBy() {
         return by;
+    }
+
+    /**
+     * Checks whether this deadline is due on the given date.
+     *
+     * @param date date to check
+     * @return true when the deadline is due on that date
+     */
+    @Override
+    public boolean occursOn(LocalDate date) {
+        return by.toLocalDate().equals(date);
     }
 
     /**

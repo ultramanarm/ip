@@ -1,5 +1,7 @@
 package glennon.task;
 
+import java.time.LocalDate;
+
 /**
  * Represents a mission tracked by Glennon and its completion status.
  * Subclasses supply the type marker shown to the user, so this class is
@@ -58,6 +60,17 @@ public abstract class Task {
      */
     public void markAsNotDone() {
         isDone = false;
+    }
+
+    /**
+     * Checks whether this task is scheduled on a particular date. Tasks with
+     * no date are not scheduled on any date by default.
+     *
+     * @param date date to check
+     * @return true when this task occurs on the given date
+     */
+    public boolean occursOn(LocalDate date) {
+        return false;
     }
 
     /**

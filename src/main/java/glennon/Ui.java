@@ -2,6 +2,9 @@ package glennon;
 
 import glennon.task.Task;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,6 +15,10 @@ import java.util.Scanner;
 public class Ui {
     /** Horizontal rule printed around each response. */
     private static final String DIVIDER = "_".repeat(60);
+
+    /** Format used in headings for date-filter results. */
+    private static final DateTimeFormatter DATE_DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d uuuu", Locale.ENGLISH);
 
     private static final String BANNER = """
             +==========================================================+
@@ -84,6 +91,19 @@ public class Ui {
      */
     public void showMissionList(List<Task> missions) {
         System.out.println("Mission log:");
+        for (int i = 0; i < missions.size(); i++) {
+            System.out.println((i + 1) + ". " + missions.get(i));
+        }
+    }
+
+    /**
+     * Displays the deadlines and events occurring on a particular date.
+     *
+     * @param date date selected by the user
+     * @param missions missions scheduled on that date
+     */
+    public void showScheduledMissions(LocalDate date, List<Task> missions) {
+        System.out.println("Missions on " + date.format(DATE_DISPLAY_FORMAT) + ":");
         for (int i = 0; i < missions.size(); i++) {
             System.out.println((i + 1) + ". " + missions.get(i));
         }

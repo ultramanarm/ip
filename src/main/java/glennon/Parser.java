@@ -5,6 +5,7 @@ import glennon.task.Deadline;
 import glennon.task.Event;
 import glennon.task.Todo;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -21,6 +22,7 @@ public final class Parser {
     public enum CommandType {
         BYE("bye", false),
         LIST("list", false),
+        ON("on", true),
         MARK("mark", true),
         UNMARK("unmark", true),
         DELETE("delete", true),
@@ -72,9 +74,18 @@ public final class Parser {
             DateTimeFormatter.ofPattern("d/M/uuuu HHmm")
                     .withResolverStyle(ResolverStyle.STRICT);
 
+    /** Format accepted by the date-filter command. */
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern("d/M/uuuu")
+                    .withResolverStyle(ResolverStyle.STRICT);
+
     /** Guidance shown when a date-time value is invalid. */
     private static final String DATE_TIME_USAGE =
             "Please enter dates as d/M/yyyy HHmm, for example 2/12/2019 1800.";
+
+    /** Guidance shown when a date-filter value is invalid. */
+    private static final String DATE_USAGE =
+            "Please enter a date as d/M/yyyy, for example 2/12/2019.";
 
     /** Error shown when an event ends before it starts. */
     private static final String EVENT_ORDER_ERROR =
@@ -189,6 +200,22 @@ public final class Parser {
             return Integer.parseInt(missionNumber) - 1;
         } catch (NumberFormatException e) {
             throw new GlennonException("Please enter a valid mission number.", e);
+        }
+    }
+
+    /**
+     * Parses the date supplied to an {@code on} command.
+     *
+     * @param input complete date-filter command
+     * @return parsed calendar date
+     * @throws GlennonException if the date is missing, malformed, or impossible
+     */
+    public static LocalDate parseDate(String input) throws GlennonException {
+        String value = parseArguments(input, CommandType.ON);
+        try {
+            return LocalDate.parse(value, DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new GlennonException(DATE_USAGE, e);
         }
     }
 

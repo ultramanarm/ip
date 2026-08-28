@@ -38,3 +38,10 @@ Glennon displays those date-times in a more readable format:
 
 An event may start and end at the same date-time, but its end cannot be before
 its start.
+
+Use `on d/M/yyyy` to list deadlines due on a date and events that overlap that
+date. To-dos are excluded because they have no date:
+
+```text
+on 2/12/2019
+```
