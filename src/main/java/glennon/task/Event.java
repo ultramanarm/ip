@@ -1,44 +1,51 @@
 package glennon.task;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 /**
- * Represents a task that occurs between user-provided start and end times.
- * The time values are stored as text without date or time parsing.
+ * Represents a task that occurs between specified start and end date-times.
  */
 public class Event extends Task {
-    /** Event start text supplied by the user. */
-    private final String from;
+    /** Format used when showing event boundaries to the user. */
+    private static final DateTimeFormatter DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a", Locale.ENGLISH);
 
-    /** Event end text supplied by the user. */
-    private final String to;
+    /** Date and time when the event starts. */
+    private final LocalDateTime from;
+
+    /** Date and time when the event ends. */
+    private final LocalDateTime to;
 
     /**
      * Creates a pending event task with the given description and time range.
      *
      * @param description description of the event
-     * @param from date or time when the event starts
-     * @param to date or time when the event ends
+     * @param from date and time when the event starts
+     * @param to date and time when the event ends
      */
-    public Event(String description, String from, String to) {
+    public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
         this.from = from;
         this.to = to;
     }
 
     /**
-     * Returns the start text supplied for this event.
+     * Returns the event's start date and time.
      *
-     * @return event start text
+     * @return event start date and time
      */
-    public String getFrom() {
+    public LocalDateTime getFrom() {
         return from;
     }
 
     /**
-     * Returns the end text supplied for this event.
+     * Returns the event's end date and time.
      *
-     * @return event end text
+     * @return event end date and time
      */
-    public String getTo() {
+    public LocalDateTime getTo() {
         return to;
     }
 
@@ -46,10 +53,13 @@ public class Event extends Task {
      * Returns the task with its type, completion status, and time range.
      *
      * @return display-ready text such as
-     *         {@code [E][ ] project meeting (from: Mon 2pm to: 4pm)}
+     *         {@code [E][ ] meeting (from: Dec 2 2019, 2:00 PM
+     *         to: Dec 2 2019, 4:00 PM)}
      */
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+        return "[E]" + super.toString()
+                + " (from: " + from.format(DISPLAY_FORMAT)
+                + " to: " + to.format(DISPLAY_FORMAT) + ")";
     }
 }
