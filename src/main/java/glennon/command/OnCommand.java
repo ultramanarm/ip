@@ -1,8 +1,8 @@
 package glennon.command;
 
 import glennon.Storage;
-import glennon.TaskList;
 import glennon.Ui;
+import glennon.task.TaskList;
 
 import java.time.LocalDate;
 

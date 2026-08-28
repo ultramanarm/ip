@@ -2,6 +2,7 @@ package glennon;
 
 import glennon.command.Command;
 import glennon.exception.GlennonException;
+import glennon.task.TaskList;
 
 import java.nio.file.Path;
 
