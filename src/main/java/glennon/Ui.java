@@ -99,6 +99,18 @@ public class Ui {
     }
 
     /**
+     * Displays missions whose descriptions contain a search keyword.
+     *
+     * @param missions matching missions in their original order.
+     */
+    public void showMatchingMissions(List<Task> missions) {
+        System.out.println("Here are the matching tasks in your list:");
+        for (int i = 0; i < missions.size(); i++) {
+            System.out.println((i + 1) + "." + missions.get(i));
+        }
+    }
+
+    /**
      * Displays the deadlines and events occurring on a particular date.
      *
      * @param date date selected by the user.

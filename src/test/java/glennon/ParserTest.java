@@ -22,6 +22,7 @@ class ParserTest {
     void parseCommandType_validCommands_returnsMatchingTypes() {
         assertEquals(Parser.CommandType.BYE, Parser.parseCommandType("bye"));
         assertEquals(Parser.CommandType.LIST, Parser.parseCommandType("list"));
+        assertEquals(Parser.CommandType.FIND, Parser.parseCommandType("find book"));
         assertEquals(Parser.CommandType.TODO, Parser.parseCommandType("todo read book"));
         assertEquals(Parser.CommandType.DEADLINE,
                 Parser.parseCommandType("deadline submit report /by 2/12/2019 1800"));
@@ -49,6 +50,19 @@ class ParserTest {
                 GlennonException.class, () -> Parser.parseTodo("todo   "));
 
         assertEquals("Please enter a mission after todo.", exception.getMessage());
+    }
+
+    @Test
+    void parseKeyword_validKeyword_returnsTrimmedText() throws GlennonException {
+        assertEquals("project book", Parser.parseKeyword("find   project book   "));
+    }
+
+    @Test
+    void parseKeyword_missingKeyword_throwsHelpfulException() {
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> Parser.parseKeyword("find   "));
+
+        assertEquals("Please enter a keyword after find.", exception.getMessage());
     }
 
     @Test
@@ -145,6 +159,7 @@ class ParserTest {
     @Test
     void parse_taskCommands_returnsExecutableCommand() throws GlennonException {
         assertInstanceOf(glennon.command.AddCommand.class, Parser.parse("todo read book"));
+        assertInstanceOf(glennon.command.FindCommand.class, Parser.parse("find book"));
         assertInstanceOf(glennon.command.MarkCommand.class, Parser.parse("mark 1"));
         assertInstanceOf(glennon.command.OnCommand.class, Parser.parse("on 2/12/2019"));
     }
@@ -155,7 +170,8 @@ class ParserTest {
                 GlennonException.class, () -> Parser.parse("launch rocket"));
 
         assertEquals("Glennon doesn't recognize that command.\n"
-                        + "Try: todo, deadline, event, list, on, mark, unmark, delete, or bye.",
+                        + "Try: todo, deadline, event, list, find, on, mark, unmark, "
+                        + "delete, or bye.",
                 exception.getMessage());
     }
 }

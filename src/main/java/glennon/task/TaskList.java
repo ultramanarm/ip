@@ -109,6 +109,23 @@ public class TaskList {
     }
 
     /**
+     * Returns missions whose descriptions contain the specified keyword,
+     * preserving their order in the mission log.
+     *
+     * @param keyword case-sensitive keyword to find in mission descriptions.
+     * @return matching missions in insertion order.
+     */
+    public List<Task> findByDescription(String keyword) {
+        List<Task> matchingMissions = new ArrayList<>();
+        for (Task mission : missions) {
+            if (mission.getDescription().contains(keyword)) {
+                matchingMissions.add(mission);
+            }
+        }
+        return Collections.unmodifiableList(matchingMissions);
+    }
+
+    /**
      * Returns deadlines and events occurring on the specified date, preserving
      * their order in the mission log.
      *

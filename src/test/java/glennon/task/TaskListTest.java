@@ -81,6 +81,34 @@ class TaskListTest {
     }
 
     @Test
+    void findByDescription_mixedTasks_returnsSubstringMatchesInOriginalOrder() {
+        Todo todo = new Todo("read book");
+        Deadline deadline = new Deadline(
+                "return book", LocalDateTime.of(2026, 9, 1, 18, 0));
+        Event event = new Event(
+                "book club",
+                LocalDateTime.of(2026, 9, 2, 14, 0),
+                LocalDateTime.of(2026, 9, 2, 16, 0));
+        Todo unrelated = new Todo("buy groceries");
+        TaskList missions = new TaskList(List.of(todo, deadline, event, unrelated));
+
+        assertEquals(List.of(todo, deadline, event), missions.findByDescription("book"));
+    }
+
+    @Test
+    void findByDescription_caseMismatch_returnsUnmodifiableEmptyList() {
+        Todo todo = new Todo("read book");
+        TaskList missions = new TaskList(List.of(todo));
+
+        List<Task> matches = missions.findByDescription("Book");
+
+        assertTrue(matches.isEmpty());
+        assertThrows(UnsupportedOperationException.class,
+                () -> matches.add(new Todo("intruder")));
+        assertEquals(List.of(todo), missions.asList());
+    }
+
+    @Test
     void occurringOn_mixedTasks_returnsScheduledMatchesInOriginalOrder() {
         LocalDate target = LocalDate.of(2026, 8, 29);
         Todo todo = new Todo("unscheduled");
