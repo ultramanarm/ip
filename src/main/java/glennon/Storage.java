@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -106,7 +107,11 @@ public class Storage {
         }
         if (mission instanceof Deadline deadline) {
             return String.join(
-                    FIELD_SEPARATOR, "D", status, description, encode(deadline.getBy()));
+                    FIELD_SEPARATOR,
+                    "D",
+                    status,
+                    description,
+                    encode(deadline.getBy().toString()));
         }
         if (mission instanceof Event event) {
             return String.join(
@@ -114,8 +119,8 @@ public class Storage {
                     "E",
                     status,
                     description,
-                    encode(event.getFrom()),
-                    encode(event.getTo()));
+                    encode(event.getFrom().toString()),
+                    encode(event.getTo().toString()));
         }
         throw new GlennonException("Glennon cannot save an unsupported mission type.");
     }
@@ -134,8 +139,12 @@ public class Storage {
             requireFieldCount(fields);
             Task mission = switch (fields[0]) {
             case "T" -> new Todo(decode(fields[2]));
-            case "D" -> new Deadline(decode(fields[2]), decode(fields[3]));
-            case "E" -> new Event(decode(fields[2]), decode(fields[3]), decode(fields[4]));
+            case "D" -> new Deadline(
+                    decode(fields[2]), LocalDateTime.parse(decode(fields[3])));
+            case "E" -> new Event(
+                    decode(fields[2]),
+                    LocalDateTime.parse(decode(fields[3])),
+                    LocalDateTime.parse(decode(fields[4])));
             default -> throw new IllegalArgumentException();
             };
 

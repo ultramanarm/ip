@@ -47,6 +47,10 @@ public class Glennon {
                     isSigningOff = true;
                 }
                 case LIST -> ui.showMissionList(missions.asList());
+                case ON -> {
+                    var date = Parser.parseDate(command);
+                    ui.showScheduledMissions(date, missions.occurringOn(date));
+                }
                 case DELETE -> {
                     int missionIndex = Parser.parseMissionIndex(command, commandType);
                     Task removedMission = missions.remove(missionIndex);
@@ -73,7 +77,7 @@ public class Glennon {
                         missions, Parser.parseEvent(command), storage, ui);
                 case UNKNOWN -> throw new GlennonException(
                         "Glennon doesn't recognize that command.\n"
-                                + "Try: todo, deadline, event, list, mark, unmark, "
+                                + "Try: todo, deadline, event, list, on, mark, unmark, "
                                 + "delete, or bye.");
                 }
             } catch (GlennonException e) {

@@ -5,6 +5,12 @@ import glennon.task.Deadline;
 import glennon.task.Event;
 import glennon.task.Todo;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+
 /**
  * Recognizes Glennon commands and converts their arguments into values used by
  * the application.
@@ -16,6 +22,7 @@ public final class Parser {
     public enum CommandType {
         BYE("bye", false),
         LIST("list", false),
+        ON("on", true),
         MARK("mark", true),
         UNMARK("unmark", true),
         DELETE("delete", true),
@@ -62,13 +69,35 @@ public final class Parser {
     /** Separates an event's start time from its end time. */
     private static final String TO_SEPARATOR = " /to ";
 
+    /** Format accepted for deadline and event date-times. */
+    private static final DateTimeFormatter DATE_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("d/M/uuuu HHmm")
+                    .withResolverStyle(ResolverStyle.STRICT);
+
+    /** Format accepted by the date-filter command. */
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern("d/M/uuuu")
+                    .withResolverStyle(ResolverStyle.STRICT);
+
+    /** Guidance shown when a date-time value is invalid. */
+    private static final String DATE_TIME_USAGE =
+            "Please enter dates as d/M/yyyy HHmm, for example 2/12/2019 1800.";
+
+    /** Guidance shown when a date-filter value is invalid. */
+    private static final String DATE_USAGE =
+            "Please enter a date as d/M/yyyy, for example 2/12/2019.";
+
+    /** Error shown when an event ends before it starts. */
+    private static final String EVENT_ORDER_ERROR =
+            "The event end must not be before its start.";
+
     /** Guidance shown when a deadline command cannot be parsed. */
     private static final String DEADLINE_USAGE =
-            "Use: deadline <mission> /by <date or time>.";
+            "Use: deadline <mission> /by <d/M/yyyy HHmm>.";
 
     /** Guidance shown when an event command cannot be parsed. */
     private static final String EVENT_USAGE =
-            "Use: event <mission> /from <start> /to <end>.";
+            "Use: event <mission> /from <d/M/yyyy HHmm> /to <d/M/yyyy HHmm>.";
 
     /** Prevents creation of this stateless utility class. */
     private Parser() {
@@ -121,7 +150,7 @@ public final class Parser {
         }
         String description = details.substring(0, bySeparatorIndex).trim();
         String by = details.substring(bySeparatorIndex + BY_SEPARATOR.length()).trim();
-        return new Deadline(description, by);
+        return new Deadline(description, parseDateTime(by));
     }
 
     /**
@@ -147,7 +176,12 @@ public final class Parser {
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
             throw new GlennonException(EVENT_USAGE);
         }
-        return new Event(description, from, to);
+        LocalDateTime start = parseDateTime(from);
+        LocalDateTime end = parseDateTime(to);
+        if (end.isBefore(start)) {
+            throw new GlennonException(EVENT_ORDER_ERROR);
+        }
+        return new Event(description, start, end);
     }
 
     /**
@@ -170,6 +204,22 @@ public final class Parser {
     }
 
     /**
+     * Parses the date supplied to an {@code on} command.
+     *
+     * @param input complete date-filter command
+     * @return parsed calendar date
+     * @throws GlennonException if the date is missing, malformed, or impossible
+     */
+    public static LocalDate parseDate(String input) throws GlennonException {
+        String value = parseArguments(input, CommandType.ON);
+        try {
+            return LocalDate.parse(value, DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new GlennonException(DATE_USAGE, e);
+        }
+    }
+
+    /**
      * Removes a recognized command's keyword and surrounding argument spaces.
      *
      * @param input complete user input
@@ -178,5 +228,20 @@ public final class Parser {
      */
     private static String parseArguments(String input, CommandType commandType) {
         return input.substring(commandType.keyword.length()).trim();
+    }
+
+    /**
+     * Converts a user-entered date-time into a strongly typed value.
+     *
+     * @param value date-time text in {@code d/M/yyyy HHmm} format
+     * @return parsed date and time
+     * @throws GlennonException if the value is malformed or is not a real date
+     */
+    private static LocalDateTime parseDateTime(String value) throws GlennonException {
+        try {
+            return LocalDateTime.parse(value, DATE_TIME_FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new GlennonException(DATE_TIME_USAGE, e);
+        }
     }
 }

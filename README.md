@@ -16,3 +16,32 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
 1. After that, locate the `src/main/java/glennon/Glennon.java` file, right-click it, and choose `Run Glennon.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, you should see Glennon's startup banner followed by `Hey there! Glennon online.`
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+
+## Dates and times
+
+Deadline and event date-times use the `d/M/yyyy HHmm` format. The time uses a
+24-hour clock, so `1800` means 6:00 PM.
+
+For example:
+
+```text
+deadline return book /by 2/12/2019 1800
+event project meeting /from 2/12/2019 1400 /to 2/12/2019 1600
+```
+
+Glennon displays those date-times in a more readable format:
+
+```text
+[D][ ] return book (by: Dec 2 2019, 6:00 PM)
+[E][ ] project meeting (from: Dec 2 2019, 2:00 PM to: Dec 2 2019, 4:00 PM)
+```
+
+An event may start and end at the same date-time, but its end cannot be before
+its start.
+
+Use `on d/M/yyyy` to list deadlines due on a date and events that overlap that
+date. To-dos are excluded because they have no date:
+
+```text
+on 2/12/2019
+```
