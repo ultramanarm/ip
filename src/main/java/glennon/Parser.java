@@ -76,6 +76,10 @@ public final class Parser {
     private static final String DATE_TIME_USAGE =
             "Please enter dates as d/M/yyyy HHmm, for example 2/12/2019 1800.";
 
+    /** Error shown when an event ends before it starts. */
+    private static final String EVENT_ORDER_ERROR =
+            "The event end must not be before its start.";
+
     /** Guidance shown when a deadline command cannot be parsed. */
     private static final String DEADLINE_USAGE =
             "Use: deadline <mission> /by <d/M/yyyy HHmm>.";
@@ -161,7 +165,12 @@ public final class Parser {
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
             throw new GlennonException(EVENT_USAGE);
         }
-        return new Event(description, parseDateTime(from), parseDateTime(to));
+        LocalDateTime start = parseDateTime(from);
+        LocalDateTime end = parseDateTime(to);
+        if (end.isBefore(start)) {
+            throw new GlennonException(EVENT_ORDER_ERROR);
+        }
+        return new Event(description, start, end);
     }
 
     /**
