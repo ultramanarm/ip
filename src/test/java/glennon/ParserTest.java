@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
 
@@ -74,11 +75,18 @@ class ParserTest {
     }
 
     @Test
+    void parseDeadline_dateWithoutTime_defaultsToEndOfDay() throws GlennonException {
+        Deadline deadline = Parser.parseDeadline("deadline submit report /by 2/12/2019");
+
+        assertEquals(LocalDateTime.of(2019, 12, 2, 23, 59), deadline.getBy());
+    }
+
+    @Test
     void parseDeadline_missingSeparator_throwsUsageException() {
         GlennonException exception = assertThrows(GlennonException.class,
                 () -> Parser.parseDeadline("deadline submit report 2/12/2019 1800"));
 
-        assertEquals("Use: deadline <mission> /by <d/M/yyyy HHmm>.", exception.getMessage());
+        assertEquals("Use: deadline <mission> /by <d/M/yyyy [HHmm]>.", exception.getMessage());
     }
 
     @Test
@@ -86,7 +94,8 @@ class ParserTest {
         GlennonException exception = assertThrows(GlennonException.class,
                 () -> Parser.parseDeadline("deadline submit report /by 31/2/2025 1800"));
 
-        assertEquals("Please enter dates as d/M/yyyy HHmm, for example 2/12/2019 1800.",
+        assertEquals("Please enter dates as d/M/yyyy with an optional HHmm time, "
+                        + "for example 2/12/2019 or 2/12/2019 1800.",
                 exception.getMessage());
     }
 
@@ -98,6 +107,24 @@ class ParserTest {
         assertEquals("hackathon", event.getDescription());
         assertEquals(LocalDateTime.of(2025, 12, 31, 23, 0), event.getFrom());
         assertEquals(LocalDateTime.of(2026, 1, 1, 1, 0), event.getTo());
+    }
+
+    @Test
+    void parseEvent_datesWithoutTimes_defaultsToAllDayBoundaries() throws GlennonException {
+        Event event = Parser.parseEvent("event conference /from 2/12/2019 /to 3/12/2019");
+
+        assertEquals(LocalDate.of(2019, 12, 2).atStartOfDay(), event.getFrom());
+        assertEquals(LocalDate.of(2019, 12, 3).atTime(LocalTime.MAX), event.getTo());
+        assertEquals("[E][ ] conference (all day: Dec 2 2019 to: Dec 3 2019)", event.toString());
+    }
+
+    @Test
+    void parseEvent_dateOnlyEnd_defaultsToEndOfDay() throws GlennonException {
+        Event event = Parser.parseEvent(
+                "event workshop /from 2/12/2019 1400 /to 2/12/2019");
+
+        assertEquals(LocalDateTime.of(2019, 12, 2, 14, 0), event.getFrom());
+        assertEquals(LocalDate.of(2019, 12, 2).atTime(LocalTime.MAX), event.getTo());
     }
 
     @Test
@@ -121,7 +148,7 @@ class ParserTest {
         GlennonException exception = assertThrows(GlennonException.class,
                 () -> Parser.parseEvent("event meeting /from 2/12/2019 1800 /to "));
 
-        assertEquals("Use: event <mission> /from <d/M/yyyy HHmm> /to <d/M/yyyy HHmm>.",
+        assertEquals("Use: event <mission> /from <d/M/yyyy [HHmm]> /to <d/M/yyyy [HHmm]>.",
                 exception.getMessage());
     }
 

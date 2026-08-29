@@ -15,6 +15,7 @@ import glennon.task.Todo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -109,9 +110,10 @@ public final class Parser {
             DateTimeFormatter.ofPattern("d/M/uuuu")
                     .withResolverStyle(ResolverStyle.STRICT);
 
-    /** Guidance shown when a date-time value is invalid. */
+    /** Guidance shown when a scheduled date or date-time value is invalid. */
     private static final String DATE_TIME_USAGE =
-            "Please enter dates as d/M/yyyy HHmm, for example 2/12/2019 1800.";
+            "Please enter dates as d/M/yyyy with an optional HHmm time, "
+                    + "for example 2/12/2019 or 2/12/2019 1800.";
 
     /** Guidance shown when a date-filter value is invalid. */
     private static final String DATE_USAGE =
@@ -123,11 +125,11 @@ public final class Parser {
 
     /** Guidance shown when a deadline command cannot be parsed. */
     private static final String DEADLINE_USAGE =
-            "Use: deadline <mission> /by <d/M/yyyy HHmm>.";
+            "Use: deadline <mission> /by <d/M/yyyy [HHmm]>.";
 
     /** Guidance shown when an event command cannot be parsed. */
     private static final String EVENT_USAGE =
-            "Use: event <mission> /from <d/M/yyyy HHmm> /to <d/M/yyyy HHmm>.";
+            "Use: event <mission> /from <d/M/yyyy [HHmm]> /to <d/M/yyyy [HHmm]>.";
 
     /** Prevents creation of this stateless utility class. */
     private Parser() {
@@ -222,7 +224,7 @@ public final class Parser {
         }
         String description = details.substring(0, bySeparatorIndex).trim();
         String by = details.substring(bySeparatorIndex + BY_SEPARATOR.length()).trim();
-        return new Deadline(description, parseDateTime(by));
+        return new Deadline(description, parseScheduledDateTime(by, LocalTime.of(23, 59)));
     }
 
     /**
@@ -248,8 +250,8 @@ public final class Parser {
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
             throw new GlennonException(EVENT_USAGE);
         }
-        LocalDateTime start = parseDateTime(from);
-        LocalDateTime end = parseDateTime(to);
+        LocalDateTime start = parseScheduledDateTime(from, LocalTime.MIN);
+        LocalDateTime end = parseScheduledDateTime(to, LocalTime.MAX);
         if (end.isBefore(start)) {
             throw new GlennonException(EVENT_ORDER_ERROR);
         }
@@ -303,17 +305,23 @@ public final class Parser {
     }
 
     /**
-     * Converts a user-entered date-time into a strongly typed value.
+     * Converts a user-entered date or date-time into a strongly typed value.
      *
-     * @param value date-time text in {@code d/M/yyyy HHmm} format.
+     * @param value date text with an optional time in {@code d/M/yyyy [HHmm]} format.
+     * @param defaultTime time used when the input contains only a date.
      * @return parsed date and time
      * @throws GlennonException if the value is malformed or is not a real date
      */
-    private static LocalDateTime parseDateTime(String value) throws GlennonException {
+    private static LocalDateTime parseScheduledDateTime(
+            String value, LocalTime defaultTime) throws GlennonException {
         try {
             return LocalDateTime.parse(value, DATE_TIME_FORMAT);
-        } catch (DateTimeParseException e) {
-            throw new GlennonException(DATE_TIME_USAGE, e);
+        } catch (DateTimeParseException dateTimeException) {
+            try {
+                return LocalDate.parse(value, DATE_FORMAT).atTime(defaultTime);
+            } catch (DateTimeParseException dateException) {
+                throw new GlennonException(DATE_TIME_USAGE, dateException);
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package glennon.task;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -12,6 +13,10 @@ public class Event extends Task {
     /** Format used when showing event boundaries to the user. */
     private static final DateTimeFormatter DISPLAY_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a", Locale.ENGLISH);
+
+    /** Format used when showing all-day event boundaries. */
+    private static final DateTimeFormatter DATE_DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d uuuu", Locale.ENGLISH);
 
     /** Date and time when the event starts. */
     private final LocalDateTime from;
@@ -73,6 +78,12 @@ public class Event extends Task {
      */
     @Override
     public String toString() {
+        if (from.toLocalTime().equals(LocalTime.MIN)
+                && to.toLocalTime().equals(LocalTime.MAX)) {
+            return "[E]" + super.toString()
+                    + " (all day: " + from.toLocalDate().format(DATE_DISPLAY_FORMAT)
+                    + " to: " + to.toLocalDate().format(DATE_DISPLAY_FORMAT) + ")";
+        }
         return "[E]" + super.toString()
                 + " (from: " + from.format(DISPLAY_FORMAT)
                 + " to: " + to.format(DISPLAY_FORMAT) + ")";

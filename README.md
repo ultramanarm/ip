@@ -19,14 +19,18 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
 
 ## Dates and times
 
-Deadline and event date-times use the `d/M/yyyy HHmm` format. The time uses a
-24-hour clock, so `1800` means 6:00 PM.
+Deadline and event dates use the `d/M/yyyy` format and may include a time in
+`HHmm` format. The time uses a 24-hour clock, so `1800` means 6:00 PM. A
+date-only deadline defaults to 11:59 PM, while date-only event boundaries make
+an all-day event.
 
 For example:
 
 ```text
 deadline return book /by 2/12/2019 1800
 event project meeting /from 2/12/2019 1400 /to 2/12/2019 1600
+deadline submit report /by 3/12/2019
+event conference /from 4/12/2019 /to 5/12/2019
 ```
 
 Glennon displays those date-times in a more readable format:
