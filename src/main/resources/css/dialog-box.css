@@ -1,0 +1,26 @@
+.dialog-text {
+    -fx-background-color: #35594c;
+    -fx-text-fill: #f1f6f1;
+    -fx-background-radius: 12 12 0 12;
+    -fx-padding: 12 14;
+}
+
+.reply-label {
+    -fx-background-color: #233841;
+    -fx-background-radius: 12 12 12 0;
+}
+
+.speaker-badge {
+    -fx-background-color: #35594c;
+    -fx-background-radius: 24;
+    -fx-text-fill: #f1f6f1;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+.glennon-badge {
+    -fx-background-color: #b5dfa3;
+    -fx-text-fill: #14251b;
+    -fx-font-size: 18px;
+}

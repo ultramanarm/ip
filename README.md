@@ -4,7 +4,7 @@ Glennon is a chatbot developed as a greenfield Java project. Given below are ins
 
 ## Setting up in Intellij
 
-Prerequisites: JDK 25, update Intellij to the most recent version.
+Prerequisites: JDK 25 (on macOS, use `25.0.3.fx-zulu`), and IntelliJ with Java 25 support.
 
 1. Open Intellij (if you are not in the welcome screen, click `File` > `Close Project` to close the existing project first)
 1. Open the project into Intellij as follows:
@@ -13,9 +13,57 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    1. If there are any further prompts, accept the defaults.
 1. Configure the project to use **JDK 25** (not other versions) as explained in [here](https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk).<br>
    In the same dialog, set the **Project language level** field to the `SDK default` option.
-1. After that, locate the `src/main/java/glennon/Glennon.java` file, right-click it, and choose `Run Glennon.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, you should see Glennon's startup banner followed by `Hey there! Glennon online.`
+1. After Gradle finishes importing, locate `src/main/java/glennon/gui/Launcher.java`, right-click it, and choose `Run Launcher.main()`. Glennon opens a chat window with its greeting.
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+
+## Using the GUI
+
+On macOS, select the required JDK and launch from the project root:
+
+```shell
+export JAVA_HOME="$HOME/.sdkman/candidates/java/25.0.3.fx-zulu"
+export PATH="$JAVA_HOME/bin:$PATH"
+./gradlew run
+```
+
+Type a command and press **Enter** or click **Send**. Glennon's replies appear
+on the left; your commands appear on the right. Messages wrap when you resize
+the window, and new replies scroll into view automatically. Enter `bye` to see
+the sign-off message before the window closes. Missions are saved after each
+change, using the same `data/glennon.txt` as the console application.
+
+For example, try `todo read book`, `list`, `mark 1`, and `find book`. A storage
+load error disables input to prevent accidentally replacing unreadable data.
+
+The original console remains available through `./gradlew runCli`, or by
+running `glennon.Glennon` in IntelliJ. Do not run both interfaces against the
+same data file simultaneously.
+
+### Tutorial structure
+
+The GUI follows the [SE-EDU JavaFX tutorial, Parts 1–5](https://se-education.org/guides/tutorials/javaFxPart1.html):
+
+- `Launcher` starts `Main`, which loads the FXML and injects a Glennon session.
+- `MainWindow` handles Enter and Send through one handler; `Glennon.getResponse`
+  reuses the existing parser, commands, and output formatter.
+- `MainWindow.fxml` uses `AnchorPane`, `ScrollPane`, and `VBox`; `DialogBox.fxml`
+  uses `fx:root` for the reusable `HBox` message component.
+- CSS controls colors, bubble shapes, and interaction states. Simple speaker
+  badges replace the tutorial's portrait images to suit Glennon's style.
+
+Open `src/main/resources/view/MainWindow.fxml` or `DialogBox.fxml` in Scene
+Builder to edit the layout. Keep the FXML namespace at JavaFX 17 for compatibility
+with the tutorial's Gradle dependencies. On macOS, the required Zulu FX JDK
+provides the matching native JavaFX runtime.
+
+### GUI checks
+
+`./gradlew clean test` runs the business logic tests and ten real JavaFX
+interaction tests. These tests need a desktop session and open temporary
+windows; their mission data is isolated from your files. See
+[the GUI regression plan](docs/gui-test-plan.md) for coverage and visual checks.
+The console regression plan remains unchanged.
 
 ## Dates and times
 
