@@ -63,9 +63,7 @@ public class Ui {
     public void showWelcome() {
         output.println(DIVIDER);
         output.print(BANNER);
-        output.println("Hey there! Glennon online.");
-        output.println("What's the mission?");
-        output.println(DIVIDER);
+        printLines("Hey there! Glennon online.", "What's the mission?", DIVIDER);
     }
 
     /**
@@ -155,8 +153,7 @@ public class Ui {
      * @param missionCount number of missions now stored.
      */
     public void showMissionRemoved(Task mission, int missionCount) {
-        output.println("Mission removed:");
-        output.println("  " + mission);
+        printLines("Mission removed:", "  " + mission);
         showMissionCount(missionCount);
     }
 
@@ -167,10 +164,9 @@ public class Ui {
      * @param isComplete true when the mission was marked complete.
      */
     public void showMissionStatusChanged(Task mission, boolean isComplete) {
-        output.println(isComplete
+        printLines(isComplete
                 ? "Mission marked complete:"
-                : "Mission marked incomplete:");
-        output.println("  " + mission);
+                : "Mission marked incomplete:", "  " + mission);
     }
 
     /**
@@ -179,8 +175,7 @@ public class Ui {
      * @param message explanation shown to the user.
      */
     public void showError(String message) {
-        output.println("Mission control alert!");
-        output.println(message);
+        printLines("Mission control alert!", message);
     }
 
     /**
@@ -188,6 +183,17 @@ public class Ui {
      */
     public void close() {
         scanner.close();
+    }
+
+    /**
+     * Prints each supplied line in order.
+     *
+     * @param lines lines to display.
+     */
+    private void printLines(String... lines) {
+        for (String line : lines) {
+            output.println(line);
+        }
     }
 
     /**
