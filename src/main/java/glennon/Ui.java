@@ -1,5 +1,6 @@
 package glennon;
 
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -33,6 +34,9 @@ public class Ui {
             +==========================================================+
             """;
 
+    /** Receives formatted responses for either the console or a GUI buffer. */
+    private final PrintWriter output;
+
     /** Reads commands from standard input. */
     private final Scanner scanner;
 
@@ -40,6 +44,16 @@ public class Ui {
      * Creates a user interface that reads commands from standard input.
      */
     public Ui() {
+        this(new PrintWriter(System.out, true));
+    }
+
+    /**
+     * Creates an interface that sends responses to the supplied writer.
+     *
+     * @param output destination for formatted responses.
+     */
+    public Ui(PrintWriter output) {
+        this.output = output;
         this.scanner = new Scanner(System.in);
     }
 
@@ -47,11 +61,11 @@ public class Ui {
      * Displays the banner and greeting shown when Glennon starts.
      */
     public void showWelcome() {
-        System.out.println(DIVIDER);
-        System.out.print(BANNER);
-        System.out.println("Hey there! Glennon online.");
-        System.out.println("What's the mission?");
-        System.out.println(DIVIDER);
+        output.println(DIVIDER);
+        output.print(BANNER);
+        output.println("Hey there! Glennon online.");
+        output.println("What's the mission?");
+        output.println(DIVIDER);
     }
 
     /**
@@ -76,14 +90,14 @@ public class Ui {
      * Displays the divider that separates one response from the next.
      */
     public void showDivider() {
-        System.out.println(DIVIDER);
+        output.println(DIVIDER);
     }
 
     /**
      * Displays the message shown before Glennon exits.
      */
     public void showGoodbye() {
-        System.out.println("Signing off. Catch you on the next mission!");
+        output.println("Signing off. Catch you on the next mission!");
     }
 
     /**
@@ -92,9 +106,9 @@ public class Ui {
      * @param missions missions to display.
      */
     public void showMissionList(List<Task> missions) {
-        System.out.println("Mission log:");
+        output.println("Mission log:");
         for (int i = 0; i < missions.size(); i++) {
-            System.out.println((i + 1) + ". " + missions.get(i));
+            output.println((i + 1) + ". " + missions.get(i));
         }
     }
 
@@ -104,9 +118,9 @@ public class Ui {
      * @param missions matching missions in their original order.
      */
     public void showMatchingMissions(List<Task> missions) {
-        System.out.println("Here are the matching tasks in your list:");
+        output.println("Here are the matching tasks in your list:");
         for (int i = 0; i < missions.size(); i++) {
-            System.out.println((i + 1) + "." + missions.get(i));
+            output.println((i + 1) + "." + missions.get(i));
         }
     }
 
@@ -117,9 +131,9 @@ public class Ui {
      * @param missions missions scheduled on that date.
      */
     public void showScheduledMissions(LocalDate date, List<Task> missions) {
-        System.out.println("Missions on " + date.format(DATE_DISPLAY_FORMAT) + ":");
+        output.println("Missions on " + date.format(DATE_DISPLAY_FORMAT) + ":");
         for (int i = 0; i < missions.size(); i++) {
-            System.out.println((i + 1) + ". " + missions.get(i));
+            output.println((i + 1) + ". " + missions.get(i));
         }
     }
 
@@ -130,7 +144,7 @@ public class Ui {
      * @param missionCount number of missions now stored.
      */
     public void showMissionAdded(Task mission, int missionCount) {
-        System.out.println("Mission added: " + mission);
+        output.println("Mission added: " + mission);
         showMissionCount(missionCount);
     }
 
@@ -141,8 +155,8 @@ public class Ui {
      * @param missionCount number of missions now stored.
      */
     public void showMissionRemoved(Task mission, int missionCount) {
-        System.out.println("Mission removed:");
-        System.out.println("  " + mission);
+        output.println("Mission removed:");
+        output.println("  " + mission);
         showMissionCount(missionCount);
     }
 
@@ -153,10 +167,10 @@ public class Ui {
      * @param isComplete true when the mission was marked complete.
      */
     public void showMissionStatusChanged(Task mission, boolean isComplete) {
-        System.out.println(isComplete
+        output.println(isComplete
                 ? "Mission marked complete:"
                 : "Mission marked incomplete:");
-        System.out.println("  " + mission);
+        output.println("  " + mission);
     }
 
     /**
@@ -165,8 +179,8 @@ public class Ui {
      * @param message explanation shown to the user.
      */
     public void showError(String message) {
-        System.out.println("Mission control alert!");
-        System.out.println(message);
+        output.println("Mission control alert!");
+        output.println(message);
     }
 
     /**
@@ -183,6 +197,6 @@ public class Ui {
      */
     private void showMissionCount(int missionCount) {
         String missionLabel = missionCount == 1 ? "mission" : "missions";
-        System.out.println("Mission log now has " + missionCount + " " + missionLabel + ".");
+        output.println("Mission log now has " + missionCount + " " + missionLabel + ".");
     }
 }
