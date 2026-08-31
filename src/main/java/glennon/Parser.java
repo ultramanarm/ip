@@ -1,5 +1,12 @@
 package glennon;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+
 import glennon.command.AddCommand;
 import glennon.command.Command;
 import glennon.command.DeleteCommand;
@@ -12,13 +19,6 @@ import glennon.exception.GlennonException;
 import glennon.task.Deadline;
 import glennon.task.Event;
 import glennon.task.Todo;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
 
 /**
  * Recognizes Glennon commands and converts their arguments into values used by

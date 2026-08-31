@@ -83,16 +83,16 @@ class ParserTest {
 
     @Test
     void parseDeadline_missingSeparator_throwsUsageException() {
-        GlennonException exception = assertThrows(GlennonException.class,
-                () -> Parser.parseDeadline("deadline submit report 2/12/2019 1800"));
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> Parser.parseDeadline("deadline submit report 2/12/2019 1800"));
 
         assertEquals("Use: deadline <mission> /by <d/M/yyyy [HHmm]>.", exception.getMessage());
     }
 
     @Test
     void parseDeadline_impossibleDate_throwsDateTimeException() {
-        GlennonException exception = assertThrows(GlennonException.class,
-                () -> Parser.parseDeadline("deadline submit report /by 31/2/2025 1800"));
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> Parser.parseDeadline("deadline submit report /by 31/2/2025 1800"));
 
         assertEquals("Please enter dates as d/M/yyyy with an optional HHmm time, "
                         + "for example 2/12/2019 or 2/12/2019 1800.",
@@ -145,8 +145,8 @@ class ParserTest {
 
     @Test
     void parseEvent_missingEnd_throwsUsageException() {
-        GlennonException exception = assertThrows(GlennonException.class,
-                () -> Parser.parseEvent("event meeting /from 2/12/2019 1800 /to "));
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> Parser.parseEvent("event meeting /from 2/12/2019 1800 /to "));
 
         assertEquals("Use: event <mission> /from <d/M/yyyy [HHmm]> /to <d/M/yyyy [HHmm]>.",
                 exception.getMessage());
@@ -160,8 +160,8 @@ class ParserTest {
 
     @Test
     void parseMissionIndex_nonInteger_throwsHelpfulException() {
-        GlennonException exception = assertThrows(GlennonException.class,
-                () -> Parser.parseMissionIndex("mark first", Parser.CommandType.MARK));
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> Parser.parseMissionIndex("mark first", Parser.CommandType.MARK));
 
         assertEquals("Please enter a valid mission number.", exception.getMessage());
     }
