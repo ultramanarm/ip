@@ -1,29 +1,37 @@
 package glennon.gui;
 
+import java.io.IOException;
 import java.util.Collections;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
 /**
- * Displays a speaker badge beside a wrapping chat message.
+ * Displays a speaker badge beside a wrapping chat message loaded from FXML.
  */
 public class DialogBox extends HBox {
+    @FXML
+    private Label dialog;
+    @FXML
+    private Label displayBadge;
+
     private DialogBox(String text, String speaker) {
-        Label dialog = new Label(text);
-        dialog.setWrapText(true);
-        dialog.setMinHeight(USE_PREF_SIZE);
-        Label badge = new Label(speaker);
-        badge.setMinWidth(48);
-        getChildren().addAll(dialog, badge);
-        setAlignment(Pos.TOP_RIGHT);
-        setSpacing(12);
-        setPadding(new Insets(12));
+        FXMLLoader loader = new FXMLLoader(DialogBox.class.getResource("/view/DialogBox.fxml"));
+        loader.setController(this);
+        loader.setRoot(this);
+        try {
+            loader.load();
+        } catch (IOException e) {
+            throw new IllegalStateException("Glennon could not load the dialog layout.", e);
+        }
+        dialog.setText(text);
+        displayBadge.setText(speaker);
     }
 
     /** Moves the speaker badge to the left for Glennon's responses. */
