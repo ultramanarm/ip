@@ -20,6 +20,14 @@ checkstyle {
 }
 
 dependencies {
+    String javaFxVersion = '17.0.7'
+    for (String platform : ['win', 'mac', 'linux']) {
+        implementation "org.openjfx:javafx-base:${javaFxVersion}:${platform}"
+        implementation "org.openjfx:javafx-controls:${javaFxVersion}:${platform}"
+        implementation "org.openjfx:javafx-fxml:${javaFxVersion}:${platform}"
+        implementation "org.openjfx:javafx-graphics:${javaFxVersion}:${platform}"
+    }
+
     String jUnitVersion = '5.14.4'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
@@ -43,7 +51,7 @@ test {
 }
 
 application {
-    mainClass = 'glennon.Glennon'
+    mainClass = 'glennon.gui.Launcher'
 }
 
 jar {
@@ -62,5 +70,12 @@ shadowJar {
 }
 
 run {
+    standardInput = System.in
+}
+
+// Keep the original console available for regression testing and terminal use.
+tasks.register('runCli', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'glennon.Glennon'
     standardInput = System.in
 }
