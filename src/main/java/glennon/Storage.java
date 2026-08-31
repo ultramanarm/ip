@@ -1,11 +1,5 @@
 package glennon;
 
-import glennon.exception.GlennonException;
-import glennon.task.Deadline;
-import glennon.task.Event;
-import glennon.task.Task;
-import glennon.task.Todo;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,6 +8,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+
+import glennon.exception.GlennonException;
+import glennon.task.Deadline;
+import glennon.task.Event;
+import glennon.task.Task;
+import glennon.task.Todo;
 
 /**
  * Reads and writes Glennon's mission data using a relative, OS-independent

@@ -1,5 +1,12 @@
 package glennon;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+
 import glennon.command.AddCommand;
 import glennon.command.Command;
 import glennon.command.DeleteCommand;
@@ -12,13 +19,6 @@ import glennon.exception.GlennonException;
 import glennon.task.Deadline;
 import glennon.task.Event;
 import glennon.task.Todo;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
 
 /**
  * Recognizes Glennon commands and converts their arguments into values used by
@@ -92,13 +92,13 @@ public final class Parser {
     }
 
     /** Separates a deadline's description from its date text. */
-    private static final String BY_SEPARATOR = " /by ";
+    private static final String SEPARATOR_BY = " /by ";
 
     /** Separates an event's description from its start time. */
-    private static final String FROM_SEPARATOR = " /from ";
+    private static final String SEPARATOR_FROM = " /from ";
 
     /** Separates an event's start time from its end time. */
-    private static final String TO_SEPARATOR = " /to ";
+    private static final String SEPARATOR_TO = " /to ";
 
     /** Format accepted for deadline and event date-times. */
     private static final DateTimeFormatter DATE_TIME_FORMAT =
@@ -217,13 +217,13 @@ public final class Parser {
      */
     public static Deadline parseDeadline(String input) throws GlennonException {
         String details = parseArguments(input, CommandType.DEADLINE);
-        int bySeparatorIndex = details.indexOf(BY_SEPARATOR);
+        int bySeparatorIndex = details.indexOf(SEPARATOR_BY);
         if (bySeparatorIndex <= 0
-                || bySeparatorIndex + BY_SEPARATOR.length() >= details.length()) {
+                || bySeparatorIndex + SEPARATOR_BY.length() >= details.length()) {
             throw new GlennonException(DEADLINE_USAGE);
         }
         String description = details.substring(0, bySeparatorIndex).trim();
-        String by = details.substring(bySeparatorIndex + BY_SEPARATOR.length()).trim();
+        String by = details.substring(bySeparatorIndex + SEPARATOR_BY.length()).trim();
         return new Deadline(description, parseScheduledDateTime(by, LocalTime.of(23, 59)));
     }
 
@@ -236,17 +236,17 @@ public final class Parser {
      */
     public static Event parseEvent(String input) throws GlennonException {
         String details = parseArguments(input, CommandType.EVENT);
-        int fromSeparatorIndex = details.indexOf(FROM_SEPARATOR);
-        int fromValueIndex = fromSeparatorIndex + FROM_SEPARATOR.length();
-        int toSeparatorIndex = details.indexOf(TO_SEPARATOR, fromValueIndex);
+        int fromSeparatorIndex = details.indexOf(SEPARATOR_FROM);
+        int fromValueIndex = fromSeparatorIndex + SEPARATOR_FROM.length();
+        int toSeparatorIndex = details.indexOf(SEPARATOR_TO, fromValueIndex);
         if (fromSeparatorIndex <= 0
                 || toSeparatorIndex <= fromValueIndex
-                || toSeparatorIndex + TO_SEPARATOR.length() >= details.length()) {
+                || toSeparatorIndex + SEPARATOR_TO.length() >= details.length()) {
             throw new GlennonException(EVENT_USAGE);
         }
         String description = details.substring(0, fromSeparatorIndex).trim();
         String from = details.substring(fromValueIndex, toSeparatorIndex).trim();
-        String to = details.substring(toSeparatorIndex + TO_SEPARATOR.length()).trim();
+        String to = details.substring(toSeparatorIndex + SEPARATOR_TO.length()).trim();
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
             throw new GlennonException(EVENT_USAGE);
         }

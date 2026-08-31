@@ -1,12 +1,12 @@
 package glennon;
 
-import glennon.task.Task;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
+
+import glennon.task.Task;
 
 /**
  * Handles all interaction with the user, reading typed commands and printing

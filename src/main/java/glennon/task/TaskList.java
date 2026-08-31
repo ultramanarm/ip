@@ -1,11 +1,11 @@
 package glennon.task;
 
-import glennon.exception.GlennonException;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import glennon.exception.GlennonException;
 
 /**
  * Stores the missions of one Glennon session and guards every access by

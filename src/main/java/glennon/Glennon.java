@@ -1,10 +1,10 @@
 package glennon;
 
+import java.nio.file.Path;
+
 import glennon.command.Command;
 import glennon.exception.GlennonException;
 import glennon.task.TaskList;
-
-import java.nio.file.Path;
 
 /**
  * Starts the Glennon chatbot.

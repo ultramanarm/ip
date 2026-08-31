@@ -50,6 +50,34 @@ date. To-dos are excluded because they have no date:
 on 2/12/2019
 ```
 
+## Checking coding style
+
+Checkstyle automatically checks production and test Java sources for formatting,
+import ordering, naming, and Javadoc rules. It complements the
+`seedu-java-coding-standard` skill: automated checks are repeatable, while code
+review is still needed for meaningful names, clear comments, and design.
+
+The configuration in `config/checkstyle/` comes from
+[AddressBook Level 3](https://github.com/se-edu/addressbook-level3/tree/master/config/checkstyle),
+following the [SE-EDU tutorial](https://se-education.org/guides/tutorials/checkstyle.html).
+Checkstyle is pinned to version 11.0.0. Both errors and warnings fail the build.
+
+On macOS, select the required JDK and run the checks from the project root:
+
+```shell
+export JAVA_HOME="$HOME/.sdkman/candidates/java/25.0.3.fx-zulu"
+export PATH="$JAVA_HOME/bin:$PATH"
+./gradlew checkstyleMain checkstyleTest
+```
+
+Reports are generated at `build/reports/checkstyle/main.html` and
+`build/reports/checkstyle/test.html`. `./gradlew check` runs both Checkstyle tasks
+and the JUnit suite; the console UI test plan is run separately.
+
+For editor feedback, install IntelliJ's Checkstyle-IDEA plugin, select version
+11.0.0, add `config/checkstyle/checkstyle.xml` as an active local configuration,
+and set its scan scope to include Java test sources.
+
 ## Creating an executable JAR
 
 The Shadow plugin packages Glennon and all of its runtime dependencies into one

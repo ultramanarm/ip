@@ -108,8 +108,8 @@ class StorageTest {
         Storage storage = new Storage(temporaryDirectory.resolve("missions.txt"));
         Task unsupportedTask = new Task("unsupported") { };
 
-        GlennonException exception = assertThrows(GlennonException.class,
-                () -> storage.saveMissions(List.of(unsupportedTask)));
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> storage.saveMissions(List.of(unsupportedTask)));
 
         assertEquals("Glennon cannot save an unsupported mission type.", exception.getMessage());
     }

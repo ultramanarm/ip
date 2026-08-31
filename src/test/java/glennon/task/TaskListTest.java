@@ -75,8 +75,8 @@ class TaskListTest {
         Todo todo = new Todo("protected mission");
         TaskList missions = new TaskList(List.of(todo));
 
-        assertThrows(UnsupportedOperationException.class,
-                () -> missions.asList().add(new Todo("intruder")));
+        assertThrows(
+                UnsupportedOperationException.class, () -> missions.asList().add(new Todo("intruder")));
         assertEquals(List.of(todo), missions.asList());
     }
 
@@ -103,8 +103,8 @@ class TaskListTest {
         List<Task> matches = missions.findByDescription("Book");
 
         assertTrue(matches.isEmpty());
-        assertThrows(UnsupportedOperationException.class,
-                () -> matches.add(new Todo("intruder")));
+        assertThrows(
+                UnsupportedOperationException.class, () -> matches.add(new Todo("intruder")));
         assertEquals(List.of(todo), missions.asList());
     }
 
@@ -131,7 +131,7 @@ class TaskListTest {
         List<Task> matches = missions.occurringOn(LocalDate.of(2026, 8, 29));
 
         assertTrue(matches.isEmpty());
-        assertThrows(UnsupportedOperationException.class,
-                () -> matches.add(new Todo("intruder")));
+        assertThrows(
+                UnsupportedOperationException.class, () -> matches.add(new Todo("intruder")));
     }
 }

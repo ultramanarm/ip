@@ -1,10 +1,10 @@
 package glennon.command;
 
+import java.time.LocalDate;
+
 import glennon.Storage;
 import glennon.Ui;
 import glennon.task.TaskList;
-
-import java.time.LocalDate;
 
 /**
  * Displays missions scheduled on a selected calendar date.
