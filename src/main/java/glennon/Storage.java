@@ -49,8 +49,8 @@ public class Storage {
      * Returns all saved missions, or an empty list when the data file does not
      * exist.
      *
-     * @return saved missions
-     * @throws GlennonException if the data file cannot be read or parsed
+     * @return saved missions.
+     * @throws GlennonException if the data file cannot be read or parsed.
      */
     public List<Task> loadMissions() throws GlennonException {
         if (!Files.exists(dataPath)) {
@@ -74,7 +74,7 @@ public class Storage {
      * folder when necessary.
      *
      * @param missions missions to save.
-     * @throws GlennonException if the folder or data file cannot be written
+     * @throws GlennonException if the folder or data file cannot be written.
      */
     public void saveMissions(List<Task> missions) throws GlennonException {
         try {
@@ -97,8 +97,8 @@ public class Storage {
      * Converts one task into Glennon's storage format.
      *
      * @param mission mission to convert.
-     * @return storage-ready line
-     * @throws GlennonException if the task type is unsupported
+     * @return storage-ready line.
+     * @throws GlennonException if the task type is unsupported.
      */
     private String formatMission(Task mission) throws GlennonException {
         String status = mission.isDone() ? "1" : "0";
@@ -131,8 +131,8 @@ public class Storage {
      *
      * @param line stored mission data.
      * @param lineNumber one-based line number used in error messages.
-     * @return restored mission
-     * @throws GlennonException if the line is not valid mission data
+     * @return restored mission.
+     * @throws GlennonException if the line is not valid mission data.
      */
     private Task parseMission(String line, int lineNumber) throws GlennonException {
         try {
@@ -180,7 +180,7 @@ public class Storage {
      * Encodes user-provided text so field separators remain unambiguous.
      *
      * @param value text to encode.
-     * @return Base64-encoded text
+     * @return Base64-encoded text.
      */
     private String encode(String value) {
         return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
@@ -190,7 +190,7 @@ public class Storage {
      * Decodes text stored in one mission field.
      *
      * @param value Base64-encoded text.
-     * @return decoded user-provided text
+     * @return decoded user-provided text.
      */
     private String decode(String value) {
         byte[] bytes = Base64.getDecoder().decode(value);

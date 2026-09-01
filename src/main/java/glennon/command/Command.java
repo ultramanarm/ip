@@ -21,7 +21,7 @@ public abstract class Command {
      * @param missions missions in the current session.
      * @param ui interface used to display the result.
      * @param storage storage used when persistent state changes.
-     * @throws GlennonException if the command cannot be completed
+     * @throws GlennonException if the command cannot be completed.
      */
     public abstract void execute(TaskList missions, Ui ui, Storage storage)
             throws GlennonException;
@@ -29,7 +29,7 @@ public abstract class Command {
     /**
      * Reports whether executing this command should end the application.
      *
-     * @return false for commands that do not exit
+     * @return false for commands that do not exit.
      */
     public boolean isExit() {
         return false;

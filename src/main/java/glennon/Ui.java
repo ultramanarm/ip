@@ -69,7 +69,7 @@ public class Ui {
     /**
      * Checks whether the user has entered another command.
      *
-     * @return true while input remains available
+     * @return true while input remains available.
      */
     public boolean hasNextCommand() {
         return scanner.hasNextLine();
@@ -78,7 +78,7 @@ public class Ui {
     /**
      * Reads the next command typed by the user.
      *
-     * @return the raw input line, without interpretation
+     * @return the raw input line, without interpretation.
      */
     public String readCommand() {
         return scanner.nextLine();

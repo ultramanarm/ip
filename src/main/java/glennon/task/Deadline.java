@@ -30,7 +30,7 @@ public class Deadline extends Task {
     /**
      * Returns the deadline date and time.
      *
-     * @return deadline date and time
+     * @return deadline date and time.
      */
     public LocalDateTime getBy() {
         return by;
@@ -40,7 +40,7 @@ public class Deadline extends Task {
      * Checks whether this deadline is due on the given date.
      *
      * @param date date to check.
-     * @return true when the deadline is due on that date
+     * @return true when the deadline is due on that date.
      */
     @Override
     public boolean occursOn(LocalDate date) {
@@ -51,7 +51,7 @@ public class Deadline extends Task {
      * Returns the task with its type, completion status, and deadline.
      *
      * @return display-ready text such as
-     *         {@code [D][ ] return book (by: Dec 2 2019, 6:00 PM)}
+     *         {@code [D][ ] return book (by: Dec 2 2019, 6:00 PM)}.
      */
     @Override
     public String toString() {

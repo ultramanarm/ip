@@ -27,7 +27,7 @@ public abstract class Task {
     /**
      * Returns the symbol used to display this task's completion status.
      *
-     * @return {@code X} when complete, or a space when pending
+     * @return {@code X} when complete, or a space when pending.
      */
     public String getStatusIcon() {
         return isDone ? "X" : " ";
@@ -36,7 +36,7 @@ public abstract class Task {
     /**
      * Returns the description supplied for this task.
      *
-     * @return task description
+     * @return task description.
      */
     public String getDescription() {
         return description;
@@ -45,7 +45,7 @@ public abstract class Task {
     /**
      * Checks whether this task has been completed.
      *
-     * @return true when the task is complete
+     * @return true when the task is complete.
      */
     public boolean isDone() {
         return isDone;
@@ -70,7 +70,7 @@ public abstract class Task {
      * no date are not scheduled on any date by default.
      *
      * @param date date to check.
-     * @return true when this task occurs on the given date
+     * @return true when this task occurs on the given date.
      */
     public boolean occursOn(LocalDate date) {
         return false;
@@ -79,7 +79,7 @@ public abstract class Task {
     /**
      * Returns the task description prefixed by its status icon.
      *
-     * @return display-ready task text
+     * @return display-ready task text.
      */
     @Override
     public String toString() {

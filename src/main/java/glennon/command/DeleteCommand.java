@@ -28,7 +28,7 @@ public final class DeleteCommand extends Command {
      * @param missions missions in the current session.
      * @param ui interface used to display the result.
      * @param storage storage used to persist the change.
-     * @throws GlennonException if the index or save operation fails
+     * @throws GlennonException if the index or save operation fails.
      */
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage)

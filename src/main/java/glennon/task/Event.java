@@ -40,7 +40,7 @@ public class Event extends Task {
     /**
      * Returns the event's start date and time.
      *
-     * @return event start date and time
+     * @return event start date and time.
      */
     public LocalDateTime getFrom() {
         return from;
@@ -49,7 +49,7 @@ public class Event extends Task {
     /**
      * Returns the event's end date and time.
      *
-     * @return event end date and time
+     * @return event end date and time.
      */
     public LocalDateTime getTo() {
         return to;
@@ -60,7 +60,7 @@ public class Event extends Task {
      * start and end dates are included for events spanning multiple days.
      *
      * @param date date to check.
-     * @return true when the event overlaps that date
+     * @return true when the event overlaps that date.
      */
     @Override
     public boolean occursOn(LocalDate date) {
@@ -74,7 +74,7 @@ public class Event extends Task {
      *
      * @return display-ready text such as
      *         {@code [E][ ] meeting (from: Dec 2 2019, 2:00 PM
-     *         to: Dec 2 2019, 4:00 PM)}
+     *         to: Dec 2 2019, 4:00 PM)}.
      */
     @Override
     public String toString() {

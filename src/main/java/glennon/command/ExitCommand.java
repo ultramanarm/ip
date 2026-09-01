@@ -29,7 +29,7 @@ public final class ExitCommand extends Command {
     /**
      * Reports that this command ends the application.
      *
-     * @return true
+     * @return true.
      */
     @Override
     public boolean isExit() {

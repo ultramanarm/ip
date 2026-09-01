@@ -83,7 +83,7 @@ public final class Parser {
          * Checks whether the input represents this command type.
          *
          * @param input complete user input.
-         * @return true when the input starts with this command correctly
+         * @return true when the input starts with this command correctly.
          */
         private boolean matches(String input) {
             return input.equals(keyword)
@@ -139,8 +139,8 @@ public final class Parser {
      * Converts one complete line of user input into an executable command.
      *
      * @param input complete user input.
-     * @return command containing all parsed arguments
-     * @throws GlennonException if the command or any argument is invalid
+     * @return command containing all parsed arguments.
+     * @throws GlennonException if the command or any argument is invalid.
      */
     public static Command parse(String input) throws GlennonException {
         CommandType commandType = parseCommandType(input);
@@ -167,7 +167,7 @@ public final class Parser {
      * command syntax.
      *
      * @param input complete user input.
-     * @return matching command type, or {@link CommandType#UNKNOWN}
+     * @return matching command type, or {@link CommandType#UNKNOWN}.
      */
     public static CommandType parseCommandType(String input) {
         for (CommandType commandType : CommandType.values()) {
@@ -197,8 +197,8 @@ public final class Parser {
      * Parses a to-do command into a pending to-do mission.
      *
      * @param input complete to-do command.
-     * @return parsed to-do mission
-     * @throws GlennonException if the description is missing
+     * @return parsed to-do mission.
+     * @throws GlennonException if the description is missing.
      */
     public static Todo parseTodo(String input) throws GlennonException {
         String description = parseArguments(input, CommandType.TODO);
@@ -212,8 +212,8 @@ public final class Parser {
      * Parses a deadline command into a pending deadline mission.
      *
      * @param input complete deadline command.
-     * @return parsed deadline mission
-     * @throws GlennonException if the description or deadline is missing
+     * @return parsed deadline mission.
+     * @throws GlennonException if the description or deadline is missing.
      */
     public static Deadline parseDeadline(String input) throws GlennonException {
         String details = parseArguments(input, CommandType.DEADLINE);
@@ -231,8 +231,8 @@ public final class Parser {
      * Parses an event command into a pending event mission.
      *
      * @param input complete event command.
-     * @return parsed event mission
-     * @throws GlennonException if its description, start, or end is missing
+     * @return parsed event mission.
+     * @throws GlennonException if its description, start, or end is missing.
      */
     public static Event parseEvent(String input) throws GlennonException {
         String details = parseArguments(input, CommandType.EVENT);
@@ -264,8 +264,8 @@ public final class Parser {
      *
      * @param input complete command containing the mission number.
      * @param commandType command whose arguments contain the number.
-     * @return zero-based mission index
-     * @throws GlennonException if the number is missing or not an integer
+     * @return zero-based mission index.
+     * @throws GlennonException if the number is missing or not an integer.
      */
     public static int parseMissionIndex(
             String input, CommandType commandType) throws GlennonException {
@@ -281,8 +281,8 @@ public final class Parser {
      * Parses the date supplied to an {@code on} command.
      *
      * @param input complete date-filter command.
-     * @return parsed calendar date
-     * @throws GlennonException if the date is missing, malformed, or impossible
+     * @return parsed calendar date.
+     * @throws GlennonException if the date is missing, malformed, or impossible.
      */
     public static LocalDate parseDate(String input) throws GlennonException {
         String value = parseArguments(input, CommandType.ON);
@@ -298,7 +298,7 @@ public final class Parser {
      *
      * @param input complete user input.
      * @param commandType recognized command type.
-     * @return trimmed command arguments
+     * @return trimmed command arguments.
      */
     private static String parseArguments(String input, CommandType commandType) {
         return input.substring(commandType.keyword.length()).trim();
@@ -309,8 +309,8 @@ public final class Parser {
      *
      * @param value date text with an optional time in {@code d/M/yyyy [HHmm]} format.
      * @param defaultTime time used when the input contains only a date.
-     * @return parsed date and time
-     * @throws GlennonException if the value is malformed or is not a real date
+     * @return parsed date and time.
+     * @throws GlennonException if the value is malformed or is not a real date.
      */
     private static LocalDateTime parseScheduledDateTime(
             String value, LocalTime defaultTime) throws GlennonException {

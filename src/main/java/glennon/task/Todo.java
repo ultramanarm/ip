@@ -16,7 +16,7 @@ public class Todo extends Task {
     /**
      * Returns the task with Glennon's to-do type marker and completion status.
      *
-     * @return display-ready text such as {@code [T][ ] borrow book}
+     * @return display-ready text such as {@code [T][ ] borrow book}.
      */
     @Override
     public String toString() {

@@ -44,8 +44,8 @@ public class TaskList {
      * Returns the mission at the given position.
      *
      * @param missionIndex zero-based position of the mission.
-     * @return the stored mission
-     * @throws GlennonException if the position is outside the log
+     * @return the stored mission.
+     * @throws GlennonException if the position is outside the log.
      */
     public Task get(int missionIndex) throws GlennonException {
         requireInRange(missionIndex);
@@ -56,8 +56,8 @@ public class TaskList {
      * Marks the mission at the specified position as complete.
      *
      * @param missionIndex zero-based position of the mission.
-     * @return mission whose status was changed
-     * @throws GlennonException if the position is outside the log
+     * @return mission whose status was changed.
+     * @throws GlennonException if the position is outside the log.
      */
     public Task mark(int missionIndex) throws GlennonException {
         Task mission = get(missionIndex);
@@ -69,8 +69,8 @@ public class TaskList {
      * Marks the mission at the specified position as incomplete.
      *
      * @param missionIndex zero-based position of the mission.
-     * @return mission whose status was changed
-     * @throws GlennonException if the position is outside the log
+     * @return mission whose status was changed.
+     * @throws GlennonException if the position is outside the log.
      */
     public Task unmark(int missionIndex) throws GlennonException {
         Task mission = get(missionIndex);
@@ -82,8 +82,8 @@ public class TaskList {
      * Removes the mission at the given position and returns it.
      *
      * @param missionIndex zero-based position of the mission.
-     * @return the mission that was removed
-     * @throws GlennonException if the position is outside the log
+     * @return the mission that was removed.
+     * @throws GlennonException if the position is outside the log.
      */
     public Task remove(int missionIndex) throws GlennonException {
         requireInRange(missionIndex);
@@ -93,7 +93,7 @@ public class TaskList {
     /**
      * Returns how many missions are currently stored.
      *
-     * @return the mission count
+     * @return the mission count.
      */
     public int size() {
         return missions.size();
@@ -102,7 +102,7 @@ public class TaskList {
     /**
      * Returns a read-only view of the missions for display.
      *
-     * @return the stored missions in insertion order
+     * @return the stored missions in insertion order.
      */
     public List<Task> asList() {
         return Collections.unmodifiableList(missions);
@@ -130,7 +130,7 @@ public class TaskList {
      * their order in the mission log.
      *
      * @param date date whose scheduled missions should be returned.
-     * @return matching scheduled missions
+     * @return matching scheduled missions.
      */
     public List<Task> occurringOn(LocalDate date) {
         List<Task> matchingMissions = new ArrayList<>();
@@ -146,7 +146,7 @@ public class TaskList {
      * Rejects a position that no mission occupies.
      *
      * @param missionIndex zero-based position to check.
-     * @throws GlennonException if the position is outside the log
+     * @throws GlennonException if the position is outside the log.
      */
     private void requireInRange(int missionIndex) throws GlennonException {
         if (missionIndex < 0 || missionIndex >= missions.size()) {
