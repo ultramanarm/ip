@@ -301,6 +301,10 @@ public final class Parser {
      * @return trimmed command arguments.
      */
     private static String parseArguments(String input, CommandType commandType) {
+        assert commandType.acceptsArguments
+                : "Argument parsing requires a command type that accepts arguments";
+        assert commandType.matches(input)
+                : "Input must match the command type used to parse its arguments";
         return input.substring(commandType.keyword.length()).trim();
     }
 
