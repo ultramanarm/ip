@@ -116,13 +116,9 @@ public class TaskList {
      * @return matching missions in insertion order.
      */
     public List<Task> findByDescription(String keyword) {
-        List<Task> matchingMissions = new ArrayList<>();
-        for (Task mission : missions) {
-            if (mission.getDescription().contains(keyword)) {
-                matchingMissions.add(mission);
-            }
-        }
-        return Collections.unmodifiableList(matchingMissions);
+        return missions.stream()
+                .filter(mission -> mission.getDescription().contains(keyword))
+                .toList();
     }
 
     /**
@@ -133,13 +129,9 @@ public class TaskList {
      * @return matching scheduled missions.
      */
     public List<Task> occurringOn(LocalDate date) {
-        List<Task> matchingMissions = new ArrayList<>();
-        for (Task mission : missions) {
-            if (mission.occursOn(date)) {
-                matchingMissions.add(mission);
-            }
-        }
-        return Collections.unmodifiableList(matchingMissions);
+        return missions.stream()
+                .filter(mission -> mission.occursOn(date))
+                .toList();
     }
 
     /**
