@@ -37,8 +37,8 @@ class MainWindowTest {
 
     private AnchorPane root;
     private TextField input;
-    private Button send;
-    private VBox dialogs;
+    private Button sendButton;
+    private VBox dialogContainer;
     private Stage stage;
 
     @BeforeAll
@@ -68,8 +68,8 @@ class MainWindowTest {
                 stage.setScene(new Scene(root));
                 stage.show();
                 input = (TextField) root.lookup("#userInput");
-                send = (Button) root.lookup("#sendButton");
-                dialogs = (VBox) root.lookup("#dialogContainer");
+                sendButton = (Button) root.lookup("#sendButton");
+                dialogContainer = (VBox) root.lookup("#dialogContainer");
                 scenario.run();
             } finally {
                 if (stage != null) {
@@ -84,17 +84,17 @@ class MainWindowTest {
 
     private void submit(String command) {
         input.setText(command);
-        send.fire();
+        sendButton.fire();
     }
 
     private String lastResponse() {
-        return ((Label) dialogs.getChildren().getLast().lookup("#dialog")).getText();
+        return ((Label) dialogContainer.getChildren().getLast().lookup("#dialog")).getText();
     }
 
     @Test
     void initialize_freshSession_displaysGreeting() throws Exception {
         runScenario(() -> {
-            assertEquals(1, dialogs.getChildren().size());
+            assertEquals(1, dialogContainer.getChildren().size());
             assertEquals("Hey there! Glennon online.\nWhat's the mission?", lastResponse());
             assertFalse(input.isDisabled());
         });
@@ -104,7 +104,7 @@ class MainWindowTest {
     void handleUserInput_sendButton_addsExchangeAndClearsInput() throws Exception {
         runScenario(() -> {
             submit("todo send a mission");
-            assertEquals(3, dialogs.getChildren().size());
+            assertEquals(3, dialogContainer.getChildren().size());
             assertEquals("", input.getText());
             assertEquals("Mission added: [T][ ] send a mission\nMission log now has 1 mission.", lastResponse());
         });
@@ -124,8 +124,8 @@ class MainWindowTest {
     void dialogBox_speakers_alignOnOppositeSides() throws Exception {
         runScenario(() -> {
             submit("list");
-            DialogBox user = (DialogBox) dialogs.getChildren().get(1);
-            DialogBox reply = (DialogBox) dialogs.getChildren().get(2);
+            DialogBox user = (DialogBox) dialogContainer.getChildren().get(1);
+            DialogBox reply = (DialogBox) dialogContainer.getChildren().get(2);
             assertEquals(Pos.TOP_RIGHT, user.getAlignment());
             assertEquals(Pos.TOP_LEFT, reply.getAlignment());
             assertEquals("You", ((Label) user.getChildren().getLast()).getText());
@@ -142,7 +142,7 @@ class MainWindowTest {
             root.resize(380, 500);
             root.applyCss();
             root.layout();
-            Label reply = (Label) dialogs.getChildren().getLast().lookup("#dialog");
+            Label reply = (Label) dialogContainer.getChildren().getLast().lookup("#dialog");
             assertTrue(reply.isWrapText());
             assertTrue(reply.getHeight() > 40);
             assertTrue(reply.getText().contains(mission));
@@ -160,7 +160,7 @@ class MainWindowTest {
             root.layout();
             ScrollPane scroll = (ScrollPane) root.lookup("#scrollPane");
             assertEquals(1.0, scroll.getVvalue());
-            assertEquals(41, dialogs.getChildren().size());
+            assertEquals(41, dialogContainer.getChildren().size());
         });
     }
 
@@ -170,9 +170,9 @@ class MainWindowTest {
             submit("bye");
             assertEquals("Signing off. Catch you on the next mission!", lastResponse());
             assertTrue(input.isDisabled());
-            assertTrue(send.isDisabled());
+            assertTrue(sendButton.isDisabled());
             submit("todo too late");
-            assertEquals(3, dialogs.getChildren().size());
+            assertEquals(3, dialogContainer.getChildren().size());
         });
     }
 
@@ -204,9 +204,9 @@ class MainWindowTest {
         runScenario(() -> {
             assertTrue(lastResponse().contains("Mission data is corrupted at line 1."));
             assertTrue(input.isDisabled());
-            assertTrue(send.isDisabled());
+            assertTrue(sendButton.isDisabled());
             submit("todo cannot overwrite");
-            assertEquals(1, dialogs.getChildren().size());
+            assertEquals(1, dialogContainer.getChildren().size());
         });
         assertEquals("corrupt", Files.readString(directory.resolve("missions.txt")));
     }
