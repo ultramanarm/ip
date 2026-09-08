@@ -14,17 +14,17 @@ public class Deadline extends Task {
             DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a", Locale.ENGLISH);
 
     /** Date and time by which this task should be completed. */
-    private final LocalDateTime by;
+    private final LocalDateTime dueDateTime;
 
     /**
      * Creates a pending deadline task with the given description and deadline.
      *
      * @param description description of the task.
-     * @param by date and time by which the task should be completed.
+     * @param dueDateTime date and time by which the task should be completed.
      */
-    public Deadline(String description, LocalDateTime by) {
+    public Deadline(String description, LocalDateTime dueDateTime) {
         super(description);
-        this.by = by;
+        this.dueDateTime = dueDateTime;
     }
 
     /**
@@ -32,8 +32,8 @@ public class Deadline extends Task {
      *
      * @return deadline date and time.
      */
-    public LocalDateTime getBy() {
-        return by;
+    public LocalDateTime getDueDateTime() {
+        return dueDateTime;
     }
 
     /**
@@ -44,7 +44,7 @@ public class Deadline extends Task {
      */
     @Override
     public boolean occursOn(LocalDate date) {
-        return by.toLocalDate().equals(date);
+        return dueDateTime.toLocalDate().equals(date);
     }
 
     /**
@@ -55,6 +55,6 @@ public class Deadline extends Task {
      */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by.format(DISPLAY_FORMAT) + ")";
+        return "[D]" + super.toString() + " (by: " + dueDateTime.format(DISPLAY_FORMAT) + ")";
     }
 }

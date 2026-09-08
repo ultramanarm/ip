@@ -19,22 +19,22 @@ public class Event extends Task {
             DateTimeFormatter.ofPattern("MMM d uuuu", Locale.ENGLISH);
 
     /** Date and time when the event starts. */
-    private final LocalDateTime from;
+    private final LocalDateTime startDateTime;
 
     /** Date and time when the event ends. */
-    private final LocalDateTime to;
+    private final LocalDateTime endDateTime;
 
     /**
      * Creates a pending event task with the given description and time range.
      *
      * @param description description of the event.
-     * @param from date and time when the event starts.
-     * @param to date and time when the event ends.
+     * @param startDateTime date and time when the event starts.
+     * @param endDateTime date and time when the event ends.
      */
-    public Event(String description, LocalDateTime from, LocalDateTime to) {
+    public Event(String description, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         super(description);
-        this.from = from;
-        this.to = to;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
     }
 
     /**
@@ -42,8 +42,8 @@ public class Event extends Task {
      *
      * @return event start date and time.
      */
-    public LocalDateTime getFrom() {
-        return from;
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
     }
 
     /**
@@ -51,8 +51,8 @@ public class Event extends Task {
      *
      * @return event end date and time.
      */
-    public LocalDateTime getTo() {
-        return to;
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
     }
 
     /**
@@ -64,8 +64,8 @@ public class Event extends Task {
      */
     @Override
     public boolean occursOn(LocalDate date) {
-        LocalDate startDate = from.toLocalDate();
-        LocalDate endDate = to.toLocalDate();
+        LocalDate startDate = startDateTime.toLocalDate();
+        LocalDate endDate = endDateTime.toLocalDate();
         return !date.isBefore(startDate) && !date.isAfter(endDate);
     }
 
@@ -78,14 +78,14 @@ public class Event extends Task {
      */
     @Override
     public String toString() {
-        if (from.toLocalTime().equals(LocalTime.MIN)
-                && to.toLocalTime().equals(LocalTime.MAX)) {
+        if (startDateTime.toLocalTime().equals(LocalTime.MIN)
+                && endDateTime.toLocalTime().equals(LocalTime.MAX)) {
             return "[E]" + super.toString()
-                    + " (all day: " + from.toLocalDate().format(DATE_DISPLAY_FORMAT)
-                    + " to: " + to.toLocalDate().format(DATE_DISPLAY_FORMAT) + ")";
+                    + " (all day: " + startDateTime.toLocalDate().format(DATE_DISPLAY_FORMAT)
+                    + " to: " + endDateTime.toLocalDate().format(DATE_DISPLAY_FORMAT) + ")";
         }
         return "[E]" + super.toString()
-                + " (from: " + from.format(DISPLAY_FORMAT)
-                + " to: " + to.format(DISPLAY_FORMAT) + ")";
+                + " (from: " + startDateTime.format(DISPLAY_FORMAT)
+                + " to: " + endDateTime.format(DISPLAY_FORMAT) + ")";
     }
 }

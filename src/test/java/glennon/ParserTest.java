@@ -71,14 +71,14 @@ class ParserTest {
         Deadline deadline = Parser.parseDeadline("deadline celebrate /by 29/2/2024 0905");
 
         assertEquals("celebrate", deadline.getDescription());
-        assertEquals(LocalDateTime.of(2024, 2, 29, 9, 5), deadline.getBy());
+        assertEquals(LocalDateTime.of(2024, 2, 29, 9, 5), deadline.getDueDateTime());
     }
 
     @Test
     void parseDeadline_dateWithoutTime_defaultsToEndOfDay() throws GlennonException {
         Deadline deadline = Parser.parseDeadline("deadline submit report /by 2/12/2019");
 
-        assertEquals(LocalDateTime.of(2019, 12, 2, 23, 59), deadline.getBy());
+        assertEquals(LocalDateTime.of(2019, 12, 2, 23, 59), deadline.getDueDateTime());
     }
 
     @Test
@@ -105,16 +105,16 @@ class ParserTest {
                 "event hackathon /from 31/12/2025 2300 /to 1/1/2026 0100");
 
         assertEquals("hackathon", event.getDescription());
-        assertEquals(LocalDateTime.of(2025, 12, 31, 23, 0), event.getFrom());
-        assertEquals(LocalDateTime.of(2026, 1, 1, 1, 0), event.getTo());
+        assertEquals(LocalDateTime.of(2025, 12, 31, 23, 0), event.getStartDateTime());
+        assertEquals(LocalDateTime.of(2026, 1, 1, 1, 0), event.getEndDateTime());
     }
 
     @Test
     void parseEvent_datesWithoutTimes_defaultsToAllDayBoundaries() throws GlennonException {
         Event event = Parser.parseEvent("event conference /from 2/12/2019 /to 3/12/2019");
 
-        assertEquals(LocalDate.of(2019, 12, 2).atStartOfDay(), event.getFrom());
-        assertEquals(LocalDate.of(2019, 12, 3).atTime(LocalTime.MAX), event.getTo());
+        assertEquals(LocalDate.of(2019, 12, 2).atStartOfDay(), event.getStartDateTime());
+        assertEquals(LocalDate.of(2019, 12, 3).atTime(LocalTime.MAX), event.getEndDateTime());
         assertEquals("[E][ ] conference (all day: Dec 2 2019 to: Dec 3 2019)", event.toString());
     }
 
@@ -123,8 +123,8 @@ class ParserTest {
         Event event = Parser.parseEvent(
                 "event workshop /from 2/12/2019 1400 /to 2/12/2019");
 
-        assertEquals(LocalDateTime.of(2019, 12, 2, 14, 0), event.getFrom());
-        assertEquals(LocalDate.of(2019, 12, 2).atTime(LocalTime.MAX), event.getTo());
+        assertEquals(LocalDateTime.of(2019, 12, 2, 14, 0), event.getStartDateTime());
+        assertEquals(LocalDate.of(2019, 12, 2).atTime(LocalTime.MAX), event.getEndDateTime());
     }
 
     @Test
@@ -132,7 +132,7 @@ class ParserTest {
         Event event = Parser.parseEvent(
                 "event checkpoint /from 2/12/2019 1800 /to 2/12/2019 1800");
 
-        assertEquals(event.getFrom(), event.getTo());
+        assertEquals(event.getStartDateTime(), event.getEndDateTime());
     }
 
     @Test

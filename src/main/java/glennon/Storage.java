@@ -112,7 +112,7 @@ public class Storage {
                     "D",
                     status,
                     description,
-                    encode(deadline.getBy().toString()));
+                    encode(deadline.getDueDateTime().toString()));
         }
         if (mission instanceof Event event) {
             return String.join(
@@ -120,8 +120,8 @@ public class Storage {
                     "E",
                     status,
                     description,
-                    encode(event.getFrom().toString()),
-                    encode(event.getTo().toString()));
+                    encode(event.getStartDateTime().toString()),
+                    encode(event.getEndDateTime().toString()));
         }
         throw new GlennonException("Glennon cannot save an unsupported mission type.");
     }

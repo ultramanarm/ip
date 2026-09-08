@@ -60,11 +60,11 @@ class StorageTest {
         assertEquals(todo.getDescription(), loadedTodo.getDescription());
         assertFalse(loadedTodo.isDone());
         assertEquals(deadline.getDescription(), loadedDeadline.getDescription());
-        assertEquals(deadline.getBy(), loadedDeadline.getBy());
+        assertEquals(deadline.getDueDateTime(), loadedDeadline.getDueDateTime());
         assertTrue(loadedDeadline.isDone());
         assertEquals(event.getDescription(), loadedEvent.getDescription());
-        assertEquals(event.getFrom(), loadedEvent.getFrom());
-        assertEquals(event.getTo(), loadedEvent.getTo());
+        assertEquals(event.getStartDateTime(), loadedEvent.getStartDateTime());
+        assertEquals(event.getEndDateTime(), loadedEvent.getEndDateTime());
         assertFalse(loadedEvent.isDone());
     }
 
