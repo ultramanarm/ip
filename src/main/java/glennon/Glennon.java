@@ -75,13 +75,7 @@ public class Glennon {
         } else if (hasExited) {
             responseUi.showGoodbye();
         } else {
-            try {
-                Command command = Parser.parse(input);
-                command.execute(missions, responseUi, storage);
-                hasExited = command.isExit();
-            } catch (GlennonException e) {
-                responseUi.showError(e.getMessage());
-            }
+            hasExited = executeCommand(input, responseUi);
         }
         return response.toString().stripTrailing();
     }
@@ -113,6 +107,25 @@ public class Glennon {
     }
 
     /**
+     * Parses and executes one command, reporting recoverable failures through
+     * the supplied user interface.
+     *
+     * @param input complete command entered by the user.
+     * @param currentUi interface that receives the command result.
+     * @return true when the command ends the current session.
+     */
+    private boolean executeCommand(String input, Ui currentUi) {
+        try {
+            Command command = Parser.parse(input);
+            command.execute(missions, currentUi, storage);
+            return command.isExit();
+        } catch (GlennonException e) {
+            currentUi.showError(e.getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Greets the user, loads saved missions, processes commands, and closes the
      * user interface when input ends or the user enters {@code bye}.
      */
@@ -132,15 +145,8 @@ public class Glennon {
             String command = ui.readCommand();
             ui.showDivider();
 
-            try {
-                Command parsedCommand = Parser.parse(command);
-                parsedCommand.execute(missions, ui, storage);
-                isSigningOff = parsedCommand.isExit();
-            } catch (GlennonException e) {
-                ui.showError(e.getMessage());
-            } finally {
-                ui.showDivider();
-            }
+            isSigningOff = executeCommand(command, ui);
+            ui.showDivider();
         }
 
         ui.close();
