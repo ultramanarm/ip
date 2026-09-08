@@ -77,7 +77,17 @@ public class Glennon {
         } else {
             hasExited = executeCommand(input, responseUi);
         }
-        return response.toString().stripTrailing();
+        return normalizeLineEndings(response.toString()).stripTrailing();
+    }
+
+    /**
+     * Converts platform-specific line endings into line feeds for GUI responses.
+     *
+     * @param text response text that may contain platform-specific line endings.
+     * @return response text using line feeds consistently.
+     */
+    static String normalizeLineEndings(String text) {
+        return text.replace("\r\n", "\n").replace('\r', '\n');
     }
 
     /**

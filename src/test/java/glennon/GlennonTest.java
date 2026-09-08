@@ -23,6 +23,11 @@ class GlennonTest {
     }
 
     @Test
+    void normalizeLineEndings_mixedLineEndings_returnsLineFeeds() {
+        assertEquals("first\nsecond\nthird", Glennon.normalizeLineEndings("first\r\nsecond\rthird"));
+    }
+
+    @Test
     void getResponse_missionLifecycle_preservesStateAndFormatting() {
         Glennon glennon = createGlennon();
         assertEquals("Hey there! Glennon online.\nWhat's the mission?", glennon.getWelcome());
