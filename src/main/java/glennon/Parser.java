@@ -15,6 +15,7 @@ import glennon.command.FindCommand;
 import glennon.command.ListCommand;
 import glennon.command.MarkCommand;
 import glennon.command.OnCommand;
+import glennon.command.SortCommand;
 import glennon.exception.GlennonException;
 import glennon.task.Deadline;
 import glennon.task.Event;
@@ -34,6 +35,9 @@ public final class Parser {
 
         /** Displays every mission in the log. */
         LIST("list", false),
+
+        /** Sorts scheduled missions chronologically. */
+        SORT("sort", false),
 
         /** Finds missions whose descriptions contain a keyword. */
         FIND("find", true),
@@ -147,6 +151,7 @@ public final class Parser {
         return switch (commandType) {
             case BYE -> new ExitCommand();
             case LIST -> new ListCommand();
+            case SORT -> new SortCommand();
             case FIND -> new FindCommand(parseKeyword(input));
             case ON -> new OnCommand(parseDate(input));
             case MARK -> new MarkCommand(parseMissionIndex(input, commandType), true);
@@ -157,8 +162,8 @@ public final class Parser {
             case EVENT -> new AddCommand(parseEvent(input));
             case UNKNOWN -> throw new GlennonException(
                     "Glennon doesn't recognize that command.\n"
-                            + "Try: todo, deadline, event, list, find, on, mark, unmark, "
-                            + "delete, or bye.");
+                            + "Try: todo, deadline, event, list, sort, find, on, mark, "
+                            + "unmark, delete, or bye.");
         };
     }
 

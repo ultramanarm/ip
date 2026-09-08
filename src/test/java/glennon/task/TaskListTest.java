@@ -134,4 +134,44 @@ class TaskListTest {
         assertThrows(
                 UnsupportedOperationException.class, () -> matches.add(new Todo("intruder")));
     }
+
+    @Test
+    void sortChronologically_mixedMissions_ordersDatesAndKeepsTiesStable() {
+        Todo firstTodo = new Todo("first unscheduled");
+        Deadline laterDeadline = new Deadline(
+                "later deadline", LocalDateTime.of(2026, 9, 3, 9, 0));
+        Event tiedEvent = new Event(
+                "tied event",
+                LocalDateTime.of(2026, 9, 2, 9, 0),
+                LocalDateTime.of(2026, 9, 2, 10, 0));
+        Deadline earliestDeadline = new Deadline(
+                "earliest deadline", LocalDateTime.of(2026, 9, 1, 18, 0));
+        Deadline tiedDeadline = new Deadline(
+                "tied deadline", LocalDateTime.of(2026, 9, 2, 9, 0));
+        Todo secondTodo = new Todo("second unscheduled");
+        TaskList missions = new TaskList(List.of(
+                firstTodo, laterDeadline, tiedEvent,
+                earliestDeadline, tiedDeadline, secondTodo));
+        tiedEvent.markAsDone();
+
+        missions.sortChronologically();
+
+        assertEquals(List.of(
+                earliestDeadline, tiedEvent, tiedDeadline,
+                laterDeadline, firstTodo, secondTodo), missions.asList());
+        assertTrue(tiedEvent.isDone());
+    }
+
+    @Test
+    void sortChronologically_emptyOrSingleMission_preservesContents() {
+        TaskList emptyMissions = new TaskList();
+        Todo onlyMission = new Todo("only mission");
+        TaskList singleMission = new TaskList(List.of(onlyMission));
+
+        emptyMissions.sortChronologically();
+        singleMission.sortChronologically();
+
+        assertTrue(emptyMissions.asList().isEmpty());
+        assertEquals(List.of(onlyMission), singleMission.asList());
+    }
 }

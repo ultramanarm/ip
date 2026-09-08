@@ -105,6 +105,25 @@ public class Ui {
      */
     public void showMissionList(List<Task> missions) {
         output.println("Mission log:");
+        showNumberedMissions(missions);
+    }
+
+    /**
+     * Confirms that missions were sorted and displays their new order.
+     *
+     * @param missions missions in chronological order.
+     */
+    public void showSortedMissions(List<Task> missions) {
+        output.println("Mission log sorted chronologically:");
+        showNumberedMissions(missions);
+    }
+
+    /**
+     * Displays missions with one-based positions.
+     *
+     * @param missions missions to display.
+     */
+    private void showNumberedMissions(List<Task> missions) {
         for (int i = 0; i < missions.size(); i++) {
             output.println((i + 1) + ". " + missions.get(i));
         }
