@@ -25,7 +25,7 @@ public class Glennon {
     private boolean isInitialized;
 
     /** Whether the GUI session has received an exit command. */
-    private boolean isExit;
+    private boolean hasExited;
 
     /** Load failure that prevents the GUI from overwriting unreadable data. */
     private String startupError;
@@ -72,13 +72,13 @@ public class Glennon {
         Ui responseUi = new Ui(new PrintWriter(response, true));
         if (startupError != null) {
             responseUi.showError(startupError);
-        } else if (isExit) {
+        } else if (hasExited) {
             responseUi.showGoodbye();
         } else {
             try {
                 Command command = Parser.parse(input);
                 command.execute(missions, responseUi, storage);
-                isExit = command.isExit();
+                hasExited = command.isExit();
             } catch (GlennonException e) {
                 responseUi.showError(e.getMessage());
             }
@@ -86,8 +86,13 @@ public class Glennon {
         return response.toString().stripTrailing();
     }
 
-    public boolean isExit() {
-        return isExit;
+    /**
+     * Returns whether the GUI session has received an exit command.
+     *
+     * @return true when the session has received an exit command.
+     */
+    public boolean hasExited() {
+        return hasExited;
     }
 
     public boolean hasStartupError() {

@@ -72,10 +72,10 @@ class GlennonTest {
     @Test
     void getResponse_exit_preventsFurtherMutations() {
         Glennon glennon = createGlennon();
-        assertFalse(glennon.isExit());
+        assertFalse(glennon.hasExited());
         String goodbye = "Signing off. Catch you on the next mission!";
         assertEquals(goodbye, glennon.getResponse("bye"));
-        assertTrue(glennon.isExit());
+        assertTrue(glennon.hasExited());
         assertEquals(goodbye, glennon.getResponse("todo too late"));
         assertEquals("Mission log:", createGlennon().getResponse("list"));
     }

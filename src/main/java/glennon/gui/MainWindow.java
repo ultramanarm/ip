@@ -49,7 +49,7 @@ public class MainWindow extends AnchorPane {
     /** Appends the exchange and lets the goodbye remain visible before closing. */
     @FXML
     private void handleUserInput() {
-        if (glennon.isExit() || glennon.hasStartupError()) {
+        if (glennon.hasExited() || glennon.hasStartupError()) {
             return;
         }
         String input = userInput.getText();
@@ -58,7 +58,7 @@ public class MainWindow extends AnchorPane {
                 DialogBox.createGlennonDialog(glennon.getResponse(input)));
         userInput.clear();
         userInput.requestFocus();
-        if (glennon.isExit()) {
+        if (glennon.hasExited()) {
             userInput.setDisable(true);
             sendButton.setDisable(true);
             PauseTransition pause = new PauseTransition(Duration.seconds(1));
