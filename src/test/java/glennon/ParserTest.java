@@ -167,6 +167,17 @@ class ParserTest {
     }
 
     @Test
+    void parseTodo_mismatchedCommand_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> Parser.parseTodo("find book"));
+    }
+
+    @Test
+    void parseMissionIndex_commandWithoutArguments_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> Parser.parseMissionIndex(
+                "list", Parser.CommandType.LIST));
+    }
+
+    @Test
     void parseDate_validLeapDay_returnsDate() throws GlennonException {
         assertEquals(LocalDate.of(2024, 2, 29), Parser.parseDate("on 29/2/2024"));
     }
