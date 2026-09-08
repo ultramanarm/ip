@@ -40,7 +40,7 @@ public class MainWindow extends AnchorPane {
      */
     public void setGlennon(Glennon glennon) {
         this.glennon = glennon;
-        dialogContainer.getChildren().add(DialogBox.getGlennonDialog(glennon.getWelcome()));
+        dialogContainer.getChildren().add(DialogBox.createGlennonDialog(glennon.getWelcome()));
         userInput.setDisable(glennon.hasStartupError());
         sendButton.setDisable(glennon.hasStartupError());
         Platform.runLater(userInput::requestFocus);
@@ -54,8 +54,8 @@ public class MainWindow extends AnchorPane {
         }
         String input = userInput.getText();
         dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input),
-                DialogBox.getGlennonDialog(glennon.getResponse(input)));
+                DialogBox.createUserDialog(input),
+                DialogBox.createGlennonDialog(glennon.getResponse(input)));
         userInput.clear();
         userInput.requestFocus();
         if (glennon.isExit()) {

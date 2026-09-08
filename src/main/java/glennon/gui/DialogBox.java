@@ -50,7 +50,7 @@ public class DialogBox extends HBox {
      * @param text user input.
      * @return user dialog.
      */
-    public static DialogBox getUserDialog(String text) {
+    public static DialogBox createUserDialog(String text) {
         return new DialogBox(text, "You");
     }
 
@@ -60,7 +60,7 @@ public class DialogBox extends HBox {
      * @param text response text.
      * @return Glennon dialog.
      */
-    public static DialogBox getGlennonDialog(String text) {
+    public static DialogBox createGlennonDialog(String text) {
         DialogBox dialogBox = new DialogBox(text, "G");
         dialogBox.flip();
         return dialogBox;
