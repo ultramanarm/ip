@@ -1,9 +1,9 @@
 # Automated testing
 
-Use Zulu JDK `25.0.3.fx-zulu`. The complete suite needs a desktop session
-because it includes twenty-one JavaFX interaction tests. Tests use temporary
-data files; the console regression runner also uses a separate working
-directory for each case.
+Use Zulu JDK `25.0.3.fx-zulu` and Python 3.9 or newer. The complete suite needs
+a desktop session because it includes twenty-one JavaFX interaction tests.
+Tests use temporary data files; the console regression runner also uses a
+separate working directory for each case.
 
 ## Run the complete checks
 
@@ -19,10 +19,12 @@ python3 test/run_ui_plan.py --plan test/ui-test-plan.md -- \
   "$JAVA_HOME/bin/java" -cp "$PWD/build/classes/java/main" glennon.Glennon
 ```
 
-Both version commands must report `25.0.3`. The console runner requires the
-local `test-ui` skill and `test/ui-test-plan.md`, which are not tracked in this
-working copy. It checks complete responses, including whitespace, and rejects
-duplicate command sequences. Review that plan before running it and preserve
+Both version commands must report `25.0.3`. The console launcher, shared runner
+(`test/run_ui_tests.py`), and specification (`test/ui-test-plan.md`) are all
+included in the repository, so the commands also work in a fresh clone without
+installing Codex skills or Python packages. The console runner supports macOS
+and Linux. It checks complete responses, including whitespace, and rejects
+duplicate command sequences. Review the plan before running it and preserve
 its expected output unless the intended behavior changes.
 
 Reports:
