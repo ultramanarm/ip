@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<fx:root type="javafx.scene.layout.HBox" alignment="TOP_RIGHT" spacing="10.0"
-         stylesheets="@../css/dialog-box.css"
+<fx:root type="javafx.scene.layout.HBox" alignment="TOP_RIGHT" styleClass="dialog-box"
+         minWidth="0.0" minHeight="-Infinity" stylesheets="@../css/dialog-box.css"
          xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <Label fx:id="dialog" styleClass="dialog-text" wrapText="true" minWidth="0.0" minHeight="-Infinity" />
-        <Label fx:id="displayBadge" styleClass="speaker-badge"
-               minWidth="38.0" prefWidth="38.0" maxWidth="38.0"
-               minHeight="38.0" prefHeight="38.0" maxHeight="38.0" />
+        <VBox fx:id="message" styleClass="message-card" minWidth="0.0" spacing="6.0">
+            <children>
+                <Label fx:id="messageType" text="ATTENTION NEEDED" styleClass="message-type"
+                       visible="false" managed="false" />
+                <Label fx:id="dialog" styleClass="dialog-text" wrapText="true"
+                       minWidth="0.0" minHeight="-Infinity" maxWidth="Infinity" />
+            </children>
+        </VBox>
     </children>
-    <padding>
-        <Insets top="8.0" right="16.0" bottom="8.0" left="16.0" />
-    </padding>
 </fx:root>

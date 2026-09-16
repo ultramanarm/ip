@@ -1,9 +1,11 @@
 package glennon.gui;
 
+import glennon.CommandResponse;
 import glennon.Glennon;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -26,11 +28,39 @@ public class MainWindow extends AnchorPane {
 
     private Glennon glennon;
 
-    /** Keeps the latest response visible when the dialog container grows. */
+    /**
+     * Holds the reading position while JavaFX reflows a resized viewport.
+     */
+    private Double scrollPositionBeforeResize;
+
+    /**
+     * Preserves the relative reading position when either window dimension changes.
+     */
     @FXML
     private void initialize() {
-        dialogContainer.heightProperty().addListener((observable, oldHeight, newHeight) ->
-                scrollPane.setVvalue(1.0));
+        scrollPane.widthProperty().addListener((observable, oldWidth, newWidth) -> preserveScrollPosition());
+        scrollPane.heightProperty().addListener((observable, oldHeight, newHeight) -> preserveScrollPosition());
+    }
+
+    /**
+     * Restores the position after layout, combining width and height changes into one update.
+     */
+    private void preserveScrollPosition() {
+        Scene scene = scrollPane.getScene();
+        if (scrollPositionBeforeResize != null || scene == null) {
+            return;
+        }
+        scrollPositionBeforeResize = scrollPane.getVvalue();
+        scene.addPostLayoutPulseListener(new Runnable() {
+            @Override
+            public void run() {
+                if (scrollPositionBeforeResize != null) {
+                    scrollPane.setVvalue(scrollPositionBeforeResize);
+                    scrollPositionBeforeResize = null;
+                }
+                scene.removePostLayoutPulseListener(this);
+            }
+        });
     }
 
     /**
@@ -40,24 +70,40 @@ public class MainWindow extends AnchorPane {
      */
     public void setGlennon(Glennon glennon) {
         this.glennon = glennon;
-        dialogContainer.getChildren().add(DialogBox.createGlennonDialog(glennon.getWelcome()));
+        String welcome = glennon.getWelcome();
+        dialogContainer.getChildren().add(glennon.hasStartupError()
+                ? DialogBox.createErrorDialog(welcome)
+                : DialogBox.createGlennonDialog(welcome));
         userInput.setDisable(glennon.hasStartupError());
         sendButton.setDisable(glennon.hasStartupError());
         Platform.runLater(userInput::requestFocus);
     }
 
-    /** Appends the exchange and lets the goodbye remain visible before closing. */
+    /**
+     * Appends the exchange and lets the goodbye remain visible before closing.
+     */
     @FXML
     private void handleUserInput() {
         if (glennon.hasExited() || glennon.hasStartupError()) {
             return;
         }
         String input = userInput.getText();
+        CommandResponse response = glennon.getCommandResponse(input);
         dialogContainer.getChildren().addAll(
                 DialogBox.createUserDialog(input),
-                DialogBox.createGlennonDialog(glennon.getResponse(input)));
-        userInput.clear();
+                response.isError() ? DialogBox.createErrorDialog(response.text())
+                        : DialogBox.createGlennonDialog(response.text()));
+        // Measure new content before scrolling, without reacting to history reflow on resize.
+        scrollPane.applyCss();
+        scrollPane.layout();
+        scrollPositionBeforeResize = null;
+        scrollPane.setVvalue(1.0);
         userInput.requestFocus();
+        if (response.isError()) {
+            userInput.selectAll();
+        } else {
+            userInput.clear();
+        }
         if (glennon.hasExited()) {
             userInput.setDisable(true);
             sendButton.setDisable(true);

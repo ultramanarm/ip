@@ -3,6 +3,20 @@
 Glennon is a personal mission tracker for to-dos, deadlines, and events. It
 accepts one command per line and saves changes in `data/glennon.txt`.
 
+## Using the window
+
+Type a command and press Enter or click Send. Your commands appear on the
+right, while Glennon's replies use the available width for longer mission
+lists. Errors have an **ATTENTION NEEDED** heading and a contrasting color.
+A rejected command stays selected in the input field so you can correct it
+immediately; successful commands clear the field.
+
+Resize the window to suit your screen. Messages and command hints wrap, and
+the input stays below the conversation. Scroll up to read older replies;
+resizing keeps your relative position in the history. Sending a new command
+brings its reply into view. You can also Tab to the conversation and use
+Page Up, Page Down, or the arrow keys to scroll with the keyboard.
+
 ## Adding missions
 
 - `todo <mission>` adds an unscheduled mission.

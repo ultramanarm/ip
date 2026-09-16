@@ -40,7 +40,9 @@ public class Ui {
     /** Reads commands from standard input. */
     private final Scanner scanner;
 
-    /** Records errors separately from text so GUI styling does not depend on wording. */
+    /**
+     * Records errors separately from text so GUI styling does not depend on wording.
+     */
     private boolean hasError;
 
     /**
