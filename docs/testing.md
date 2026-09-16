@@ -46,7 +46,7 @@ Reports:
 | Sessions | Filtered mission numbers followed by mark/unmark/delete, sorting, failed saves, retry, and restart; Unicode blank and duplicate rejection; GUI-facing responses and error status; console greeting/dividers; EOF; queued input after exit; startup failures preserve data |
 | JavaFX | Twenty-one FXML interaction, validation, filtered-numbering, scrolling, focus, and resizing scenarios; see [the GUI plan](gui-test-plan.md) |
 
-The suite contains 247 JUnit tests, including 21 JavaFX interaction tests.
+The suite contains 249 JUnit tests, including 21 JavaFX interaction tests.
 Several tests check tables of related input boundaries within one scenario.
 These assertions verify observable results and preserved state, rather than
 only invoking methods to increase coverage.
@@ -59,8 +59,8 @@ coverage separate from visual checks. The project pins
 [JaCoCo 0.8.14](https://github.com/jacoco/jacoco/releases/tag/v0.8.14), which
 supports Java 25.
 
-The expanded suite covers **529/534 core lines (99.1%)**, **219/220 branches
-(99.5%)**, and **125/127 methods (98.4%)**. All task and command classes have
+The expanded suite covers **541/546 core lines (99.1%)**, **224/226 branches
+(99.1%)**, and **126/128 methods (98.4%)**. All task and command classes have
 100% line and branch coverage. Treat these numbers as a snapshot; regenerate
 the report after further changes.
 
@@ -72,6 +72,9 @@ The remaining gaps are:
 - Storage's default task-type switch arm is unreachable after field-count
   validation has already rejected unknown type markers. Tests verify that
   rejection at the public storage boundary.
+- Load-path validation normally finds an existing directory before reaching
+  the end of the ancestor chain. Tests cover missing parent chains and paths
+  blocked by a file, including nested paths.
 
 The console test plan includes corrected full-log numbers for filtered results
 and regression cases for filter-then-update workflows and Unicode description

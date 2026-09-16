@@ -63,6 +63,7 @@ public class Storage {
      */
     public List<Task> loadMissions() throws GlennonException {
         try {
+            requireValidLoadPath();
             TaskList missions = new TaskList();
             // Stored fields are ASCII. Preserve invalid bytes so parsing reports their line number.
             List<String> lines = Files.readAllLines(dataPath, StandardCharsets.ISO_8859_1);
@@ -83,6 +84,29 @@ public class Storage {
                     "Glennon cannot read the mission data. Check the file and folder permissions.", e);
         } catch (IOException e) {
             throw new GlennonException("Glennon could not load the mission data.", e);
+        }
+    }
+
+    /**
+     * Distinguishes missing data from invalid paths before OS-specific read errors occur.
+     *
+     * @throws IOException if an existing ancestor is not a directory or the target is not a regular file.
+     */
+    private void requireValidLoadPath() throws IOException {
+        Path parentPath = dataPath.toAbsolutePath().getParent();
+        while (parentPath != null) {
+            try {
+                if (!Files.readAttributes(parentPath, BasicFileAttributes.class).isDirectory()) {
+                    throw new IOException("The mission data parent path is not a directory.");
+                }
+                break;
+            } catch (NoSuchFileException e) {
+                // Windows also reports missing paths when a higher ancestor is a file.
+                parentPath = parentPath.getParent();
+            }
+        }
+        if (!Files.readAttributes(dataPath, BasicFileAttributes.class).isRegularFile()) {
+            throw new IOException("The mission data path is not a regular file.");
         }
     }
 

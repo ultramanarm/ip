@@ -53,7 +53,7 @@ class MutationCommandTest {
         assertSameMissionOrder(List.of(existingMission, addedMission), missions);
         assertEquals("Mission added: [T][ ] new mission\n"
                         + "Mission log now has 2 missions.\n",
-                output.toString());
+                output.toString().replace("\r\n", "\n"));
         assertStoredMissions(missions, storage);
     }
 
@@ -77,7 +77,7 @@ class MutationCommandTest {
         assertEquals("Mission removed:\n"
                         + "  [T][X] delete me\n"
                         + "Mission log now has 2 missions.\n",
-                output.toString());
+                output.toString().replace("\r\n", "\n"));
         assertStoredMissions(missions, storage);
     }
 
@@ -98,7 +98,8 @@ class MutationCommandTest {
         assertSameMissionOrder(List.of(targetMission, otherMission), missions);
         assertTrue(targetMission.isDone());
         assertFalse(otherMission.isDone());
-        assertEquals("Mission marked complete:\n  [T][X] finish report\n", output.toString());
+        assertEquals("Mission marked complete:\n  [T][X] finish report\n",
+                output.toString().replace("\r\n", "\n"));
         assertStoredMissions(missions, storage);
     }
 
@@ -120,7 +121,8 @@ class MutationCommandTest {
         assertSameMissionOrder(List.of(otherMission, targetMission), missions);
         assertFalse(targetMission.isDone());
         assertFalse(otherMission.isDone());
-        assertEquals("Mission marked incomplete:\n  [T][ ] revise report\n", output.toString());
+        assertEquals("Mission marked incomplete:\n  [T][ ] revise report\n",
+                output.toString().replace("\r\n", "\n"));
         assertStoredMissions(missions, storage);
     }
 
@@ -146,7 +148,7 @@ class MutationCommandTest {
                         + "1. [E][X] earlier (from: Sep 1 2026, 9:00 AM to: Sep 1 2026, 10:00 AM)\n"
                         + "2. [D][ ] later (by: Sep 3 2026, 6:00 PM)\n"
                         + "3. [T][ ] unscheduled\n",
-                output.toString());
+                output.toString().replace("\r\n", "\n"));
         assertStoredMissions(missions, storage);
     }
 
@@ -172,7 +174,7 @@ class MutationCommandTest {
         assertStoredMissions(missions, storage);
         assertEquals(("Mission marked complete:\n  [T][X] repeat status update\n").repeat(2)
                         + ("Mission marked incomplete:\n  [T][ ] repeat status update\n").repeat(2),
-                output.toString());
+                output.toString().replace("\r\n", "\n"));
     }
 
     @Test

@@ -56,6 +56,15 @@ class StorageTest {
     }
 
     @Test
+    void loadMissions_missingAncestors_returnsEmptyListWithoutCreatingFolders() throws GlennonException {
+        Path missingParent = temporaryDirectory.resolve("missing");
+        Storage storage = new Storage(missingParent.resolve("nested").resolve("missions.txt"));
+
+        assertTrue(storage.loadMissions().isEmpty());
+        assertFalse(Files.exists(missingParent));
+    }
+
+    @Test
     void loadMissions_emptyFile_returnsMutableEmptyList() throws IOException, GlennonException {
         Path dataPath = Files.createFile(temporaryDirectory.resolve("missions.txt"));
 
@@ -103,6 +112,19 @@ class StorageTest {
 
         assertEquals("Glennon could not load the mission data.", exception.getMessage());
         assertEquals("keep parent contents", Files.readString(parent));
+    }
+
+    @Test
+    void loadMissions_ancestorIsFile_reportsLoadFailureAndPreservesContents() throws IOException {
+        Path ancestor = temporaryDirectory.resolve("ancestor.txt");
+        Files.writeString(ancestor, "keep ancestor contents");
+        Path dataPath = ancestor.resolve("missing").resolve("nested").resolve("missions.txt");
+
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> new Storage(dataPath).loadMissions());
+
+        assertEquals("Glennon could not load the mission data.", exception.getMessage());
+        assertEquals("keep ancestor contents", Files.readString(ancestor));
     }
 
     @Test

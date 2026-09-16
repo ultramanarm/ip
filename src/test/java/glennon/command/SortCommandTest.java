@@ -48,7 +48,7 @@ class SortCommandTest {
                         + "1. [D][ ] earlier (by: Sep 1 2026, 9:00 AM)\n"
                         + "2. [D][ ] later (by: Sep 3 2026, 6:00 PM)\n"
                         + "3. [T][ ] unscheduled\n",
-                output.toString());
+                output.toString().replace("\r\n", "\n"));
         List<Task> reloadedMissions = storage.loadMissions();
         assertEquals("earlier", assertInstanceOf(
                 Deadline.class, reloadedMissions.get(0)).getDescription());
