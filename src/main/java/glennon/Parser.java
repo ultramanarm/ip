@@ -76,17 +76,17 @@ public final class Parser {
         private final String keyword;
 
         /** Whether the keyword may be followed by command arguments. */
-        private final boolean acceptsArguments;
+        private final boolean canAcceptArguments;
 
         /**
          * Creates a command type with its keyword and argument policy.
          *
          * @param keyword command keyword.
-         * @param acceptsArguments whether text may follow the keyword.
+         * @param canAcceptArguments whether text may follow the keyword.
          */
-        CommandType(String keyword, boolean acceptsArguments) {
+        CommandType(String keyword, boolean canAcceptArguments) {
             this.keyword = keyword;
-            this.acceptsArguments = acceptsArguments;
+            this.canAcceptArguments = canAcceptArguments;
         }
 
         /**
@@ -159,7 +159,7 @@ public final class Parser {
     public static Command parse(String input) throws GlennonException {
         String normalizedInput = normalizeInput(input);
         CommandType commandType = parseCommandType(normalizedInput);
-        if (commandType != CommandType.UNKNOWN && !commandType.acceptsArguments
+        if (commandType != CommandType.UNKNOWN && !commandType.canAcceptArguments
                 && !normalizedInput.equals(commandType.keyword)) {
             throw new GlennonException("The " + commandType.keyword
                     + " command does not take arguments. Use: " + commandType.keyword + ".");
@@ -338,7 +338,7 @@ public final class Parser {
      */
     private static String parseArguments(String input, CommandType commandType) throws GlennonException {
         String normalizedInput = normalizeInput(input);
-        assert commandType.acceptsArguments
+        assert commandType.canAcceptArguments
                 : "Argument parsing requires a command type that accepts arguments";
         assert commandType.matches(normalizedInput)
                 : "Input must match the command type used to parse its arguments";
