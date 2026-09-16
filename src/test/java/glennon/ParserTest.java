@@ -1,17 +1,25 @@
 package glennon;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import glennon.command.AddCommand;
+import glennon.command.DeleteCommand;
 import glennon.command.ExitCommand;
 import glennon.command.FindCommand;
 import glennon.command.ListCommand;
@@ -21,18 +29,26 @@ import glennon.command.SortCommand;
 import glennon.exception.GlennonException;
 import glennon.task.Deadline;
 import glennon.task.Event;
+import glennon.task.TaskList;
 import glennon.task.Todo;
 
 /**
  * Tests Glennon's parsing and input-validation rules.
  */
 class ParserTest {
+    @TempDir
+    private Path temporaryDirectory;
+
     @Test
     void parseCommandType_validCommands_returnsMatchingTypes() {
         assertEquals(Parser.CommandType.BYE, Parser.parseCommandType("bye"));
         assertEquals(Parser.CommandType.LIST, Parser.parseCommandType("list"));
         assertEquals(Parser.CommandType.SORT, Parser.parseCommandType("sort"));
         assertEquals(Parser.CommandType.FIND, Parser.parseCommandType("find book"));
+        assertEquals(Parser.CommandType.ON, Parser.parseCommandType("on 2/12/2019"));
+        assertEquals(Parser.CommandType.MARK, Parser.parseCommandType("mark 1"));
+        assertEquals(Parser.CommandType.UNMARK, Parser.parseCommandType("unmark 1"));
+        assertEquals(Parser.CommandType.DELETE, Parser.parseCommandType("delete 1"));
         assertEquals(Parser.CommandType.TODO, Parser.parseCommandType("todo read book"));
         assertEquals(Parser.CommandType.DEADLINE,
                 Parser.parseCommandType("deadline submit report /by 2/12/2019 1800"));
@@ -45,6 +61,13 @@ class ParserTest {
         assertEquals(Parser.CommandType.UNKNOWN, Parser.parseCommandType("listing"));
         assertEquals(Parser.CommandType.UNKNOWN, Parser.parseCommandType("Todo read book"));
         assertEquals(Parser.CommandType.UNKNOWN, Parser.parseCommandType("listings"));
+    }
+
+    @Test
+    void parseCommandType_nonCommandDelimiters_returnsUnknown() {
+        for (String separator : new String[] {"/", "-", "_", "\u2003", "\u00a0"}) {
+            assertEquals(Parser.CommandType.UNKNOWN, Parser.parseCommandType("todo" + separator + "book"));
+        }
     }
 
     @Test
@@ -106,6 +129,12 @@ class ParserTest {
     }
 
     @Test
+    void parseKeyword_flagWordsAndUnicode_preservesLiteralSearchText() throws GlennonException {
+        assertEquals("学习 C++/Java /by  café 🚀",
+                Parser.parseKeyword("\u2003find \u2003学习 C++/Java /by  café 🚀\u2003"));
+    }
+
+    @Test
     void parseDeadline_validLeapDay_returnsDeadline() throws GlennonException {
         Deadline deadline = Parser.parseDeadline("deadline celebrate /by 29/2/2024 0905");
 
@@ -118,6 +147,17 @@ class ParserTest {
         Deadline deadline = Parser.parseDeadline("deadline submit report /by 2/12/2019");
 
         assertEquals(LocalDateTime.of(2019, 12, 2, 23, 59), deadline.getDueDateTime());
+    }
+
+    @Test
+    void parseDeadline_timeBoundariesAndLeapCentury_returnsExactDateTime() throws GlennonException {
+        Deadline midnight = Parser.parseDeadline("deadline leap century /by 29/02/2000 0000");
+        Deadline lastMinute = Parser.parseDeadline("deadline year end /by 31/12/2025 2359");
+
+        assertEquals(LocalDateTime.of(2000, 2, 29, 0, 0), midnight.getDueDateTime());
+        assertEquals(LocalDateTime.of(2025, 12, 31, 23, 59), lastMinute.getDueDateTime());
+        assertFalse(midnight.isDone());
+        assertFalse(lastMinute.isDone());
     }
 
     @Test
@@ -200,6 +240,18 @@ class ParserTest {
     }
 
     @Test
+    void parseDeadline_invalidCalendarBoundaries_throwsDateTimeException() {
+        for (String value : List.of("0/1/2025", "1/0/2025", "1/13/2025", "31/4/2025", "29/2/1900")) {
+            GlennonException exception = assertThrows(
+                    GlennonException.class, () -> Parser.parseDeadline("deadline report /by " + value));
+
+            assertEquals("Please enter dates as d/M/yyyy with an optional HHmm time, "
+                            + "for example 2/12/2019 or 2/12/2019 1800.",
+                    exception.getMessage(), value);
+        }
+    }
+
+    @Test
     void parseEvent_multiDayRange_returnsEvent() throws GlennonException {
         Event event = Parser.parseEvent(
                 "event hackathon /from 31/12/2025 2300 /to 1/1/2026 0100");
@@ -235,6 +287,46 @@ class ParserTest {
 
         assertEquals(LocalDateTime.of(2019, 12, 2, 14, 0), event.getStartDateTime());
         assertEquals(LocalDate.of(2019, 12, 2).atTime(LocalTime.MAX), event.getEndDateTime());
+    }
+
+    @Test
+    void parseEvent_dateOnlyStartAndExplicitEnd_defaultsToStartOfDay() throws GlennonException {
+        Event event = Parser.parseEvent("event morning shift /from 2/12/2019 /to 2/12/2019 0900");
+
+        assertEquals(LocalDateTime.of(2019, 12, 2, 0, 0), event.getStartDateTime());
+        assertEquals(LocalDateTime.of(2019, 12, 2, 9, 0), event.getEndDateTime());
+        assertFalse(event.isDone());
+    }
+
+    @Test
+    void parseEvent_oneMinuteAcrossMidnight_returnsEvent() throws GlennonException {
+        Event event = Parser.parseEvent("event countdown /from 31/12/2025 2359 /to 1/1/2026 0000");
+
+        assertEquals(LocalDateTime.of(2025, 12, 31, 23, 59), event.getStartDateTime());
+        assertEquals(LocalDateTime.of(2026, 1, 1, 0, 0), event.getEndDateTime());
+    }
+
+    @Test
+    void parseEvent_slashesAndFlagPrefixes_preservesDescription() throws GlennonException {
+        Event event = Parser.parseEvent("event /fromage /today /bypass C++/Java "
+                + "/from 2/12/2019 1400 /to 2/12/2019 1600");
+
+        assertEquals("/fromage /today /bypass C++/Java", event.getDescription());
+    }
+
+    @Test
+    void parseEvent_invalidStartOrEnd_throwsDateTimeException() {
+        for (String value : List.of("29/2/2023", "2/12/2019 2400", "2/12/2019 9:00", "tomorrow")) {
+            for (String input : List.of("event meeting /from " + value + " /to 3/12/2019",
+                    "event meeting /from 1/12/2019 /to " + value)) {
+                GlennonException exception = assertThrows(
+                        GlennonException.class, () -> Parser.parseEvent(input));
+
+                assertEquals("Please enter dates as d/M/yyyy with an optional HHmm time, "
+                                + "for example 2/12/2019 or 2/12/2019 1800.",
+                        exception.getMessage(), input);
+            }
+        }
     }
 
     @Test
@@ -373,12 +465,85 @@ class ParserTest {
     }
 
     @Test
+    void parseDate_timeOrTrailingArguments_throwsDateOnlyGuidance() {
+        for (String value : List.of("2/12/2019 1800", "2/12/2019 extra", "2 /12/2019", "2/12/19")) {
+            GlennonException exception = assertThrows(
+                    GlennonException.class, () -> Parser.parseDate("on " + value));
+
+            assertEquals("Please enter a date as d/M/yyyy, for example 2/12/2019.",
+                    exception.getMessage(), value);
+        }
+    }
+
+    @Test
     void parse_taskCommands_returnsExecutableCommand() throws GlennonException {
         assertInstanceOf(AddCommand.class, Parser.parse("todo read book"));
+        assertInstanceOf(AddCommand.class, Parser.parse("deadline report /by 2/12/2019"));
+        assertInstanceOf(AddCommand.class, Parser.parse("event meeting /from 2/12/2019 /to 3/12/2019"));
         assertInstanceOf(FindCommand.class, Parser.parse("find book"));
         assertInstanceOf(MarkCommand.class, Parser.parse("mark 1"));
+        assertInstanceOf(MarkCommand.class, Parser.parse("unmark 1"));
+        assertInstanceOf(DeleteCommand.class, Parser.parse("delete 1"));
         assertInstanceOf(OnCommand.class, Parser.parse("on 2/12/2019"));
         assertInstanceOf(SortCommand.class, Parser.parse("sort"));
+    }
+
+    @Test
+    void parse_scheduledCommands_bindsDescriptionsAndTimes() throws GlennonException {
+        TaskList missions = new TaskList();
+        Ui ui = new Ui(new PrintWriter(new StringWriter()));
+        Storage storage = new Storage(temporaryDirectory.resolve("missions.txt"));
+
+        Parser.parse("deadline submit  report /by 29/2/2024 0905").execute(missions, ui, storage);
+        Parser.parse("event release /from 31/12/2025 2359 /to 1/1/2026 0000").execute(missions, ui, storage);
+
+        Deadline deadline = assertInstanceOf(Deadline.class, missions.asList().get(0));
+        Event event = assertInstanceOf(Event.class, missions.asList().get(1));
+        assertEquals("submit  report", deadline.getDescription());
+        assertEquals(LocalDateTime.of(2024, 2, 29, 9, 5), deadline.getDueDateTime());
+        assertEquals("release", event.getDescription());
+        assertEquals(LocalDateTime.of(2025, 12, 31, 23, 59), event.getStartDateTime());
+        assertEquals(LocalDateTime.of(2026, 1, 1, 0, 0), event.getEndDateTime());
+    }
+
+    @Test
+    void parse_statusAndDeleteCommands_bindsIndexAndCompletionFlag() throws GlennonException {
+        Todo firstMission = new Todo("first");
+        Todo secondMission = new Todo("second");
+        TaskList missions = new TaskList(List.of(firstMission, secondMission));
+        Ui ui = new Ui(new PrintWriter(new StringWriter()));
+        Storage storage = new Storage(temporaryDirectory.resolve("missions.txt"));
+
+        Parser.parse("mark 2").execute(missions, ui, storage);
+        assertFalse(firstMission.isDone());
+        assertTrue(secondMission.isDone());
+
+        Parser.parse("unmark 2").execute(missions, ui, storage);
+        assertFalse(firstMission.isDone());
+        assertFalse(secondMission.isDone());
+
+        Parser.parse("delete 1").execute(missions, ui, storage);
+        assertEquals(1, missions.size());
+        assertSame(secondMission, missions.asList().getFirst());
+    }
+
+    @Test
+    void parse_missingRequiredArguments_throwsCommandSpecificGuidance() {
+        List<String> inputs = List.of("todo", "find", "on", "mark", "unmark", "delete", "deadline", "event");
+        List<String> messages = List.of("Please enter a mission after todo.",
+                "Please enter a keyword after find.",
+                "Please enter a date as d/M/yyyy, for example 2/12/2019.",
+                "Please enter a valid mission number.", "Please enter a valid mission number.",
+                "Please enter a valid mission number.",
+                "Use: deadline <mission> /by <d/M/yyyy [HHmm]>.",
+                "Use: event <mission> /from <d/M/yyyy [HHmm]> /to <d/M/yyyy [HHmm]>.");
+
+        for (int i = 0; i < inputs.size(); i++) {
+            String input = inputs.get(i);
+            GlennonException exception = assertThrows(GlennonException.class, () -> Parser.parse(input));
+
+            assertEquals(messages.get(i), exception.getMessage(), input);
+        }
     }
 
     @Test
@@ -416,6 +581,21 @@ class ParserTest {
             GlennonException exception = assertThrows(GlennonException.class, () -> Parser.parse(input));
 
             assertEquals("Please enter one command without control characters.", exception.getMessage());
+        }
+    }
+
+    @Test
+    void parse_isoControlCharactersExceptTab_rejectsEveryControlCharacter() {
+        for (char character = 0; character <= '\u009f'; character++) {
+            if (!Character.isISOControl(character) || character == '\t') {
+                continue;
+            }
+            String input = "todo read" + character + "book";
+            String context = "Control character " + (int) character;
+            GlennonException exception = assertThrows(GlennonException.class, () -> Parser.parse(input), context);
+
+            assertEquals("Please enter one command without control characters.", exception.getMessage(), context);
+            assertEquals(Parser.CommandType.UNKNOWN, Parser.parseCommandType(input), context);
         }
     }
 

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -88,6 +89,39 @@ class TaskTest {
         assertFalse(deadline.hasSameDetails(todo));
         assertFalse(todo.hasSameDetails(specializedTodo));
         assertFalse(specializedTodo.hasSameDetails(todo));
+    }
+
+    @Test
+    void completion_repeatedMarkAndUnmark_keepsStatusAndDisplayConsistent() {
+        Todo todo = new Todo("read book");
+
+        assertFalse(todo.isDone());
+        assertEquals(" ", todo.getStatusIcon());
+        assertEquals("[T][ ] read book", todo.toString());
+
+        for (int repetition = 0; repetition < 2; repetition++) {
+            todo.markAsDone();
+            assertTrue(todo.isDone());
+            assertEquals("X", todo.getStatusIcon());
+            assertEquals("[T][X] read book", todo.toString());
+        }
+        for (int repetition = 0; repetition < 2; repetition++) {
+            todo.markAsNotDone();
+            assertFalse(todo.isDone());
+            assertEquals(" ", todo.getStatusIcon());
+            assertEquals("[T][ ] read book", todo.toString());
+        }
+    }
+
+    @Test
+    void occursOn_unscheduledTask_neverMatchesDateRegardlessOfCompletion() {
+        Todo todo = new Todo("read book");
+
+        for (LocalDate date : List.of(LocalDate.MIN, LocalDate.of(2028, 2, 29), LocalDate.MAX)) {
+            assertFalse(todo.occursOn(date));
+        }
+        todo.markAsDone();
+        assertFalse(todo.occursOn(LocalDate.of(2028, 2, 29)));
     }
 
     /**
