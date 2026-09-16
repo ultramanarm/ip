@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -99,10 +101,12 @@ class GlennonTest {
     @Test
     void getResponse_saveFailure_returnsHelpfulError() throws IOException {
         Path parent = directory.resolve("not-a-directory");
-        Files.writeString(parent, "occupied");
         Glennon glennon = new Glennon(parent.resolve("missions.txt").toString());
+        glennon.getWelcome();
+        Files.writeString(parent, "occupied");
         assertEquals("Mission control alert!\nGlennon could not save the mission data.",
                 glennon.getResponse("todo blocked"));
+        assertEquals("Mission log:", glennon.getResponse("list"));
     }
 
     @Test
@@ -168,13 +172,81 @@ class GlennonTest {
     @Test
     void getCommandResponse_saveFailure_returnsErrorStatus() throws IOException {
         Path parent = directory.resolve("blocked-parent");
-        Files.writeString(parent, "occupied");
         Glennon glennon = new Glennon(parent.resolve("missions.txt").toString());
+        glennon.getWelcome();
+        Files.writeString(parent, "occupied");
 
         CommandResponse response = glennon.getCommandResponse("todo cannot save");
 
         assertTrue(response.isError());
         assertEquals("Mission control alert!\nGlennon could not save the mission data.", response.text());
+        assertEquals("Mission log:", glennon.getResponse("list"));
+    }
+
+    @Test
+    void getWelcome_invalidStoredDate_blocksEveryAttemptAndPreservesFile() throws IOException {
+        Path data = directory.resolve("missions.txt");
+        String invalidDate = Base64.getEncoder().encodeToString(
+                "2026-02-30T12:00".getBytes(StandardCharsets.UTF_8));
+        String contents = "D\t0\tdGFzaw==\t" + invalidDate + "\n";
+        Files.writeString(data, contents);
+        Glennon glennon = createGlennon();
+
+        String error = "Mission control alert!\nMission data is corrupted at line 1.";
+        assertEquals(error, glennon.getWelcome());
+        assertTrue(glennon.hasStartupError());
+        assertEquals(error, glennon.getResponse("todo cannot overwrite malformed date"));
+        assertEquals(error, glennon.getResponse("list"));
+        assertEquals(contents, Files.readString(data));
+    }
+
+    @Test
+    void getResponse_failedDeletionThenRetry_removesOnlyTheRequestedMission() throws IOException {
+        Path data = directory.resolve("missions.txt");
+        Path backup = directory.resolve("original.txt");
+        Glennon glennon = createGlennon();
+        glennon.getResponse("todo first saved mission");
+        glennon.getResponse("todo second saved mission");
+        String before = glennon.getResponse("list");
+        Files.move(data, backup);
+        Files.createDirectory(data);
+
+        assertTrue(glennon.getCommandResponse("delete 1").isError());
+        assertEquals(before, glennon.getResponse("list"));
+        Files.delete(data);
+        Files.move(backup, data);
+        assertFalse(glennon.getCommandResponse("delete 1").isError());
+        assertEquals("Mission log:\n1. [T][ ] second saved mission", createGlennon().getResponse("list"));
+    }
+
+    @Test
+    void getResponse_duplicateAfterRestart_preservesFileAndCompletionState() throws IOException {
+        Path data = directory.resolve("missions.txt");
+        Glennon glennon = createGlennon();
+        glennon.getResponse("deadline existing /by 2/12/2019");
+        glennon.getResponse("mark 1");
+        String contents = Files.readString(data);
+        Glennon restored = createGlennon();
+
+        assertEquals("Mission control alert!\nThat mission already exists in the log.",
+                restored.getResponse("deadline existing /by 2/12/2019 2359"));
+        assertEquals("Mission log:\n1. [D][X] existing (by: Dec 2 2019, 11:59 PM)",
+                restored.getResponse("list"));
+        assertEquals(contents, Files.readString(data));
+    }
+
+    @Test
+    void getWelcome_duplicateSavedMissions_blocksChangesAndPreservesFile() throws IOException {
+        Path data = directory.resolve("missions.txt");
+        String contents = "T\t0\tdGFzaw==\nT\t1\tdGFzaw==\n";
+        Files.writeString(data, contents);
+        Glennon glennon = createGlennon();
+
+        String error = "Mission control alert!\nMission data is corrupted at line 2: duplicate mission.";
+        assertEquals(error, glennon.getWelcome());
+        assertTrue(glennon.hasStartupError());
+        assertEquals(error, glennon.getResponse("todo cannot overwrite duplicate data"));
+        assertEquals(contents, Files.readString(data));
     }
 
     @Test

@@ -110,6 +110,11 @@ public class Glennon {
         return hasExited;
     }
 
+    /**
+     * Reports whether loading saved missions failed and blocked this session.
+     *
+     * @return true when saved data could not be loaded safely.
+     */
     public boolean hasStartupError() {
         return startupError != null;
     }
@@ -119,12 +124,12 @@ public class Glennon {
         if (isInitialized) {
             return;
         }
-        isInitialized = true;
         try {
             missions = new TaskList(storage.loadMissions());
         } catch (GlennonException e) {
             startupError = e.getMessage();
         }
+        isInitialized = true;
     }
 
     /**

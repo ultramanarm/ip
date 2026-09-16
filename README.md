@@ -64,7 +64,8 @@ provides the matching native JavaFX runtime.
 interaction tests. These tests need a desktop session and open temporary
 windows; their mission data is isolated from your files. See
 [the GUI regression plan](docs/gui-test-plan.md) for coverage and visual checks.
-The console regression plan remains unchanged.
+See [the error-handling regression checks](docs/error-handling-tests.md) for
+the console plan, storage-failure fixtures, and exact-output checks.
 
 ## Dates and times
 
@@ -89,8 +90,14 @@ Glennon displays those date-times in a more readable format:
 [E][ ] project meeting (from: Dec 2 2019, 2:00 PM to: Dec 2 2019, 4:00 PM)
 ```
 
-An event may start and end at the same date-time, but its end cannot be before
-its start.
+An event must end after it starts. Identical start and end timestamps are
+rejected, while the same date at both all-day boundaries remains valid.
+
+Glennon accepts surrounding spaces and tabs and reports missing, repeated, or
+unexpected scheduling parameters. It also rejects duplicate missions with the
+same type, case-sensitive description, and schedule, regardless of completion
+status. See [the user guide](docs/README.md) for the full input rules and
+storage-error recovery steps.
 
 Use `on d/M/yyyy` to list deadlines due on a date and events that overlap that
 date. To-dos are excluded because they have no date:

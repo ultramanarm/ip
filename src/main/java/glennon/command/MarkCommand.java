@@ -28,7 +28,8 @@ public final class MarkCommand extends Command {
     }
 
     /**
-     * Updates, saves, and displays the selected mission.
+     * Updates, saves, and displays the selected mission, restoring its original
+     * status if the save fails.
      *
      * @param missions missions in the current session.
      * @param ui interface used to display the result.
@@ -38,10 +39,25 @@ public final class MarkCommand extends Command {
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage)
             throws GlennonException {
-        Task mission = shouldCompleteMission
-                ? missions.mark(missionIndex)
-                : missions.unmark(missionIndex);
-        storage.saveMissions(missions.asList());
+        Task mission = missions.get(missionIndex);
+        boolean wasDone = mission.isDone();
+        if (shouldCompleteMission) {
+            mission.markAsDone();
+        } else {
+            mission.markAsNotDone();
+        }
+
+        try {
+            storage.saveMissions(missions.asList());
+        } catch (GlennonException e) {
+            // Restore the same task object so existing references remain consistent.
+            if (wasDone) {
+                mission.markAsDone();
+            } else {
+                mission.markAsNotDone();
+            }
+            throw e;
+        }
         ui.showMissionStatusChanged(mission, shouldCompleteMission);
     }
 }

@@ -30,11 +30,34 @@ public class Event extends Task {
      * @param description description of the event.
      * @param startDateTime date and time when the event starts.
      * @param endDateTime date and time when the event ends.
+     * @throws IllegalArgumentException if the description is invalid, either date-time is null,
+     *         or the end is not after the start.
      */
     public Event(String description, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         super(description);
+        if (startDateTime == null || endDateTime == null) {
+            throw new IllegalArgumentException("Event start and end date-times must not be null.");
+        }
+        if (!endDateTime.isAfter(startDateTime)) {
+            throw new IllegalArgumentException("Event end must be after its start.");
+        }
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
+    }
+
+    /**
+     * Checks for the same concrete type, description, and event boundaries,
+     * ignoring completion status.
+     *
+     * @param other task to compare with this event.
+     * @return true when both events have the same defining details.
+     */
+    @Override
+    public boolean hasSameDetails(Task other) {
+        return other instanceof Event event
+                && super.hasSameDetails(other)
+                && startDateTime.equals(event.startDateTime)
+                && endDateTime.equals(event.endDateTime);
     }
 
     /**

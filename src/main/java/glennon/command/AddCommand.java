@@ -23,18 +23,20 @@ public final class AddCommand extends Command {
     }
 
     /**
-     * Adds, saves, and displays the mission.
+     * Saves the addition before updating and displaying the mission log.
      *
      * @param missions missions in the current session.
      * @param ui interface used to display the result.
      * @param storage storage used to persist the change.
-     * @throws GlennonException if the updated mission list cannot be saved.
+     * @throws GlennonException if the mission is a duplicate or the updated list cannot be saved.
      */
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage)
             throws GlennonException {
+        TaskList updatedMissions = new TaskList(missions.asList());
+        updatedMissions.add(mission);
+        storage.saveMissions(updatedMissions.asList());
         missions.add(mission);
-        storage.saveMissions(missions.asList());
         ui.showMissionAdded(mission, missions.size());
     }
 }
