@@ -4,7 +4,55 @@ Generated with the built-in image-generation tool for the navy and mint
 mission-control theme. These are standalone assets, ready for GUI integration.
 No Java, FXML, or CSS behavior changed when adding them.
 
-## Assets
+## Style-matched revision
+
+The revised assets use the actual Glennon GUI as their style reference:
+matte navy, muted mint, rounded shapes, and restrained mission-control detail.
+Use these versions for the current interface:
+
+- [Revised avatar](../src/main/resources/images/glennon-avatar-v2.png):
+  simplified shading and genuine alpha transparency.
+- [Revised background](../src/main/resources/images/mission-background-v2.png):
+  a quieter navy surface with faint orbital contours.
+
+The first versions remain available for comparison. Both revisions were made
+with the built-in image-generation tool; application code is unchanged.
+
+### Avatar revision prompt
+
+```text
+Use case: style-transfer
+Asset type: revised transparent profile picture for Glennon, the mission-control task chatbot.
+Input images: Image 1 is the avatar to edit. Image 2 is a STYLE REFERENCE ONLY: the actual Glennon application screenshot. Do not output or edit the screenshot.
+Primary request: restyle the avatar so it belongs to the actual Glennon interface in Image 2. Follow its understated, clean mission-control identity and quiet navy/mint palette.
+Keep: one centered robot head, broad rounded-rectangular face panel, integrated side panels, friendly calm expression, isolated silhouette, transparent background, enough margin for a circular crop.
+Change: use a clean flat-shaded raster illustration with just two or three broad tonal planes. Simplify the face to two small confident eyes and a slight closed smile. Use a matte navy housing and a muted mint face panel. Remove shiny 3D reflections, glossy oversized eyes, luminous ear rings, microtexture, ornamental seams, and dramatic lighting. The character should feel like a capable, approachable mission-control companion.
+Color palette: match screenshot precisely: #101d26 navy, #172a35 slate, #2b4854 blue-slate, #a9ddca muted mint; almost no white.
+Composition: square image, centered complete head occupying about 70 percent of the canvas with clean generous transparent margins. Strong readable silhouette at 36 pixels. No circular badge or enclosing background.
+Constraints: genuinely transparent alpha, no checkerboard baked in; no body, accessories, text, logo, UI elements, extra objects, cast shadow, glow, metallic shine, gradients to white, or watermark. Deliver only the revised avatar PNG.
+```
+
+### Avatar transparency correction prompt
+
+```text
+Use case: background-extraction
+Edit the supplied avatar image. Remove the entire white and gray patterned background surrounding the robot head and make that area genuinely transparent with an alpha channel. Preserve the robot head itself exactly: its silhouette, matte navy and mint colors, face, expression, size, position, edges and all internal details must stay unchanged. Produce an isolated cutout PNG with actual transparent pixels around the head. Do not replace the background with white, black, gray, a grid, a checker pattern, or another simulated transparency texture. Only remove the background; do not redesign or restyle the character. No text, shadow or added objects.
+```
+
+### Background revision prompt
+
+```text
+Use case: style-transfer
+Asset type: revised portrait conversation background for Glennon.
+Input images: Image 1 is the background to edit. Image 2 is a STYLE REFERENCE ONLY: the actual Glennon application screenshot. Do not output or edit the screenshot.
+Primary request: restyle the background so it feels native to Glennon's restrained mission-control interface. Match its understated navy and muted mint design, with clean, quiet surfaces.
+Keep: portrait composition, dark navy field, edge-oriented orbital motif, large calm empty central area for dense chat.
+Change: simplify into a nearly flat matte navy #101d26 background with subtle slate #14232d variations. Replace photographic galaxy clouds and sparkly stars with one or two extremely faint broad orbital contours near the corners, using dark desaturated teal barely lighter than the navy. Keep the central 85 percent visually uniform. Create gentle atmosphere through very subtle fine grain and tonal layers, not light effects.
+Composition: portrait 1024x1536, safe for responsive cropping. Background must remain visually quiet wherever chat cards appear.
+Constraints: opaque image; no stars, nebula clouds, bright streaks, dramatic gradients, planets, objects, characters, labels, text, logos, borders, dashboard panels, or screenshot/UI. No decoration as bright as the app's #a9ddca mint accent. Deliver only the revised background PNG.
+```
+
+## Original assets
 
 - [Avatar](../src/main/resources/images/glennon-avatar.png): transparent PNG.
   Use as a compact profile picture or header mark, around 36–40 pixels wide.
@@ -41,4 +89,3 @@ Composition/framing: portrait approximately 1024x1536; broad uninterrupted negat
 Color palette: overwhelmingly #101d26 and #14232d, with restrained desaturated slate-teal #233c43 and very faint mint-tinted light. All decoration much darker and less saturated than the app's pale mint #a9ddca accent.
 Constraints: opaque image, no text, UI, panels, grids, people, robots, planets, spacecraft, bright stars, bright light sources, logos, watermark, or border. Deliver one finished background texture, not a mockup.
 ```
-
