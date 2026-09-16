@@ -3,6 +3,10 @@
 Glennon is a personal mission tracker for to-dos, deadlines, and events. It
 accepts one command per line and saves changes in `data/glennon.txt`.
 
+Command words are case-sensitive. Leading and trailing spaces or tabs are
+accepted, as are repeated spaces between command arguments. Internal spacing,
+punctuation, and Unicode in mission descriptions are preserved.
+
 ## Using the window
 
 Type a command and press Enter or click Send. Your commands appear on the
@@ -26,6 +30,14 @@ Page Up, Page Down, or the arrow keys to scroll with the keyboard.
   omitted, Glennon uses 11:59 PM.
 - `event <mission> /from <d/M/yyyy [HHmm]> /to <d/M/yyyy [HHmm]>` adds an event.
   A date without a time represents the corresponding all-day boundary.
+  The end must be after the start. A same-day all-day event is valid, but an
+  event with identical start and end timestamps is rejected.
+
+Use `/by` once for a deadline, and `/from` followed by `/to` once each for an
+event. These are reserved parameter words when surrounded by whitespace in
+scheduled commands. Ordinary slashes in descriptions, such as `C++/Java`, are
+allowed. Missing values, repeated parameters, and impossible dates produce an
+error without changing the mission log.
 
 Examples:
 
@@ -70,6 +82,9 @@ The command takes no arguments. Inputs such as `sort date` are rejected.
 - `mark <number>` marks a mission complete.
 - `unmark <number>` marks a mission incomplete.
 - `delete <number>` removes a mission.
+
+Numbers must contain digits `0` through `9` and identify an existing mission,
+starting at `1`. Signs, decimals, and extra arguments are rejected.
 
 Mission numbers are the one-based numbers shown by `list`, `find`, `on`, or
 `sort`.

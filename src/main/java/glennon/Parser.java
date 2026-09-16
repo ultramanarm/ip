@@ -6,6 +6,11 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import glennon.command.AddCommand;
 import glennon.command.Command;
@@ -91,18 +96,22 @@ public final class Parser {
          */
         private boolean matches(String input) {
             return input.equals(keyword)
-                    || acceptsArguments && input.startsWith(keyword + " ");
+                    || input.startsWith(keyword + " ")
+                    || input.startsWith(keyword + "\t");
         }
     }
 
     /** Separates a deadline's description from its date text. */
-    private static final String SEPARATOR_BY = " /by ";
+    private static final String PARAMETER_BY = "/by";
 
     /** Separates an event's description from its start time. */
-    private static final String SEPARATOR_FROM = " /from ";
+    private static final String PARAMETER_FROM = "/from";
 
     /** Separates an event's start time from its end time. */
-    private static final String SEPARATOR_TO = " /to ";
+    private static final String PARAMETER_TO = "/to";
+
+    /** Matches complete schedule flags without treating ordinary slashes as flags. */
+    private static final Pattern SCHEDULE_PARAMETER = Pattern.compile("(?<!\\S)/(?:by|from|to)(?!\\S)");
 
     /** Format accepted for deadline and event date-times. */
     private static final DateTimeFormatter DATE_TIME_FORMAT =
@@ -123,9 +132,9 @@ public final class Parser {
     private static final String DATE_USAGE =
             "Please enter a date as d/M/yyyy, for example 2/12/2019.";
 
-    /** Error shown when an event ends before it starts. */
+    /** Error shown when an event does not end after it starts. */
     private static final String EVENT_ORDER_ERROR =
-            "The event end must not be before its start.";
+            "The event end must be after its start.";
 
     /** Guidance shown when a deadline command cannot be parsed. */
     private static final String DEADLINE_USAGE =
@@ -147,19 +156,25 @@ public final class Parser {
      * @throws GlennonException if the command or any argument is invalid.
      */
     public static Command parse(String input) throws GlennonException {
-        CommandType commandType = parseCommandType(input);
+        String normalizedInput = normalizeInput(input);
+        CommandType commandType = parseCommandType(normalizedInput);
+        if (commandType != CommandType.UNKNOWN && !commandType.acceptsArguments
+                && !normalizedInput.equals(commandType.keyword)) {
+            throw new GlennonException("The " + commandType.keyword
+                    + " command does not take arguments. Use: " + commandType.keyword + ".");
+        }
         return switch (commandType) {
             case BYE -> new ExitCommand();
             case LIST -> new ListCommand();
             case SORT -> new SortCommand();
-            case FIND -> new FindCommand(parseKeyword(input));
-            case ON -> new OnCommand(parseDate(input));
-            case MARK -> new MarkCommand(parseMissionIndex(input, commandType), true);
-            case UNMARK -> new MarkCommand(parseMissionIndex(input, commandType), false);
-            case DELETE -> new DeleteCommand(parseMissionIndex(input, commandType));
-            case TODO -> new AddCommand(parseTodo(input));
-            case DEADLINE -> new AddCommand(parseDeadline(input));
-            case EVENT -> new AddCommand(parseEvent(input));
+            case FIND -> new FindCommand(parseKeyword(normalizedInput));
+            case ON -> new OnCommand(parseDate(normalizedInput));
+            case MARK -> new MarkCommand(parseMissionIndex(normalizedInput, commandType), true);
+            case UNMARK -> new MarkCommand(parseMissionIndex(normalizedInput, commandType), false);
+            case DELETE -> new DeleteCommand(parseMissionIndex(normalizedInput, commandType));
+            case TODO -> new AddCommand(parseTodo(normalizedInput));
+            case DEADLINE -> new AddCommand(parseDeadline(normalizedInput));
+            case EVENT -> new AddCommand(parseEvent(normalizedInput));
             case UNKNOWN -> throw new GlennonException(
                     "Glennon doesn't recognize that command.\n"
                             + "Try: todo, deadline, event, list, sort, find, on, mark, "
@@ -175,8 +190,12 @@ public final class Parser {
      * @return matching command type, or {@link CommandType#UNKNOWN}.
      */
     public static CommandType parseCommandType(String input) {
+        if (input == null || hasInvalidControlCharacters(input)) {
+            return CommandType.UNKNOWN;
+        }
+        String normalizedInput = input.strip();
         for (CommandType commandType : CommandType.values()) {
-            if (commandType != CommandType.UNKNOWN && commandType.matches(input)) {
+            if (commandType != CommandType.UNKNOWN && commandType.matches(normalizedInput)) {
                 return commandType;
             }
         }
@@ -222,13 +241,16 @@ public final class Parser {
      */
     public static Deadline parseDeadline(String input) throws GlennonException {
         String details = parseArguments(input, CommandType.DEADLINE);
-        int bySeparatorIndex = details.indexOf(SEPARATOR_BY);
-        if (bySeparatorIndex <= 0
-                || bySeparatorIndex + SEPARATOR_BY.length() >= details.length()) {
+        Map<String, Integer> positions = parseParameterPositions(details, List.of(PARAMETER_BY), DEADLINE_USAGE);
+        int bySeparatorIndex = positions.getOrDefault(PARAMETER_BY, -1);
+        if (bySeparatorIndex <= 0) {
             throw new GlennonException(DEADLINE_USAGE);
         }
-        String description = details.substring(0, bySeparatorIndex).trim();
-        String by = details.substring(bySeparatorIndex + SEPARATOR_BY.length()).trim();
+        String description = details.substring(0, bySeparatorIndex).strip();
+        String by = details.substring(bySeparatorIndex + PARAMETER_BY.length()).strip();
+        if (description.isEmpty() || by.isEmpty()) {
+            throw new GlennonException(DEADLINE_USAGE);
+        }
         return new Deadline(description, parseScheduledDateTime(by, LocalTime.of(23, 59)));
     }
 
@@ -241,23 +263,23 @@ public final class Parser {
      */
     public static Event parseEvent(String input) throws GlennonException {
         String details = parseArguments(input, CommandType.EVENT);
-        int fromSeparatorIndex = details.indexOf(SEPARATOR_FROM);
-        int fromValueIndex = fromSeparatorIndex + SEPARATOR_FROM.length();
-        int toSeparatorIndex = details.indexOf(SEPARATOR_TO, fromValueIndex);
-        if (fromSeparatorIndex <= 0
-                || toSeparatorIndex <= fromValueIndex
-                || toSeparatorIndex + SEPARATOR_TO.length() >= details.length()) {
+        Map<String, Integer> positions = parseParameterPositions(
+                details, List.of(PARAMETER_FROM, PARAMETER_TO), EVENT_USAGE);
+        int fromSeparatorIndex = positions.getOrDefault(PARAMETER_FROM, -1);
+        int fromValueIndex = fromSeparatorIndex + PARAMETER_FROM.length();
+        int toSeparatorIndex = positions.getOrDefault(PARAMETER_TO, -1);
+        if (fromSeparatorIndex <= 0 || toSeparatorIndex <= fromValueIndex) {
             throw new GlennonException(EVENT_USAGE);
         }
-        String description = details.substring(0, fromSeparatorIndex).trim();
-        String from = details.substring(fromValueIndex, toSeparatorIndex).trim();
-        String to = details.substring(toSeparatorIndex + SEPARATOR_TO.length()).trim();
+        String description = details.substring(0, fromSeparatorIndex).strip();
+        String from = details.substring(fromValueIndex, toSeparatorIndex).strip();
+        String to = details.substring(toSeparatorIndex + PARAMETER_TO.length()).strip();
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
             throw new GlennonException(EVENT_USAGE);
         }
         LocalDateTime start = parseScheduledDateTime(from, LocalTime.MIN);
         LocalDateTime end = parseScheduledDateTime(to, LocalTime.MAX);
-        if (end.isBefore(start)) {
+        if (!end.isAfter(start)) {
             throw new GlennonException(EVENT_ORDER_ERROR);
         }
         return new Event(description, start, end);
@@ -270,13 +292,20 @@ public final class Parser {
      * @param input complete command containing the mission number.
      * @param commandType command whose arguments contain the number.
      * @return zero-based mission index.
-     * @throws GlennonException if the number is missing or not an integer.
+     * @throws GlennonException if the number is missing or not a positive ASCII integer.
      */
     public static int parseMissionIndex(
             String input, CommandType commandType) throws GlennonException {
         String missionNumber = parseArguments(input, commandType);
+        if (!missionNumber.matches("[0-9]+")) {
+            throw new GlennonException("Please enter a valid mission number.");
+        }
         try {
-            return Integer.parseInt(missionNumber) - 1;
+            int number = Integer.parseInt(missionNumber);
+            if (number <= 0) {
+                throw new GlennonException("Please enter a valid mission number.");
+            }
+            return number - 1;
         } catch (NumberFormatException e) {
             throw new GlennonException("Please enter a valid mission number.", e);
         }
@@ -299,18 +328,83 @@ public final class Parser {
     }
 
     /**
-     * Removes a recognized command's keyword and surrounding argument spaces.
+     * Removes a recognized command's keyword and surrounding argument whitespace.
      *
      * @param input complete user input.
      * @param commandType recognized command type.
      * @return trimmed command arguments.
+     * @throws GlennonException if the input is blank or contains invalid control characters.
      */
-    private static String parseArguments(String input, CommandType commandType) {
+    private static String parseArguments(String input, CommandType commandType) throws GlennonException {
+        String normalizedInput = normalizeInput(input);
         assert commandType.acceptsArguments
                 : "Argument parsing requires a command type that accepts arguments";
-        assert commandType.matches(input)
+        assert commandType.matches(normalizedInput)
                 : "Input must match the command type used to parse its arguments";
-        return input.substring(commandType.keyword.length()).trim();
+        return normalizedInput.substring(commandType.keyword.length()).strip();
+    }
+
+    /**
+     * Validates a command before removing surrounding spaces and tabs.
+     *
+     * @param input complete user input.
+     * @return input with surrounding whitespace removed.
+     * @throws GlennonException if the input is empty or contains control characters other than tabs.
+     */
+    private static String normalizeInput(String input) throws GlennonException {
+        if (input == null) {
+            throw new GlennonException("Please enter a command.");
+        }
+        if (hasInvalidControlCharacters(input)) {
+            throw new GlennonException("Please enter one command without control characters.");
+        }
+        String normalizedInput = input.strip();
+        if (normalizedInput.isEmpty()) {
+            throw new GlennonException("Please enter a command.");
+        }
+        return normalizedInput;
+    }
+
+    /**
+     * Checks for characters that could split a command or interfere with its display.
+     *
+     * @param input complete user input.
+     * @return true when the input contains a forbidden control character or Unicode line separator.
+     */
+    private static boolean hasInvalidControlCharacters(String input) {
+        for (int i = 0; i < input.length(); i++) {
+            char character = input.charAt(i);
+            if (Character.isISOControl(character) && character != '\t'
+                    || character == '\u2028' || character == '\u2029') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Locates complete schedule flags and rejects unexpected or repeated parameters.
+     *
+     * @param details scheduled command arguments.
+     * @param expectedParameters parameters supported by the command.
+     * @param usage guidance for the scheduled command.
+     * @return each supplied parameter's starting position.
+     * @throws GlennonException if a known parameter is repeated or unsupported by the command.
+     */
+    private static Map<String, Integer> parseParameterPositions(
+            String details, List<String> expectedParameters, String usage) throws GlennonException {
+        Map<String, Integer> positions = new HashMap<>();
+        Matcher matcher = SCHEDULE_PARAMETER.matcher(details);
+        while (matcher.find()) {
+            String parameter = matcher.group();
+            if (!expectedParameters.contains(parameter)) {
+                throw new GlennonException("Unexpected parameter " + parameter + ". " + usage);
+            }
+            if (positions.putIfAbsent(parameter, matcher.start()) != null) {
+                throw new GlennonException("Please specify " + parameter + " only once.");
+            }
+        }
+        return positions;
     }
 
     /**
@@ -323,11 +417,12 @@ public final class Parser {
      */
     private static LocalDateTime parseScheduledDateTime(
             String value, LocalTime defaultTime) throws GlennonException {
+        String normalizedValue = value.replaceAll("[ \\t]+", " ");
         try {
-            return LocalDateTime.parse(value, DATE_TIME_FORMAT);
+            return LocalDateTime.parse(normalizedValue, DATE_TIME_FORMAT);
         } catch (DateTimeParseException dateTimeException) {
             try {
-                return LocalDate.parse(value, DATE_FORMAT).atTime(defaultTime);
+                return LocalDate.parse(normalizedValue, DATE_FORMAT).atTime(defaultTime);
             } catch (DateTimeParseException dateException) {
                 throw new GlennonException(DATE_TIME_USAGE, dateException);
             }
