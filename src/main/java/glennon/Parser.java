@@ -25,6 +25,7 @@ import glennon.exception.GlennonException;
 import glennon.task.Deadline;
 import glennon.task.Event;
 import glennon.task.Todo;
+import glennon.util.Text;
 
 /**
  * Recognizes Glennon commands and converts their arguments into values used by
@@ -225,7 +226,7 @@ public final class Parser {
      * @throws GlennonException if the description is missing.
      */
     public static Todo parseTodo(String input) throws GlennonException {
-        String description = parseArguments(input, CommandType.TODO);
+        String description = Text.stripWhitespace(parseArguments(input, CommandType.TODO));
         if (description.isEmpty()) {
             throw new GlennonException("Please enter a mission after todo.");
         }
@@ -246,7 +247,7 @@ public final class Parser {
         if (bySeparatorIndex <= 0) {
             throw new GlennonException(DEADLINE_USAGE);
         }
-        String description = details.substring(0, bySeparatorIndex).strip();
+        String description = Text.stripWhitespace(details.substring(0, bySeparatorIndex));
         String by = details.substring(bySeparatorIndex + PARAMETER_BY.length()).strip();
         if (description.isEmpty() || by.isEmpty()) {
             throw new GlennonException(DEADLINE_USAGE);
@@ -271,7 +272,7 @@ public final class Parser {
         if (fromSeparatorIndex <= 0 || toSeparatorIndex <= fromValueIndex) {
             throw new GlennonException(EVENT_USAGE);
         }
-        String description = details.substring(0, fromSeparatorIndex).strip();
+        String description = Text.stripWhitespace(details.substring(0, fromSeparatorIndex));
         String from = details.substring(fromValueIndex, toSeparatorIndex).strip();
         String to = details.substring(toSeparatorIndex + PARAMETER_TO.length()).strip();
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {

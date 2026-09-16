@@ -42,7 +42,9 @@ error without changing the mission log.
 Duplicate missions are rejected when their type, case-sensitive description,
 and scheduled date-times match an existing mission. Completion status does not
 make a mission distinct. Surrounding description whitespace is ignored; internal
-spacing remains significant. For example, a date-only deadline and the same
+spacing remains significant. This includes nonbreaking spaces copied from other
+applications: they are removed from description edges, and descriptions made
+entirely of spaces are rejected. For example, a date-only deadline and the same
 deadline entered with `2359` are duplicates. You can add the same description
 with a different schedule, or re-add a mission after deleting it.
 
@@ -94,7 +96,10 @@ Numbers must contain digits `0` through `9` and identify an existing mission,
 starting at `1`. Signs, decimals, and extra arguments are rejected.
 
 Mission numbers are the one-based numbers shown by `list`, `find`, `on`, or
-`sort`.
+`sort`. Filtered results keep their numbers from the full mission log, so they
+can have gaps. If `find` shows only mission `3`, use `mark 3`, `unmark 3`, or
+`delete 3` to update that mission. Deleting or sorting can change the numbers;
+display the current list or filter again before choosing the next mission.
 
 ## Exiting
 

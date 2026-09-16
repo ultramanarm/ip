@@ -1,7 +1,7 @@
 # Automated testing
 
 Use Zulu JDK `25.0.3.fx-zulu`. The complete suite needs a desktop session
-because it includes nineteen JavaFX interaction tests. Tests use temporary
+because it includes twenty-one JavaFX interaction tests. Tests use temporary
 data files; the console regression runner also uses a separate working
 directory for each case.
 
@@ -36,15 +36,15 @@ Reports:
 
 | Area | Automated checks |
 | --- | --- |
-| Parser | Every command family and bound argument; missing/extra arguments; separators and repeated flags; index overflow; strict dates, leap centuries, and midnight/year transitions; Unicode and forbidden control characters |
-| Tasks | Description validation; exact type/detail comparisons; completion transitions and idempotence; date overlap; all-day versus timed display; nanosecond precision; English date rendering with a Chinese format locale |
+| Parser | Every command family and bound argument; missing/extra arguments; separators and repeated flags; index overflow; strict dates, leap centuries, and midnight/year transitions; Unicode description edges, blank descriptions, and forbidden control characters |
+| Tasks | Description validation and Unicode edge normalization; exact type/detail comparisons; completion transitions and idempotence; date overlap; all-day versus timed display; nanosecond precision; English date rendering with a Chinese format locale |
 | Task list | Duplicates across the entire list; every indexed operation on empty/populated lists; defensive copying and read-only views; filter snapshots; stable sorting, ties, event start times, and preserved status |
 | Storage | Exact serialized records; all task types and completion states; Unicode and precise date-time roundtrips; Windows line endings and missing final newline; corrupt records and duplicates; independent loads; atomic replacement and cleanup failures |
 | Commands | Read-only commands never save and preserve task identities/status; exact result numbering and empty results; mutating commands preserve memory and disk after a failed save and support safe retries |
-| Sessions | GUI-facing responses and error status; restart persistence; console greeting/dividers; EOF with or without a final newline; rejection followed by recovery; queued input after exit; startup failures preserve data and close input |
-| JavaFX | Nineteen existing FXML interaction, validation, scrolling, focus, and resizing scenarios; see [the GUI plan](gui-test-plan.md) |
+| Sessions | Filtered mission numbers followed by mark/unmark/delete, sorting, failed saves, retry, and restart; Unicode blank and duplicate rejection; GUI-facing responses and error status; console greeting/dividers; EOF; queued input after exit; startup failures preserve data |
+| JavaFX | Twenty-one FXML interaction, validation, filtered-numbering, scrolling, focus, and resizing scenarios; see [the GUI plan](gui-test-plan.md) |
 
-The A-MoreTesting increment adds 58 JUnit tests, bringing the suite to 221.
+The suite contains 247 JUnit tests, including 21 JavaFX interaction tests.
 Several tests check tables of related input boundaries within one scenario.
 These assertions verify observable results and preserved state, rather than
 only invoking methods to increase coverage.
@@ -57,8 +57,8 @@ coverage separate from visual checks. The project pins
 [JaCoCo 0.8.14](https://github.com/jacoco/jacoco/releases/tag/v0.8.14), which
 supports Java 25.
 
-The expanded suite covers **518/523 core lines (99.0%)**, **205/208 branches
-(98.6%)**, and **123/125 methods (98.4%)**. All task and command classes have
+The expanded suite covers **529/534 core lines (99.1%)**, **219/220 branches
+(99.5%)**, and **125/127 methods (98.4%)**. All task and command classes have
 100% line and branch coverage. Treat these numbers as a snapshot; regenerate
 the report after further changes.
 
@@ -67,15 +67,14 @@ The remaining gaps are:
 - The no-argument `Glennon` constructor and CLI `main` forwarding method are
   outside the JUnit coverage. The full console plan exercises `main` in fresh
   processes, while JUnit tests `run()` with isolated streams and storage.
-- Two parser branches reject empty descriptions after earlier argument and
-  separator checks have already rejected those inputs. They cannot be reached
-  through valid public call paths.
 - Storage's default task-type switch arm is unreachable after field-count
   validation has already rejected unknown type markers. Tests verify that
   rejection at the public storage boundary.
 
-No production behavior changes are needed for these tests. The existing console
-test plan and its expected responses remain unchanged.
+The console test plan includes corrected full-log numbers for filtered results
+and regression cases for filter-then-update workflows and Unicode description
+spaces. Each changed feature has at least seven distinct positive cases and
+three negative cases, with unique complete input sequences.
 
 ## Manual portability checks
 

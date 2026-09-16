@@ -19,7 +19,8 @@ import org.junit.jupiter.api.Test;
 class TaskTest {
     @Test
     void constructor_nullOrBlankDescriptions_throwsHelpfulException() {
-        String[] invalidDescriptions = {null, "", " ", "\t", " \t\n ", "\u2003"};
+        String[] invalidDescriptions = {null, "", " ", "\t", " \t\n ", "\u2003", "\u00a0", "\u202f",
+            "\u2007", " \t\u00a0\u202f\u2007\u2003 "};
 
         for (String description : invalidDescriptions) {
             IllegalArgumentException exception = assertThrows(
@@ -29,11 +30,40 @@ class TaskTest {
     }
 
     @Test
+    void constructor_unicodeBlankScheduledDescriptions_throwsHelpfulException() {
+        LocalDateTime start = LocalDateTime.of(2026, 9, 17, 9, 0);
+        for (String description : List.of("\u00a0", "\u202f", "\u2007", " \t\u00a0\u202f\u2007 ")) {
+            IllegalArgumentException deadlineError = assertThrows(
+                    IllegalArgumentException.class, () -> new Deadline(description, start));
+            IllegalArgumentException eventError = assertThrows(
+                    IllegalArgumentException.class, () -> new Event(description, start, start.plusHours(1)));
+
+            assertEquals("Mission descriptions must not be blank.", deadlineError.getMessage());
+            assertEquals("Mission descriptions must not be blank.", eventError.getMessage());
+        }
+    }
+
+    @Test
     void constructor_surroundingWhitespace_stripsEdgesAndPreservesInternalText() {
         Todo todo = new Todo(" \t\u2003Café  reading\t@図書館 / notes: \"hi\" 😊\u2003\t ");
 
         assertEquals("Café  reading\t@図書館 / notes: \"hi\" 😊", todo.getDescription());
         assertEquals("[T][ ] Café  reading\t@図書館 / notes: \"hi\" 😊", todo.toString());
+    }
+
+    @Test
+    void constructor_unicodeSpacePadding_trimsAllTypesWithoutChangingInternalText() {
+        LocalDateTime start = LocalDateTime.of(2026, 9, 17, 9, 0);
+        String expectedDescription = "🚀 Café\u00a0\u202f\u2007  reading\t@図書館 😊";
+        for (String padding : List.of("\u00a0", "\u202f", "\u2007", " \t\u00a0\u202f\u2007\u2003 ")) {
+            String description = padding + expectedDescription + padding;
+            List<Task> tasks = List.of(new Todo(description), new Deadline(description, start),
+                    new Event(description, start, start.plusHours(1)));
+
+            for (Task task : tasks) {
+                assertEquals(expectedDescription, task.getDescription());
+            }
+        }
     }
 
     @Test
@@ -51,7 +81,8 @@ class TaskTest {
 
     @Test
     void constructor_surroundingLineBreaks_rejectsInsteadOfSilentlyTrimming() {
-        for (String description : List.of("\nmission", "mission\n", "\rmission", "mission\u2028")) {
+        for (String description : List.of("\nmission", "mission\n", "\rmission", "mission\u2028",
+                "\u00a0\nmission\u202f", "\u2007mission\u2029\u00a0")) {
             assertThrows(IllegalArgumentException.class, () -> new Todo(description));
         }
     }
@@ -75,7 +106,28 @@ class TaskTest {
         assertFalse(todo.hasSameDetails(new Todo("Read book")));
         assertFalse(todo.hasSameDetails(new Todo("read  book")));
         assertFalse(todo.hasSameDetails(new Todo("read\tbook")));
+        assertFalse(todo.hasSameDetails(new Todo("read\u00a0book")));
+        assertFalse(todo.hasSameDetails(new Todo("read\u202fbook")));
+        assertFalse(todo.hasSameDetails(new Todo("read\u2007book")));
         assertFalse(todo.hasSameDetails(new Todo("read books")));
+    }
+
+    @Test
+    void hasSameDetails_unicodeSpacePadding_matchesAllTypesRegardlessOfStatus() {
+        LocalDateTime start = LocalDateTime.of(2026, 9, 17, 9, 0);
+        List<Task> originalTasks = List.of(new Todo("read book"), new Deadline("read book", start),
+                new Event("read book", start, start.plusHours(1)));
+        for (String padding : List.of("\u00a0", "\u202f", "\u2007")) {
+            String description = padding + "read book" + padding;
+            List<Task> paddedTasks = List.of(new Todo(description), new Deadline(description, start),
+                    new Event(description, start, start.plusHours(1)));
+
+            for (int i = 0; i < originalTasks.size(); i++) {
+                paddedTasks.get(i).markAsDone();
+                assertTrue(originalTasks.get(i).hasSameDetails(paddedTasks.get(i)));
+                assertTrue(paddedTasks.get(i).hasSameDetails(originalTasks.get(i)));
+            }
+        }
     }
 
     @Test

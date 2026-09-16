@@ -29,6 +29,6 @@ public final class FindCommand extends Command {
      */
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage) {
-        ui.showMatchingMissions(missions.findByDescription(keyword));
+        ui.showMatchingMissions(missions.findByDescription(keyword), missions.asList());
     }
 }
