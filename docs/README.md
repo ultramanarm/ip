@@ -3,6 +3,8 @@
 Glennon is a personal mission tracker for to-dos, deadlines, and events. It
 accepts one command per line and saves changes in `data/glennon.txt`.
 
+![Glennon showing a populated mission log with to-dos, deadlines, and events](Ui.png)
+
 Command words are case-sensitive. Leading and trailing spaces or tabs are
 accepted, as are repeated spaces between command arguments. Internal spacing,
 punctuation, and Unicode in mission descriptions are preserved.
