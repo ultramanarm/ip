@@ -77,3 +77,18 @@ Mission numbers are the one-based numbers shown by `list`, `find`, `on`, or
 ## Exiting
 
 Use `bye` to close Glennon.
+
+## Recovering from storage errors
+
+Glennon starts with an empty log when `data/glennon.txt` does not exist. If an
+existing file cannot be read or contains invalid mission data, Glennon reports
+the problem and blocks changes to protect the file. Corruption messages identify
+the affected line. Back up the file, correct the reported problem, and restart
+Glennon. For permission errors, check access to both the file and its folder.
+
+If saving fails, the mission log keeps its previous contents, order, and
+completion states. Fix the file or folder problem, then retry the command.
+Glennon writes a temporary file and replaces the saved file only after the write
+succeeds. The storage location must support atomic file replacement; otherwise,
+the save fails safely. Use an ordinary file path for the mission data, rather
+than a directory or symbolic link.

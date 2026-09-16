@@ -1,10 +1,18 @@
 package glennon;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -53,44 +61,87 @@ public class Storage {
      * @throws GlennonException if the data file cannot be read or parsed.
      */
     public List<Task> loadMissions() throws GlennonException {
-        if (!Files.exists(dataPath)) {
-            return new ArrayList<>();
-        }
-
         try {
             List<Task> missions = new ArrayList<>();
-            List<String> lines = Files.readAllLines(dataPath, StandardCharsets.UTF_8);
+            // Stored fields are ASCII. Preserve invalid bytes so parsing reports their line number.
+            List<String> lines = Files.readAllLines(dataPath, StandardCharsets.ISO_8859_1);
             for (int i = 0; i < lines.size(); i++) {
                 missions.add(parseMission(lines.get(i), i + 1));
             }
             return missions;
+        } catch (NoSuchFileException e) {
+            return new ArrayList<>();
+        } catch (AccessDeniedException e) {
+            throw new GlennonException(
+                    "Glennon cannot read the mission data. Check the file and folder permissions.", e);
         } catch (IOException e) {
             throw new GlennonException("Glennon could not load the mission data.", e);
         }
     }
 
     /**
-     * Replaces the data file with the specified missions, creating its parent
-     * folder when necessary.
+     * Atomically replaces the data file with the specified missions, creating
+     * its parent folder when necessary and preserving old data if saving fails.
      *
      * @param missions missions to save.
      * @throws GlennonException if the folder or data file cannot be written.
      */
     public void saveMissions(List<Task> missions) throws GlennonException {
         try {
-            Path parentPath = dataPath.getParent();
-            if (parentPath != null) {
-                Files.createDirectories(parentPath);
-            }
-
             List<String> lines = new ArrayList<>();
             for (Task mission : missions) {
                 lines.add(formatMission(mission));
             }
-            Files.write(dataPath, lines, StandardCharsets.UTF_8);
+            requireRegularSaveTarget();
+            Path parentPath = dataPath.toAbsolutePath().getParent();
+            Files.createDirectories(parentPath);
+            Path temporaryPath = Files.createTempFile(parentPath, ".glennon-", ".tmp");
+            try {
+                Files.write(temporaryPath, lines, StandardCharsets.UTF_8);
+                requireRegularSaveTarget();
+                replaceDataFile(temporaryPath);
+            } catch (IOException | RuntimeException e) {
+                try {
+                    Files.deleteIfExists(temporaryPath);
+                } catch (IOException cleanupError) {
+                    e.addSuppressed(cleanupError);
+                }
+                throw e;
+            }
+        } catch (AccessDeniedException e) {
+            throw new GlennonException(
+                    "Glennon cannot save the mission data. Check the file and folder permissions.", e);
         } catch (IOException e) {
             throw new GlennonException("Glennon could not save the mission data.", e);
         }
+    }
+
+    /**
+     * Rejects existing paths that are not ordinary data files.
+     *
+     * @throws IOException if the target is inaccessible, a directory, or a symbolic link.
+     */
+    private void requireRegularSaveTarget() throws IOException {
+        try {
+            BasicFileAttributes attributes = Files.readAttributes(
+                    dataPath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+            if (!attributes.isRegularFile()) {
+                throw new IOException("The mission data path is not a regular file.");
+            }
+        } catch (NoSuchFileException e) {
+            // A first save creates the data file once its complete contents are ready.
+        }
+    }
+
+    /**
+     * Atomically installs a fully written file without a destructive fallback.
+     *
+     * @param temporaryPath completed file in the data file's parent folder.
+     * @throws IOException if atomic replacement is unavailable or fails.
+     */
+    void replaceDataFile(Path temporaryPath) throws IOException {
+        Files.move(temporaryPath, dataPath,
+                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -138,16 +189,24 @@ public class Storage {
         try {
             String[] fields = line.split(FIELD_SEPARATOR, -1);
             requireFieldCount(fields);
+            String description = decode(fields[2]);
+            if (description.isBlank()) {
+                throw new IllegalArgumentException();
+            }
             Task mission = switch (fields[0]) {
-                case "T" -> new Todo(decode(fields[2]));
+                case "T" -> new Todo(description);
                 case "D" -> new Deadline(
-                        decode(fields[2]), LocalDateTime.parse(decode(fields[3])));
+                        description, LocalDateTime.parse(decode(fields[3])));
                 case "E" -> new Event(
-                        decode(fields[2]),
+                        description,
                         LocalDateTime.parse(decode(fields[3])),
                         LocalDateTime.parse(decode(fields[4])));
                 default -> throw new IllegalArgumentException();
             };
+            if (mission instanceof Event event
+                    && event.getEndDateTime().isBefore(event.getStartDateTime())) {
+                throw new IllegalArgumentException();
+            }
 
             if (fields[1].equals("1")) {
                 mission.markAsDone();
@@ -155,7 +214,7 @@ public class Storage {
                 throw new IllegalArgumentException();
             }
             return mission;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | DateTimeParseException | CharacterCodingException e) {
             throw new GlennonException(
                     "Mission data is corrupted at line " + lineNumber + ".", e);
         }
@@ -168,10 +227,13 @@ public class Storage {
      * @param fields stored mission fields.
      */
     private void requireFieldCount(String[] fields) {
-        if (fields.length < 1
-                || fields[0].equals("T") && fields.length != 3
-                || fields[0].equals("D") && fields.length != 4
-                || fields[0].equals("E") && fields.length != 5) {
+        int expectedCount = switch (fields[0]) {
+            case "T" -> 3;
+            case "D" -> 4;
+            case "E" -> 5;
+            default -> throw new IllegalArgumentException();
+        };
+        if (fields.length != expectedCount) {
             throw new IllegalArgumentException();
         }
     }
@@ -191,9 +253,10 @@ public class Storage {
      *
      * @param value Base64-encoded text.
      * @return decoded user-provided text.
+     * @throws CharacterCodingException if the decoded bytes are not valid UTF-8.
      */
-    private String decode(String value) {
+    private String decode(String value) throws CharacterCodingException {
         byte[] bytes = Base64.getDecoder().decode(value);
-        return new String(bytes, StandardCharsets.UTF_8);
+        return StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
     }
 }

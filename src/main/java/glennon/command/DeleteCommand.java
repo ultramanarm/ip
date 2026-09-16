@@ -23,7 +23,7 @@ public final class DeleteCommand extends Command {
     }
 
     /**
-     * Removes, saves, and displays the selected mission.
+     * Saves the removal before updating and displaying the mission log.
      *
      * @param missions missions in the current session.
      * @param ui interface used to display the result.
@@ -33,8 +33,10 @@ public final class DeleteCommand extends Command {
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage)
             throws GlennonException {
-        Task removedMission = missions.remove(missionIndex);
-        storage.saveMissions(missions.asList());
+        TaskList updatedMissions = new TaskList(missions.asList());
+        Task removedMission = updatedMissions.remove(missionIndex);
+        storage.saveMissions(updatedMissions.asList());
+        missions.remove(missionIndex);
         ui.showMissionRemoved(removedMission, missions.size());
     }
 }

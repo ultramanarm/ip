@@ -16,7 +16,7 @@ public final class SortCommand extends Command {
     }
 
     /**
-     * Sorts, saves, and displays the mission log.
+     * Saves the sorted order before updating and displaying the mission log.
      *
      * @param missions missions in the current session.
      * @param ui interface used to display the result.
@@ -26,8 +26,10 @@ public final class SortCommand extends Command {
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage)
             throws GlennonException {
+        TaskList updatedMissions = new TaskList(missions.asList());
+        updatedMissions.sortChronologically();
+        storage.saveMissions(updatedMissions.asList());
         missions.sortChronologically();
-        storage.saveMissions(missions.asList());
         ui.showSortedMissions(missions.asList());
     }
 }

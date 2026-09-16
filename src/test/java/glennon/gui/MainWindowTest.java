@@ -421,6 +421,7 @@ class MainWindowTest {
             assertTrue(Files.isDirectory(data));
             submit("list");
             assertNormalMessage();
+            assertEquals("Mission log:", lastResponse());
         });
     }
 
