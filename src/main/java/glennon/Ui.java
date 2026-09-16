@@ -40,6 +40,9 @@ public class Ui {
     /** Reads commands from standard input. */
     private final Scanner scanner;
 
+    /** Records errors separately from text so GUI styling does not depend on wording. */
+    private boolean hasError;
+
     /**
      * Creates a user interface that reads commands from standard input.
      */
@@ -194,7 +197,17 @@ public class Ui {
      * @param message explanation shown to the user.
      */
     public void showError(String message) {
+        hasError = true;
         printLines("Mission control alert!", message);
+    }
+
+    /**
+     * Returns whether this interface has displayed an error.
+     *
+     * @return true after an error has been displayed.
+     */
+    public boolean hasError() {
+        return hasError;
     }
 
     /**
