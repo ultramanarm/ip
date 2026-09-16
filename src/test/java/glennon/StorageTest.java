@@ -15,6 +15,7 @@ import java.io.InterruptedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -52,6 +53,35 @@ class StorageTest {
         Storage storage = new Storage(temporaryDirectory.resolve("missing").resolve("missions.txt"));
 
         assertTrue(storage.loadMissions().isEmpty());
+    }
+
+    @Test
+    void loadMissions_emptyFile_returnsMutableEmptyList() throws IOException, GlennonException {
+        Path dataPath = Files.createFile(temporaryDirectory.resolve("missions.txt"));
+
+        List<Task> missions = new Storage(dataPath).loadMissions();
+
+        assertTrue(missions.isEmpty());
+        missions.add(new Todo("new mission"));
+        assertEquals(1, missions.size());
+        assertEquals(0, Files.size(dataPath));
+    }
+
+    @Test
+    void loadMissions_windowsLineEndingsWithoutFinalNewline_preservesRecords()
+            throws IOException, GlennonException {
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        String contents = "T\t1\t" + encode("first mission") + "\r\nT\t0\t" + encode("second mission");
+        Files.writeString(dataPath, contents);
+
+        List<Task> missions = new Storage(dataPath).loadMissions();
+
+        assertEquals(2, missions.size());
+        assertEquals("first mission", missions.getFirst().getDescription());
+        assertTrue(missions.getFirst().isDone());
+        assertEquals("second mission", missions.getLast().getDescription());
+        assertFalse(missions.getLast().isDone());
+        assertEquals(contents, Files.readString(dataPath));
     }
 
     @Test
@@ -125,6 +155,88 @@ class StorageTest {
         assertEquals(event.getStartDateTime(), loadedEvent.getStartDateTime());
         assertEquals(event.getEndDateTime(), loadedEvent.getEndDateTime());
         assertFalse(loadedEvent.isDone());
+    }
+
+    @Test
+    void saveMissions_allTaskTypes_writesExpectedPortableRecords() throws IOException, GlennonException {
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        Todo todo = new Todo("带伞\t☂️");
+        todo.markAsDone();
+        Deadline deadline = new Deadline("submit", LocalDateTime.of(2026, 9, 17, 9, 0));
+        Event event = new Event("meet", LocalDateTime.of(2026, 9, 17, 10, 0),
+                LocalDateTime.of(2026, 9, 17, 11, 0));
+        event.markAsDone();
+
+        new Storage(dataPath).saveMissions(List.of(todo, deadline, event));
+
+        assertEquals(List.of("T\t1\t" + encode("带伞\t☂️"),
+                "D\t0\t" + encode("submit") + "\t" + encode("2026-09-17T09:00"),
+                "E\t1\t" + encode("meet") + "\t" + encode("2026-09-17T10:00")
+                        + "\t" + encode("2026-09-17T11:00")), Files.readAllLines(dataPath));
+        assertTrue(Files.readString(dataPath).chars().allMatch(character -> character < 128));
+        assertOnlyDataFileRemains(dataPath);
+    }
+
+    @Test
+    void saveAndLoadMissions_preciseTimesAndSharedDescriptions_preservesDistinctMissions()
+            throws GlennonException {
+        Storage storage = new Storage(temporaryDirectory.resolve("missions.txt"));
+        LocalDateTime firstDateTime = LocalDateTime.of(2026, 9, 17, 9, 0, 12, 123456789);
+        LocalDateTime secondDateTime = firstDateTime.plusNanos(1);
+        LocalDateTime thirdDateTime = secondDateTime.plusNanos(1);
+        Todo todo = new Todo("shared description 🚀");
+        Deadline firstDeadline = new Deadline(todo.getDescription(), firstDateTime);
+        Deadline secondDeadline = new Deadline(todo.getDescription(), secondDateTime);
+        Event firstEvent = new Event(todo.getDescription(), firstDateTime, secondDateTime);
+        Event secondEvent = new Event(todo.getDescription(), firstDateTime, thirdDateTime);
+        Event thirdEvent = new Event(todo.getDescription(), secondDateTime, thirdDateTime);
+        List<Task> originalMissions = List.of(todo, firstDeadline, secondDeadline,
+                firstEvent, secondEvent, thirdEvent);
+        originalMissions.forEach(Task::markAsDone);
+
+        storage.saveMissions(originalMissions);
+        List<Task> loadedMissions = storage.loadMissions();
+
+        assertEquals(originalMissions.size(), loadedMissions.size());
+        for (int i = 0; i < originalMissions.size(); i++) {
+            assertTrue(originalMissions.get(i).hasSameDetails(loadedMissions.get(i)));
+            assertTrue(loadedMissions.get(i).isDone());
+        }
+    }
+
+    @Test
+    void loadMissions_modifiedResult_doesNotAffectLaterLoads() throws GlennonException {
+        Storage storage = new Storage(temporaryDirectory.resolve("missions.txt"));
+        storage.saveMissions(List.of(new Todo("saved mission")));
+
+        List<Task> firstLoad = storage.loadMissions();
+        firstLoad.getFirst().markAsDone();
+        firstLoad.add(new Todo("unsaved mission"));
+        List<Task> secondLoad = storage.loadMissions();
+
+        assertEquals(1, secondLoad.size());
+        assertEquals("saved mission", secondLoad.getFirst().getDescription());
+        assertFalse(secondLoad.getFirst().isDone());
+    }
+
+    @Test
+    void saveMissions_repeatedReplacement_persistsLatestOrderAndStatus()
+            throws IOException, GlennonException {
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        Storage storage = new Storage(dataPath);
+        Todo firstMission = new Todo("first mission");
+        Todo secondMission = new Todo("second mission");
+        storage.saveMissions(List.of(firstMission, secondMission));
+        secondMission.markAsDone();
+
+        storage.saveMissions(List.of(secondMission, firstMission));
+
+        List<Task> missions = storage.loadMissions();
+        assertEquals(List.of("second mission", "first mission"),
+                missions.stream().map(Task::getDescription).toList());
+        assertTrue(missions.getFirst().isDone());
+        assertFalse(missions.getLast().isDone());
+        assertOnlyDataFileRemains(dataPath);
     }
 
     @Test
@@ -225,6 +337,8 @@ class StorageTest {
     void loadMissions_invalidBase64_reportsCorruptedLine() throws IOException {
         assertCorruptedSecondLine("T\t0\t%%%");
         assertCorruptedSecondLine("D\t0\tdGFzaw==\t%%%");
+        assertCorruptedSecondLine("E\t0\tdGFzaw==\t%%%\t" + encode("2026-09-17T10:00"));
+        assertCorruptedSecondLine("E\t0\tdGFzaw==\t" + encode("2026-09-17T09:00") + "\t%%%");
     }
 
     @Test
@@ -253,6 +367,30 @@ class StorageTest {
         assertCorruptedSecondLine("D\t0\tdGFzaw==");
         assertCorruptedSecondLine("E\t0\tdGFzaw==\t" + encode("2026-09-17T09:00"));
         assertCorruptedSecondLine("T\t0\tdGFzaw==\textra");
+        assertCorruptedSecondLine("T\t0\tdGFzaw==\t");
+        assertCorruptedSecondLine("D\t0\tdGFzaw==\t" + encode("2026-09-17T09:00") + "\textra");
+        assertCorruptedSecondLine("E\t0\tdGFzaw==\t" + encode("2026-09-17T09:00")
+                + "\t" + encode("2026-09-17T10:00") + "\textra");
+    }
+
+    @Test
+    void loadMissions_unknownTypeAndBlankRecords_reportsCorruptedLine() throws IOException {
+        for (String record : List.of("", " ", "\t\t", "X\t0\tdGFzaw==", "t\t0\tdGFzaw==")) {
+            assertCorruptedSecondLine(record);
+        }
+    }
+
+    @Test
+    void loadMissions_descriptionWhitespaceCreatesDuplicate_reportsCorruptedLine() throws IOException {
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        String contents = "T\t0\t" + encode("task") + "\nT\t1\t" + encode("\t task \u2003") + "\n";
+        Files.writeString(dataPath, contents);
+
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> new Storage(dataPath).loadMissions());
+
+        assertEquals("Mission data is corrupted at line 2: duplicate mission.", exception.getMessage());
+        assertEquals(contents, Files.readString(dataPath));
     }
 
     @Test
@@ -269,6 +407,33 @@ class StorageTest {
         assertEquals("Glennon cannot save an unsupported mission type.", exception.getMessage());
         assertEquals(originalData, Files.readString(dataPath));
         assertOnlyDataFileRemains(dataPath);
+    }
+
+    @Test
+    void saveMissions_unsupportedTaskAfterValidTasks_doesNotCreateDirectories() {
+        Path parentPath = temporaryDirectory.resolve("missing");
+        Storage storage = new Storage(parentPath.resolve("missions.txt"));
+        Task unsupportedTask = new Task("unsupported") { };
+        List<Task> missions = List.of(new Todo("valid mission"), unsupportedTask);
+
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> storage.saveMissions(missions));
+
+        assertEquals("Glennon cannot save an unsupported mission type.", exception.getMessage());
+        assertFalse(Files.exists(parentPath));
+    }
+
+    @Test
+    void saveMissions_parentIsFile_preservesParentContents() throws IOException {
+        Path parentPath = temporaryDirectory.resolve("parent.txt");
+        Files.writeString(parentPath, "keep parent contents");
+
+        GlennonException exception = assertThrows(GlennonException.class, () -> new Storage(
+                parentPath.resolve("missions.txt")).saveMissions(List.of(new Todo("mission"))));
+
+        assertEquals("Glennon could not save the mission data.", exception.getMessage());
+        assertEquals("keep parent contents", Files.readString(parentPath));
+        assertOnlyDataFileRemains(parentPath);
     }
 
     @Test
@@ -298,6 +463,75 @@ class StorageTest {
             throws IOException, GlennonException {
         assertReplacementFailurePreservesData(new AccessDeniedException("missions.txt"),
                 "Glennon cannot save the mission data. Check the file and folder permissions.");
+    }
+
+    @Test
+    void saveMissions_failedFirstReplacement_cleansTemporaryFileWithoutCreatingData() throws IOException {
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        IOException failure = new IOException("First replacement failed.");
+        Storage storage = new Storage(dataPath) {
+            @Override
+            void replaceDataFile(Path temporaryPath) throws IOException {
+                throw failure;
+            }
+        };
+
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> storage.saveMissions(List.of(new Todo("first mission"))));
+
+        assertSame(failure, exception.getCause());
+        assertFalse(Files.exists(dataPath));
+        try (Stream<Path> entries = Files.list(temporaryDirectory)) {
+            assertEquals(0, entries.count());
+        }
+    }
+
+    @Test
+    void saveMissions_runtimeReplacementFailure_preservesDataAndCleansTemporaryFile() throws IOException {
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        String originalData = "T\t0\tdGFzaw==\n";
+        Files.writeString(dataPath, originalData);
+        IllegalStateException failure = new IllegalStateException("Unexpected replacement failure.");
+        Storage storage = new Storage(dataPath) {
+            @Override
+            void replaceDataFile(Path temporaryPath) {
+                throw failure;
+            }
+        };
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class, () -> storage.saveMissions(List.of(new Todo("replacement"))));
+
+        assertSame(failure, exception);
+        assertEquals(originalData, Files.readString(dataPath));
+        assertOnlyDataFileRemains(dataPath);
+    }
+
+    @Test
+    void saveMissions_cleanupFailure_retainsOriginalFailureAndSuppressedCause() throws IOException {
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        String originalData = "T\t0\tdGFzaw==\n";
+        Files.writeString(dataPath, originalData);
+        IOException failure = new IOException("Replacement failed before cleanup.");
+        Storage storage = new Storage(dataPath) {
+            @Override
+            void replaceDataFile(Path temporaryPath) throws IOException {
+                // A nonempty directory makes cleanup fail reliably without relying on file permissions.
+                Files.delete(temporaryPath);
+                Files.createDirectory(temporaryPath);
+                Files.writeString(temporaryPath.resolve("blocker.txt"), "prevent deletion");
+                throw failure;
+            }
+        };
+
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> storage.saveMissions(List.of(new Todo("replacement"))));
+
+        assertEquals("Glennon could not save the mission data.", exception.getMessage());
+        assertSame(failure, exception.getCause());
+        assertEquals(1, failure.getSuppressed().length);
+        assertInstanceOf(DirectoryNotEmptyException.class, failure.getSuppressed()[0]);
+        assertEquals(originalData, Files.readString(dataPath));
     }
 
     @Test

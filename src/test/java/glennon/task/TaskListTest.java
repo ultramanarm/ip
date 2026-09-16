@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,22 @@ import glennon.exception.GlennonException;
  * Tests mission-list state changes, validation, and date filtering.
  */
 class TaskListTest {
+    @Test
+    void constructor_mutableSourceList_copiesMembershipAndKeepsTaskIdentity() throws GlennonException {
+        Todo original = new Todo("original");
+        List<Task> source = new ArrayList<>(List.of(original));
+        TaskList missions = new TaskList(source);
+
+        source.clear();
+        source.add(new Todo("replacement"));
+
+        assertEquals(List.of(original), missions.asList());
+        assertSame(original, missions.get(0));
+        missions.add(new Todo("new mission"));
+        assertEquals(1, source.size());
+        assertEquals("replacement", source.get(0).getDescription());
+    }
+
     @Test
     void addAndGet_multipleMissions_preservesInsertionOrder() throws GlennonException {
         TaskList missions = new TaskList();
@@ -170,6 +187,18 @@ class TaskListTest {
     }
 
     @Test
+    void add_duplicateAfterUnrelatedMissions_checksEntireListAndPreservesOrder() {
+        Todo first = new Todo("unrelated");
+        Todo duplicate = new Todo("read book");
+        Deadline last = new Deadline("return book", LocalDateTime.of(2026, 9, 1, 9, 0));
+        TaskList missions = new TaskList(List.of(first, duplicate, last));
+
+        assertThrows(GlennonException.class, () -> missions.add(new Todo("read book")));
+
+        assertEquals(List.of(first, duplicate, last), missions.asList());
+    }
+
+    @Test
     void markAndUnmark_validIndex_updatesAndReturnsMission() throws GlennonException {
         Todo todo = new Todo("test state changes");
         TaskList missions = new TaskList(List.of(todo));
@@ -208,6 +237,45 @@ class TaskListTest {
     }
 
     @Test
+    void indexedOperations_emptyList_rejectEveryIndexWithoutMutation() {
+        TaskList missions = new TaskList();
+
+        for (int index : new int[] {Integer.MIN_VALUE, -1, 0, 1, Integer.MAX_VALUE}) {
+            assertInvalidIndex(missions, index);
+            assertEquals(0, missions.size());
+        }
+    }
+
+    @Test
+    void indexedOperations_invalidIndices_preserveMembershipOrderAndCompletion() {
+        Todo pending = new Todo("pending");
+        Todo complete = new Todo("complete");
+        complete.markAsDone();
+        TaskList missions = new TaskList(List.of(pending, complete));
+
+        for (int index : new int[] {Integer.MIN_VALUE, -1, 2, 3, Integer.MAX_VALUE}) {
+            assertInvalidIndex(missions, index);
+            assertEquals(List.of(pending, complete), missions.asList());
+            assertFalse(pending.isDone());
+            assertTrue(complete.isDone());
+        }
+    }
+
+    @Test
+    void remove_finalMission_leavesReusableEmptyList() throws GlennonException {
+        Todo onlyMission = new Todo("only mission");
+        TaskList missions = new TaskList(List.of(onlyMission));
+
+        assertSame(onlyMission, missions.remove(0));
+        assertEquals(0, missions.size());
+        assertTrue(missions.asList().isEmpty());
+        assertThrows(GlennonException.class, () -> missions.get(0));
+
+        missions.add(onlyMission);
+        assertSame(onlyMission, missions.get(0));
+    }
+
+    @Test
     void asList_attemptedModification_throwsAndPreservesState() {
         Todo todo = new Todo("protected mission");
         TaskList missions = new TaskList(List.of(todo));
@@ -215,6 +283,25 @@ class TaskListTest {
         assertThrows(
                 UnsupportedOperationException.class, () -> missions.asList().add(new Todo("intruder")));
         assertEquals(List.of(todo), missions.asList());
+    }
+
+    @Test
+    void asList_existingView_reflectsLaterAddsRemovalsAndSorting() throws GlennonException {
+        Todo todo = new Todo("unscheduled");
+        Deadline deadline = new Deadline("scheduled", LocalDateTime.of(2026, 9, 1, 9, 0));
+        TaskList missions = new TaskList(List.of(todo));
+        List<Task> view = missions.asList();
+
+        missions.add(deadline);
+        assertEquals(List.of(todo, deadline), view);
+        missions.sortChronologically();
+        assertEquals(List.of(deadline, todo), view);
+        missions.remove(1);
+        assertEquals(List.of(deadline), view);
+        assertThrows(UnsupportedOperationException.class, () -> view.set(0, todo));
+        assertThrows(UnsupportedOperationException.class, () -> view.remove(0));
+        assertThrows(UnsupportedOperationException.class, view::clear);
+        assertEquals(List.of(deadline), missions.asList());
     }
 
     @Test
@@ -246,6 +333,23 @@ class TaskListTest {
     }
 
     @Test
+    void findByDescription_unicodeSubstringAndDoneTask_returnsIndependentMembershipSnapshot()
+            throws GlennonException {
+        Todo matching = new Todo("visit 図書館 😊");
+        matching.markAsDone();
+        TaskList missions = new TaskList(List.of(matching, new Todo("unrelated")));
+        List<Task> matches = missions.findByDescription("図書館");
+
+        assertEquals(List.of(matching), matches);
+        assertSame(matching, matches.get(0));
+        assertThrows(UnsupportedOperationException.class, () -> matches.remove(0));
+
+        missions.remove(0);
+        missions.add(new Todo("new 図書館 mission"));
+        assertEquals(List.of(matching), matches);
+    }
+
+    @Test
     void occurringOn_mixedTasks_returnsScheduledMatchesInOriginalOrder() {
         LocalDate target = LocalDate.of(2026, 8, 29);
         Todo todo = new Todo("unscheduled");
@@ -270,6 +374,23 @@ class TaskListTest {
         assertTrue(matches.isEmpty());
         assertThrows(
                 UnsupportedOperationException.class, () -> matches.add(new Todo("intruder")));
+    }
+
+    @Test
+    void occurringOn_completedMission_returnsIndependentMembershipSnapshot() throws GlennonException {
+        LocalDate date = LocalDate.of(2028, 2, 29);
+        Deadline deadline = new Deadline("leap day", date.atStartOfDay());
+        deadline.markAsDone();
+        TaskList missions = new TaskList(List.of(deadline));
+        List<Task> matches = missions.occurringOn(date);
+
+        assertEquals(List.of(deadline), matches);
+        assertSame(deadline, matches.get(0));
+        assertThrows(UnsupportedOperationException.class, matches::clear);
+
+        missions.remove(0);
+        missions.add(new Deadline("replacement", date.atTime(12, 0)));
+        assertEquals(List.of(deadline), matches);
     }
 
     @Test
@@ -310,5 +431,50 @@ class TaskListTest {
 
         assertTrue(emptyMissions.asList().isEmpty());
         assertEquals(List.of(onlyMission), singleMission.asList());
+    }
+
+    @Test
+    void sortChronologically_sameDateAndCrossYear_usesEventStartAndExactTime() {
+        LocalDateTime newYear = LocalDateTime.of(2027, 1, 1, 0, 0);
+        Event spanningEvent = new Event("spanning event", newYear.minusHours(1), newYear.plusYears(1));
+        Deadline midnightDeadline = new Deadline("midnight deadline", newYear);
+        Deadline laterDeadline = new Deadline("later deadline", newYear.plusNanos(1));
+        TaskList missions = new TaskList(List.of(laterDeadline, midnightDeadline, spanningEvent));
+
+        missions.sortChronologically();
+
+        List<Task> expectedOrder = List.of(spanningEvent, midnightDeadline, laterDeadline);
+        assertEquals(expectedOrder, missions.asList());
+        missions.sortChronologically();
+        assertEquals(expectedOrder, missions.asList());
+    }
+
+    @Test
+    void sortChronologically_onlyUnscheduledMissions_preservesOrderAndCompletion() {
+        Todo first = new Todo("zebra");
+        Todo second = new Todo("apple");
+        first.markAsDone();
+        TaskList missions = new TaskList(List.of(first, second));
+
+        missions.sortChronologically();
+
+        assertEquals(List.of(first, second), missions.asList());
+        assertTrue(first.isDone());
+        assertFalse(second.isDone());
+    }
+
+    /**
+     * Verifies every indexed operation rejects the same invalid index with a helpful error.
+     */
+    private void assertInvalidIndex(TaskList missions, int index) {
+        List<GlennonException> exceptions = List.of(
+                assertThrows(GlennonException.class, () -> missions.get(index)),
+                assertThrows(GlennonException.class, () -> missions.mark(index)),
+                assertThrows(GlennonException.class, () -> missions.unmark(index)),
+                assertThrows(GlennonException.class, () -> missions.remove(index)));
+
+        for (GlennonException exception : exceptions) {
+            assertEquals("Please enter a valid mission number.", exception.getMessage());
+        }
     }
 }

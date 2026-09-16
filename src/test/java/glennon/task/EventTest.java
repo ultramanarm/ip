@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
@@ -130,5 +131,66 @@ class EventTest {
         assertTrue(event.occursOn(LocalDate.of(2026, 8, 29)));
         assertFalse(event.occursOn(LocalDate.of(2026, 8, 28)));
         assertFalse(event.occursOn(LocalDate.of(2026, 8, 30)));
+    }
+
+    @Test
+    void constructor_oneNanosecondInterval_preservesBothBoundaries() {
+        LocalDateTime startDateTime = LocalDateTime.of(2028, 2, 29, 23, 59, 59, 999999999);
+        LocalDateTime endDateTime = startDateTime.plusNanos(1);
+        Event event = new Event(" midnight transition ", startDateTime, endDateTime);
+
+        assertEquals(startDateTime, event.getStartDateTime());
+        assertEquals(endDateTime, event.getEndDateTime());
+        assertEquals("midnight transition", event.getDescription());
+        assertFalse(event.isDone());
+        assertTrue(event.occursOn(LocalDate.of(2028, 2, 29)));
+        assertTrue(event.occursOn(LocalDate.of(2028, 3, 1)));
+    }
+
+    @Test
+    void toString_allDayMultiDayEvent_usesEnglishDatesAndCompletionMarker() {
+        Locale originalLocale = Locale.getDefault(Locale.Category.FORMAT);
+        try {
+            Locale.setDefault(Locale.Category.FORMAT, Locale.CHINESE);
+            Event event = new Event("holiday", LocalDate.of(2026, 12, 31).atStartOfDay(),
+                    LocalDate.of(2027, 1, 2).atTime(LocalTime.MAX));
+            event.markAsDone();
+
+            assertEquals("[E][X] holiday (all day: Dec 31 2026 to: Jan 2 2027)", event.toString());
+        } finally {
+            Locale.setDefault(Locale.Category.FORMAT, originalLocale);
+        }
+    }
+
+    @Test
+    void toString_onlyOneAllDayBoundary_keepsTimedDisplay() {
+        LocalDate date = LocalDate.of(2026, 9, 1);
+        Event startsAtMidnight = new Event("morning", date.atStartOfDay(), date.atTime(12, 0));
+        Event endsAtDayEnd = new Event("evening", date.atTime(12, 0), date.atTime(LocalTime.MAX));
+
+        assertEquals("[E][ ] morning (from: Sep 1 2026, 12:00 AM to: Sep 1 2026, 12:00 PM)",
+                startsAtMidnight.toString());
+        assertEquals("[E][ ] evening (from: Sep 1 2026, 12:00 PM to: Sep 1 2026, 11:59 PM)",
+                endsAtDayEnd.toString());
+    }
+
+    @Test
+    void hasSameDetails_subclassWithIdenticalDetails_isDistinctConcreteType() {
+        LocalDateTime startDateTime = LocalDateTime.of(2026, 9, 1, 9, 0);
+        LocalDateTime endDateTime = startDateTime.plusHours(1);
+        Event event = new Event("meeting", startDateTime, endDateTime);
+        Event specializedEvent = new SpecializedEvent("meeting", startDateTime, endDateTime);
+
+        assertFalse(event.hasSameDetails(specializedEvent));
+        assertFalse(specializedEvent.hasSameDetails(event));
+    }
+
+    /**
+     * Supplies an event subtype to verify exact concrete-type comparisons.
+     */
+    private static final class SpecializedEvent extends Event {
+        private SpecializedEvent(String description, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+            super(description, startDateTime, endDateTime);
+        }
     }
 }

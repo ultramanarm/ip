@@ -67,6 +67,18 @@ windows; their mission data is isolated from your files. See
 See [the error-handling regression checks](docs/error-handling-tests.md) for
 the console plan, storage-failure fixtures, and exact-output checks.
 
+### Automated test coverage
+
+With the required JDK selected, run `./gradlew clean check jacocoTestReport`
+to rebuild, run all JUnit and Checkstyle checks, and measure core coverage.
+Open `build/reports/jacoco/test/html/index.html` for the coverage report and
+`build/reports/tests/test/index.html` for individual test results.
+
+The core report excludes JavaFX presentation classes; their nineteen interaction
+tests still run in the full suite. See [the testing guide](docs/testing.md) for
+the tested contracts, coverage limits, console regression command, and manual
+portability checks.
+
 ## Dates and times
 
 Deadline and event dates use the `d/M/yyyy` format and may include a time in
