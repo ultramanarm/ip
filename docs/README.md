@@ -1,126 +1,187 @@
 # Glennon User Guide
 
-Glennon is a personal mission tracker for to-dos, deadlines, and events. It
-accepts one command per line and saves changes in `data/glennon.txt`.
+Glennon helps you keep track of your to-dos, deadlines, and events, one command
+at a time. Your tasks are called **missions**, and changes are saved automatically.
 
 ![Glennon showing a populated mission log with to-dos, deadlines, and events](Ui.png)
 
-Command words are case-sensitive. Leading and trailing spaces or tabs are
-accepted, as are repeated spaces between command arguments. Internal spacing,
-punctuation, and Unicode in mission descriptions are preserved.
+[Quick start](#quick-start) · [Commands](#commands-at-a-glance) ·
+[Features](#features) · [Saving and troubleshooting](#saving-and-troubleshooting)
 
-## Using the window
+## Quick start
 
-Type a command and press Enter or click Send. Your commands appear on the
-right, while Glennon's replies use the available width for longer mission
-lists. Glennon's robot avatar appears in the header, and a subtle orbital
-background sits behind the conversation. Errors have an **ATTENTION NEEDED**
-heading and a contrasting color.
-A rejected command stays selected in the input field so you can correct it
-immediately; successful commands clear the field.
+This guide describes the current project version. To launch it on macOS:
 
-Resize the window to suit your screen. Messages and command hints wrap, and
-the input stays below the conversation. Scroll up to read older replies;
-resizing keeps your relative position in the history. Sending a new command
-brings its reply into view. You can also Tab to the conversation and use
-Page Up, Page Down, or the arrow keys to scroll with the keyboard.
+1. Install **Zulu FX JDK 25.0.3** (`25.0.3.fx-zulu` in SDKMAN) and set
+   `JAVA_HOME` to that JDK. Check that `java -version` reports `25.0.3`.
+2. [Download the project](https://github.com/ultramanarm/ip/archive/refs/heads/master.zip),
+   unzip it, and open a terminal in the extracted project folder. If you already
+   have the project, use that folder.
+3. Run `./gradlew run` to open Glennon's chat window. The first launch needs an
+   internet connection to download build dependencies. If you installed the JDK
+   through SDKMAN, you can select it and launch with:
 
-## Adding missions
+   ```shell
+   export JAVA_HOME="$HOME/.sdkman/candidates/java/25.0.3.fx-zulu"
+   export PATH="$JAVA_HOME/bin:$PATH"
+   ./gradlew run
+   ```
 
-- `todo <mission>` adds an unscheduled mission.
-- `deadline <mission> /by <d/M/yyyy [HHmm]>` adds a deadline. When the time is
-  omitted, Glennon uses 11:59 PM.
-- `event <mission> /from <d/M/yyyy [HHmm]> /to <d/M/yyyy [HHmm]>` adds an event.
-  A date without a time represents the corresponding all-day boundary.
-  The end must be after the start. A same-day all-day event is valid, but an
-  event with identical start and end timestamps is rejected.
+4. Type `todo read the project brief`, then press **Enter** or click **Send**.
+   Enter `list` to see it, then `mark 1` to complete it if it is your first mission.
+5. Enter `bye` to close Glennon. Your missions will be there when you next launch
+   it from the same folder.
 
-Use `/by` once for a deadline, and `/from` followed by `/to` once each for an
-event. These are reserved parameter words when surrounded by whitespace in
-scheduled commands. Ordinary slashes in descriptions, such as `C++/Java`, are
-allowed. Missing values, repeated parameters, and impossible dates produce an
-error without changing the mission log.
+Prefer a terminal? Run `./gradlew runCli` instead; it accepts the same commands.
+For IntelliJ setup or building a standalone `Glennon.jar`, see the
+[project setup guide](https://github.com/ultramanarm/ip#readme).
 
-Duplicate missions are rejected when their type, case-sensitive description,
-and scheduled date-times match an existing mission. Completion status does not
-make a mission distinct. Surrounding description whitespace is ignored; internal
-spacing remains significant. This includes nonbreaking spaces copied from other
-applications: they are removed from description edges, and descriptions made
-entirely of spaces are rejected. For example, a date-only deadline and the same
-deadline entered with `2359` are duplicates. You can add the same description
-with a different schedule, or re-add a mission after deleting it.
+## Commands at a glance
 
-Examples:
+Enter one command at a time, using lowercase command words. Replace text in
+`<angle brackets>` with your own values; do not type the brackets. `[HHmm]`
+means the time is optional. Dates use **day/month/year**, and times use four
+digits on a **24-hour clock**: `17/9/2026 1400` means 17 September 2026 at 2 PM.
+
+| Action | Command |
+| --- | --- |
+| Add a to-do | `todo <mission>` |
+| Add a deadline | `deadline <mission> /by <d/M/yyyy [HHmm]>` |
+| Add an event | `event <mission> /from <d/M/yyyy [HHmm]> /to <d/M/yyyy [HHmm]>` |
+| Show all missions | `list` |
+| Find by description | `find <keyword or phrase>` |
+| Show missions on a date | `on <d/M/yyyy>` |
+| Sort chronologically | `sort` |
+| Mark complete | `mark <number>` |
+| Mark incomplete | `unmark <number>` |
+| Delete a mission | `delete <number>` |
+| Exit | `bye` |
+
+`list`, `sort`, and `bye` take no extra arguments. Mission descriptions can
+contain spaces, punctuation, and Unicode text.
+
+## Features
+
+### Add a to-do
+
+Use `todo` for a mission without a date:
 
 ```text
 todo read the project brief
-deadline submit report /by 18/9/2026 2359
+```
+
+Glennon adds `[T][ ] read the project brief` and shows the new mission count.
+
+### Add a deadline
+
+Use `deadline` with `/by` for a mission due at a particular time:
+
+```text
+deadline submit report /by 18/9/2026 1800
+```
+
+This is due on 18 September at 6 PM. If you omit the time, as in
+`deadline return book /by 19/9/2026`, it defaults to **11:59 PM**.
+
+### Add an event
+
+Use `event` with `/from` followed by `/to`:
+
+```text
 event consultation /from 17/9/2026 1400 /to 17/9/2026 1500
 ```
 
-## Sorting missions chronologically
-
-Use `sort` to reorder the mission log chronologically. Deadlines are ordered by
-their due date and time, while events are ordered by their start date and time.
-Unscheduled to-dos appear after all scheduled missions. Missions with the same
-date and time keep their previous relative order.
-
-The sorted order is saved and is therefore retained the next time Glennon
-starts. For example:
+For an all-day event, leave out both times:
 
 ```text
-sort
+event study break /from 20/9/2026 /to 20/9/2026
 ```
+
+An omitted start time means the start of that day; an omitted end time means
+the end of that day. Events can span multiple days. The end must be after the
+start, so identical timed boundaries are rejected, but a same-day all-day
+event is valid.
+
+Use each scheduling parameter once. `/by`, `/from`, and `/to` are reserved
+words in scheduled commands; ordinary slashes such as `C++/Java` are fine.
+
+### View your mission log
+
+Enter `list` to see all missions, including completed ones. After adding the
+first to-do, the report deadline, and the consultation above, you would see:
 
 ```text
-Mission log sorted chronologically:
-1. [E][ ] consultation (from: Sep 17 2026, 2:00 PM to: Sep 17 2026, 3:00 PM)
-2. [D][ ] submit report (by: Sep 18 2026, 11:59 PM)
-3. [T][ ] read the project brief
+Mission log:
+1. [T][ ] read the project brief
+2. [D][ ] submit report (by: Sep 18 2026, 6:00 PM)
+3. [E][ ] consultation (from: Sep 17 2026, 2:00 PM to: Sep 17 2026, 3:00 PM)
 ```
 
-The command takes no arguments. Inputs such as `sort date` are rejected.
+`[T]` is a to-do, `[D]` a deadline, and `[E]` an event. `[ ]` means incomplete;
+`[X]` means complete. The number at the start is used to update or delete a
+mission.
 
-## Viewing and finding missions
+### Find missions by description or date
 
-- `list` displays every mission in its saved order.
-- `find <keyword>` displays missions whose descriptions contain the exact,
-  case-sensitive keyword.
-- `on <d/M/yyyy>` displays deadlines and events occurring on the date.
+`find report` shows descriptions containing `report`, including `submit report`.
+Searches are **case-sensitive**: `find Report` will not match `submit report`.
+You can also search for a phrase, such as `find project brief`.
 
-## Updating missions
+`on 17/9/2026` shows deadlines due that day and events spanning that day.
+Both an event's start and end dates are included, even when it ends at midnight.
+To-dos are excluded because they have no date. Both searches include completed
+missions; if nothing matches, Glennon shows a heading with no mission rows.
 
-- `mark <number>` marks a mission complete.
-- `unmark <number>` marks a mission incomplete.
-- `delete <number>` removes a mission.
+**Search results keep the numbers from the full log.** For example, if a search
+shows only `3. [E][ ] consultation ...`, use `mark 3` to complete it.
 
-Numbers must contain digits `0` through `9` and identify an existing mission,
-starting at `1`. Signs, decimals, and extra arguments are rejected.
+### Mark, unmark, or delete a mission
 
-Mission numbers are the one-based numbers shown by `list`, `find`, `on`, or
-`sort`. Filtered results keep their numbers from the full mission log, so they
-can have gaps. If `find` shows only mission `3`, use `mark 3`, `unmark 3`, or
-`delete 3` to update that mission. Deleting or sorting can change the numbers;
-display the current list or filter again before choosing the next mission.
+Use the mission's displayed number:
 
-## Exiting
+| Example | Result |
+| --- | --- |
+| `mark 1` | Changes mission 1 to complete: `[X]`. |
+| `unmark 1` | Changes mission 1 back to incomplete: `[ ]`. |
+| `delete 1` | Removes mission 1 from the log and saved data. |
 
-Use `bye` to close Glennon.
+Numbers start at `1` and must identify an existing mission. There is no undo
+command, so check the number before deleting. Deleting or sorting can change
+the numbers; run `list` or repeat your search before the next update.
 
-## Recovering from storage errors
+### Sort chronologically
 
-Glennon starts with an empty log when `data/glennon.txt` does not exist. If an
-existing file cannot be read or contains invalid mission data, Glennon reports
-the problem and blocks changes to protect the file. Corruption messages identify
-the affected line. Back up the file, correct the reported problem, and restart
-Glennon. For permission errors, check access to both the file and its folder.
-Saved duplicate missions, blank descriptions, invalid dates, and events whose
-end is not after their start are rejected too. Existing invalid records are
-left untouched for recovery.
+Enter `sort` to order deadlines by their due time and events by their start
+time. Unscheduled to-dos go last; missions with equal times keep their previous
+relative order. Glennon displays and saves the new order.
 
-If saving fails, the mission log keeps its previous contents, order, and
-completion states. Fix the file or folder problem, then retry the command.
-Glennon writes a temporary file and replaces the saved file only after the write
-succeeds. The storage location must support atomic file replacement; otherwise,
-the save fails safely. Use an ordinary file path for the mission data, rather
-than a directory or symbolic link.
+New missions are added to the end of the log. Run `sort` again when you want
+to reorder them.
+
+### Exit Glennon
+
+Enter `bye`. Glennon shows its sign-off message and closes the window.
+
+## Saving and troubleshooting
+
+Glennon saves every successful change to `data/glennon.txt`, relative to the
+folder you launch it from. No save command is needed. Keep using the same
+folder, and back up this file if you want to move or restore your missions.
+Run only one instance against a data file at a time.
+
+- **A command is rejected:** Read the **ATTENTION NEEDED** message. In the
+  window, your input stays selected so you can correct it and send it again.
+  Check the command spelling, required values, real calendar dates, and mission
+  numbers. Rejected commands leave your missions unchanged.
+- **“That mission already exists”:** The type, case-sensitive description, and
+  schedule match an existing mission, even if it is complete. Extra whitespace
+  at the description's edges does not make it different; internal spacing does.
+- **Missions seem to be missing:** Check your launch folder. A missing save
+  file starts a new, empty log.
+- **Input is disabled at startup:** Glennon could not load its save file.
+  Back it up, correct the reported data problem (the message identifies the
+  line) or restore a valid backup, then restart. For access errors, check the
+  file and folder permissions.
+- **Saving fails:** Your previous missions, order, and completion states are
+  preserved. Fix the file or folder problem described in the message, then
+  retry. Use a regular, writable save file, not a directory or symbolic link.
