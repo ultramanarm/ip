@@ -33,6 +33,143 @@ class TaskListTest {
     }
 
     @Test
+    void add_duplicateTodoWithDifferentStatus_rejectsAndPreservesOriginalMission() throws GlennonException {
+        Todo existingMission = new Todo("read book");
+        existingMission.markAsDone();
+        TaskList missions = new TaskList(List.of(existingMission));
+
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> missions.add(new Todo("  read book\t")));
+
+        assertEquals("That mission already exists in the log.", exception.getMessage());
+        assertEquals(1, missions.size());
+        assertSame(existingMission, missions.get(0));
+        assertTrue(existingMission.isDone());
+    }
+
+    @Test
+    void add_duplicateDeadlineWithDifferentStatus_rejectsAndPreservesOriginalMission() throws GlennonException {
+        LocalDateTime dueDateTime = LocalDateTime.of(2026, 9, 1, 9, 0);
+        Deadline existingMission = new Deadline("return book", dueDateTime);
+        Deadline duplicateMission = new Deadline("return book", dueDateTime);
+        duplicateMission.markAsDone();
+        TaskList missions = new TaskList(List.of(existingMission));
+
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> missions.add(duplicateMission));
+
+        assertEquals("That mission already exists in the log.", exception.getMessage());
+        assertEquals(1, missions.size());
+        assertSame(existingMission, missions.get(0));
+        assertFalse(existingMission.isDone());
+    }
+
+    @Test
+    void add_duplicateEventWithDifferentStatus_rejectsAndPreservesOriginalMission() throws GlennonException {
+        LocalDateTime startDateTime = LocalDateTime.of(2026, 9, 1, 9, 0);
+        LocalDateTime endDateTime = startDateTime.plusHours(1);
+        Event existingMission = new Event("meeting", startDateTime, endDateTime);
+        existingMission.markAsDone();
+        TaskList missions = new TaskList(List.of(existingMission));
+
+        GlennonException exception = assertThrows(
+                GlennonException.class, () -> missions.add(new Event(" meeting ", startDateTime, endDateTime)));
+
+        assertEquals("That mission already exists in the log.", exception.getMessage());
+        assertEquals(1, missions.size());
+        assertSame(existingMission, missions.get(0));
+        assertTrue(existingMission.isDone());
+    }
+
+    @Test
+    void add_sameDescriptionWithDifferentTypes_preservesAllMissions() throws GlennonException {
+        LocalDateTime dateTime = LocalDateTime.of(2026, 9, 1, 9, 0);
+        Todo todo = new Todo("read book");
+        Deadline deadline = new Deadline("read book", dateTime);
+        Event event = new Event("read book", dateTime, dateTime.plusHours(1));
+        TaskList missions = new TaskList();
+
+        missions.add(todo);
+        missions.add(deadline);
+        missions.add(event);
+
+        assertEquals(List.of(todo, deadline, event), missions.asList());
+    }
+
+    @Test
+    void add_differentCaseOrInternalWhitespace_preservesDistinctDescriptions() throws GlennonException {
+        Todo originalMission = new Todo("read book");
+        Todo differentCase = new Todo("Read book");
+        Todo extraSpace = new Todo("read  book");
+        Todo internalTab = new Todo("read\tbook");
+        TaskList missions = new TaskList(List.of(originalMission));
+
+        missions.add(differentCase);
+        missions.add(extraSpace);
+        missions.add(internalTab);
+
+        assertEquals(List.of(originalMission, differentCase, extraSpace, internalTab), missions.asList());
+    }
+
+    @Test
+    void add_sameDeadlineDescriptionWithDifferentDatesOrTimes_preservesDistinctMissions()
+            throws GlennonException {
+        LocalDateTime dateTime = LocalDateTime.of(2026, 9, 1, 9, 0);
+        Deadline originalMission = new Deadline("read book", dateTime);
+        Deadline differentDate = new Deadline("read book", dateTime.plusDays(1));
+        Deadline differentTime = new Deadline("read book", dateTime.plusMinutes(1));
+        TaskList missions = new TaskList(List.of(originalMission));
+
+        missions.add(differentDate);
+        missions.add(differentTime);
+
+        assertEquals(List.of(originalMission, differentDate, differentTime), missions.asList());
+    }
+
+    @Test
+    void add_sameEventDescriptionWithDifferentBoundaries_preservesDistinctMissions() throws GlennonException {
+        LocalDateTime startDateTime = LocalDateTime.of(2026, 9, 1, 9, 0);
+        LocalDateTime endDateTime = startDateTime.plusHours(1);
+        Event originalMission = new Event("meeting", startDateTime, endDateTime);
+        Event differentStart = new Event("meeting", startDateTime.plusMinutes(1), endDateTime);
+        Event differentEnd = new Event("meeting", startDateTime, endDateTime.plusMinutes(1));
+        TaskList missions = new TaskList(List.of(originalMission));
+
+        missions.add(differentStart);
+        missions.add(differentEnd);
+
+        assertEquals(List.of(originalMission, differentStart, differentEnd), missions.asList());
+    }
+
+    @Test
+    void add_unicodeAndPunctuation_keepsTextAndRejectsExactDuplicate() throws GlennonException {
+        String description = "Café / notes: \"図書館\" 😊\t$5";
+        Todo existingMission = new Todo(description);
+        TaskList missions = new TaskList();
+        missions.add(existingMission);
+
+        assertThrows(GlennonException.class, () -> missions.add(new Todo(description)));
+
+        assertEquals(1, missions.size());
+        assertEquals(description, missions.get(0).getDescription());
+        assertSame(existingMission, missions.get(0));
+    }
+
+    @Test
+    void add_previouslyDeletedMission_acceptsRecreatedMission() throws GlennonException {
+        Todo firstMission = new Todo("first");
+        Todo deletedMission = new Todo("read book");
+        TaskList missions = new TaskList(List.of(firstMission, deletedMission));
+        missions.remove(1);
+        Todo recreatedMission = new Todo("read book");
+
+        missions.add(recreatedMission);
+
+        assertEquals(List.of(firstMission, recreatedMission), missions.asList());
+        assertSame(recreatedMission, missions.get(1));
+    }
+
+    @Test
     void markAndUnmark_validIndex_updatesAndReturnsMission() throws GlennonException {
         Todo todo = new Todo("test state changes");
         TaskList missions = new TaskList(List.of(todo));

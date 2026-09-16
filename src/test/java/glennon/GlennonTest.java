@@ -220,6 +220,36 @@ class GlennonTest {
     }
 
     @Test
+    void getResponse_duplicateAfterRestart_preservesFileAndCompletionState() throws IOException {
+        Path data = directory.resolve("missions.txt");
+        Glennon glennon = createGlennon();
+        glennon.getResponse("deadline existing /by 2/12/2019");
+        glennon.getResponse("mark 1");
+        String contents = Files.readString(data);
+        Glennon restored = createGlennon();
+
+        assertEquals("Mission control alert!\nThat mission already exists in the log.",
+                restored.getResponse("deadline existing /by 2/12/2019 2359"));
+        assertEquals("Mission log:\n1. [D][X] existing (by: Dec 2 2019, 11:59 PM)",
+                restored.getResponse("list"));
+        assertEquals(contents, Files.readString(data));
+    }
+
+    @Test
+    void getWelcome_duplicateSavedMissions_blocksChangesAndPreservesFile() throws IOException {
+        Path data = directory.resolve("missions.txt");
+        String contents = "T\t0\tdGFzaw==\nT\t1\tdGFzaw==\n";
+        Files.writeString(data, contents);
+        Glennon glennon = createGlennon();
+
+        String error = "Mission control alert!\nMission data is corrupted at line 2: duplicate mission.";
+        assertEquals(error, glennon.getWelcome());
+        assertTrue(glennon.hasStartupError());
+        assertEquals(error, glennon.getResponse("todo cannot overwrite duplicate data"));
+        assertEquals(contents, Files.readString(data));
+    }
+
+    @Test
     void getCommandResponse_exit_returnsSuccessfulGoodbyeAndBlocksCommands() {
         Glennon glennon = createGlennon();
 

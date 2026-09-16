@@ -21,10 +21,28 @@ public class Deadline extends Task {
      *
      * @param description description of the task.
      * @param dueDateTime date and time by which the task should be completed.
+     * @throws IllegalArgumentException if the description is invalid or the date-time is null.
      */
     public Deadline(String description, LocalDateTime dueDateTime) {
         super(description);
+        if (dueDateTime == null) {
+            throw new IllegalArgumentException("Deadline date and time must not be null.");
+        }
         this.dueDateTime = dueDateTime;
+    }
+
+    /**
+     * Checks for the same concrete type, description, and deadline date-time,
+     * ignoring completion status.
+     *
+     * @param other task to compare with this deadline.
+     * @return true when both deadlines have the same defining details.
+     */
+    @Override
+    public boolean hasSameDetails(Task other) {
+        return other instanceof Deadline deadline
+                && super.hasSameDetails(other)
+                && dueDateTime.equals(deadline.dueDateTime);
     }
 
     /**

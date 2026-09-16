@@ -28,7 +28,7 @@ public final class AddCommand extends Command {
      * @param missions missions in the current session.
      * @param ui interface used to display the result.
      * @param storage storage used to persist the change.
-     * @throws GlennonException if the updated mission list cannot be saved.
+     * @throws GlennonException if the mission is a duplicate or the updated list cannot be saved.
      */
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage)

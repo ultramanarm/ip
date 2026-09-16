@@ -39,6 +39,13 @@ scheduled commands. Ordinary slashes in descriptions, such as `C++/Java`, are
 allowed. Missing values, repeated parameters, and impossible dates produce an
 error without changing the mission log.
 
+Duplicate missions are rejected when their type, case-sensitive description,
+and scheduled date-times match an existing mission. Completion status does not
+make a mission distinct. Surrounding description whitespace is ignored; internal
+spacing remains significant. For example, a date-only deadline and the same
+deadline entered with `2359` are duplicates. You can add the same description
+with a different schedule, or re-add a mission after deleting it.
+
 Examples:
 
 ```text
@@ -100,6 +107,9 @@ existing file cannot be read or contains invalid mission data, Glennon reports
 the problem and blocks changes to protect the file. Corruption messages identify
 the affected line. Back up the file, correct the reported problem, and restart
 Glennon. For permission errors, check access to both the file and its folder.
+Saved duplicate missions, blank descriptions, invalid dates, and events whose
+end is not after their start are rejected too. Existing invalid records are
+left untouched for recovery.
 
 If saving fails, the mission log keeps its previous contents, order, and
 completion states. Fix the file or folder problem, then retry the command.

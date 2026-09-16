@@ -190,6 +190,38 @@ class StorageTest {
     }
 
     @Test
+    void loadMissions_equalEventTimes_reportsCorruptedLine() throws IOException {
+        String dateTime = encode("2026-09-17T09:00");
+        assertCorruptedSecondLine("E\t0\tdGFzaw==\t" + dateTime + "\t" + dateTime);
+    }
+
+    @Test
+    void loadMissions_controlCharactersInDescription_reportsCorruptedLine() throws IOException {
+        for (String description : List.of("line\nbreak", "hidden\u0000control", "unicode\u2028break")) {
+            assertCorruptedSecondLine("T\t0\t" + encode(description));
+        }
+    }
+
+    @Test
+    void loadMissions_duplicateTaskTypesAndStatuses_reportsLineAndPreservesFile() throws IOException {
+        String dateTime = encode("2026-09-17T09:00");
+        String endDateTime = encode("2026-09-17T10:00");
+        List<String> records = List.of("T\t0\tdGFzaw==", "D\t0\tdGFzaw==\t" + dateTime,
+                "E\t0\tdGFzaw==\t" + dateTime + "\t" + endDateTime);
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        for (String record : records) {
+            String contents = record + "\n" + record.replace("\t0\t", "\t1\t") + "\n";
+            Files.writeString(dataPath, contents);
+
+            GlennonException exception = assertThrows(
+                    GlennonException.class, () -> new Storage(dataPath).loadMissions());
+
+            assertEquals("Mission data is corrupted at line 2: duplicate mission.", exception.getMessage());
+            assertEquals(contents, Files.readString(dataPath));
+        }
+    }
+
+    @Test
     void loadMissions_invalidBase64_reportsCorruptedLine() throws IOException {
         assertCorruptedSecondLine("T\t0\t%%%");
         assertCorruptedSecondLine("D\t0\tdGFzaw==\t%%%");

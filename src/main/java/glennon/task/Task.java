@@ -18,10 +18,33 @@ public abstract class Task {
      * Creates a pending task with the given description.
      *
      * @param description description of the mission.
+     * @throws IllegalArgumentException if the description is null, blank, or contains
+     *         line breaks or control characters other than tabs.
      */
     protected Task(String description) {
-        this.description = description;
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Mission descriptions must not be blank.");
+        }
+        if (description.codePoints().anyMatch(Task::isInvalidDescriptionCharacter)) {
+            throw new IllegalArgumentException(
+                    "Mission descriptions must be on one line without control characters.");
+        }
+        this.description = description.strip();
         this.isDone = false;
+    }
+
+    /**
+     * Checks for characters that could break the single-line mission display.
+     * Tabs remain valid within descriptions.
+     *
+     * @param character Unicode code point to check.
+     * @return true when the character is forbidden in a description.
+     */
+    private static boolean isInvalidDescriptionCharacter(int character) {
+        return character != '\t'
+                && (Character.isISOControl(character)
+                || Character.getType(character) == Character.LINE_SEPARATOR
+                || Character.getType(character) == Character.PARAGRAPH_SEPARATOR);
     }
 
     /**
@@ -40,6 +63,20 @@ public abstract class Task {
      */
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Checks whether another task has the same concrete type and case-sensitive
+     * description, ignoring completion status. Scheduled task types also compare
+     * their date-times.
+     *
+     * @param other task to compare with this task.
+     * @return true when both tasks have the same defining details.
+     */
+    public boolean hasSameDetails(Task other) {
+        return other != null
+                && getClass() == other.getClass()
+                && description.equals(other.description);
     }
 
     /**

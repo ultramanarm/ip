@@ -21,6 +21,7 @@ import glennon.exception.GlennonException;
 import glennon.task.Deadline;
 import glennon.task.Event;
 import glennon.task.Task;
+import glennon.task.TaskList;
 import glennon.task.Todo;
 
 /**
@@ -62,13 +63,19 @@ public class Storage {
      */
     public List<Task> loadMissions() throws GlennonException {
         try {
-            List<Task> missions = new ArrayList<>();
+            TaskList missions = new TaskList();
             // Stored fields are ASCII. Preserve invalid bytes so parsing reports their line number.
             List<String> lines = Files.readAllLines(dataPath, StandardCharsets.ISO_8859_1);
             for (int i = 0; i < lines.size(); i++) {
-                missions.add(parseMission(lines.get(i), i + 1));
+                Task mission = parseMission(lines.get(i), i + 1);
+                try {
+                    missions.add(mission);
+                } catch (GlennonException e) {
+                    throw new GlennonException("Mission data is corrupted at line " + (i + 1)
+                            + ": duplicate mission.", e);
+                }
             }
-            return missions;
+            return new ArrayList<>(missions.asList());
         } catch (NoSuchFileException e) {
             return new ArrayList<>();
         } catch (AccessDeniedException e) {
@@ -190,9 +197,6 @@ public class Storage {
             String[] fields = line.split(FIELD_SEPARATOR, -1);
             requireFieldCount(fields);
             String description = decode(fields[2]);
-            if (description.isBlank()) {
-                throw new IllegalArgumentException();
-            }
             Task mission = switch (fields[0]) {
                 case "T" -> new Todo(description);
                 case "D" -> new Deadline(
@@ -203,10 +207,6 @@ public class Storage {
                         LocalDateTime.parse(decode(fields[4])));
                 default -> throw new IllegalArgumentException();
             };
-            if (mission instanceof Event event
-                    && event.getEndDateTime().isBefore(event.getStartDateTime())) {
-                throw new IllegalArgumentException();
-            }
 
             if (fields[1].equals("1")) {
                 mission.markAsDone();

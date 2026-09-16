@@ -37,8 +37,14 @@ public class TaskList {
      * Adds a mission to the end of the log.
      *
      * @param mission mission to store.
+     * @throws GlennonException if the mission's details already appear in the log.
      */
-    public void add(Task mission) {
+    public void add(Task mission) throws GlennonException {
+        for (Task existingMission : missions) {
+            if (existingMission.hasSameDetails(mission)) {
+                throw new GlennonException("That mission already exists in the log.");
+            }
+        }
         missions.add(mission);
     }
 
