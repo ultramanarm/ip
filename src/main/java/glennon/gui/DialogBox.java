@@ -1,25 +1,25 @@
 package glennon.gui;
 
 import java.io.IOException;
-import java.util.Collections;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 /**
- * Displays a speaker badge beside a wrapping chat message loaded from FXML.
+ * Displays compact user commands, full-width replies, and distinct error cards.
  */
 public class DialogBox extends HBox {
     @FXML
+    private VBox message;
+    @FXML
     private Label dialog;
     @FXML
-    private Label displayBadge;
+    private Label messageType;
 
     private DialogBox(String text, String speaker) {
         FXMLLoader loader = new FXMLLoader(DialogBox.class.getResource("/view/DialogBox.fxml"));
@@ -31,38 +31,49 @@ public class DialogBox extends HBox {
             throw new IllegalStateException("Glennon could not load the dialog layout.", e);
         }
         dialog.setText(text);
-        displayBadge.setText(speaker);
-    }
-
-    /** Moves the speaker badge to the left for Glennon's responses. */
-    private void flip() {
-        ObservableList<Node> children = FXCollections.observableArrayList(getChildren());
-        Collections.reverse(children);
-        getChildren().setAll(children);
-        setAlignment(Pos.TOP_LEFT);
-        dialog.getStyleClass().add("reply-label");
-        displayBadge.getStyleClass().add("glennon-badge");
+        dialog.setAccessibleText(speaker + ": " + text);
     }
 
     /**
-     * Creates a right-aligned user message.
+     * Creates a compact, right-aligned user command.
      *
      * @param text user input.
      * @return user dialog.
      */
     public static DialogBox createUserDialog(String text) {
-        return new DialogBox(text, "You");
+        DialogBox dialogBox = new DialogBox(text.isBlank() ? "(empty command)" : text, "You");
+        dialogBox.message.getStyleClass().add("user-card");
+        dialogBox.message.maxWidthProperty().bind(dialogBox.widthProperty().multiply(0.82));
+        return dialogBox;
     }
 
     /**
-     * Creates a left-aligned Glennon response.
+     * Creates a left-aligned Glennon response that uses the available reading width.
      *
      * @param text response text.
      * @return Glennon dialog.
      */
     public static DialogBox createGlennonDialog(String text) {
-        DialogBox dialogBox = new DialogBox(text, "G");
-        dialogBox.flip();
+        DialogBox dialogBox = new DialogBox(text, "Glennon");
+        dialogBox.setAlignment(Pos.TOP_LEFT);
+        dialogBox.message.getStyleClass().add("reply-card");
+        dialogBox.message.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(dialogBox.message, Priority.ALWAYS);
+        return dialogBox;
+    }
+
+    /**
+     * Creates an error response with both a colored accent and an explicit heading.
+     *
+     * @param text error explanation.
+     * @return error dialog.
+     */
+    public static DialogBox createErrorDialog(String text) {
+        DialogBox dialogBox = createGlennonDialog(text);
+        dialogBox.message.getStyleClass().add("error-card");
+        dialogBox.messageType.setManaged(true);
+        dialogBox.messageType.setVisible(true);
+        dialogBox.dialog.setAccessibleText("Error: " + text);
         return dialogBox;
     }
 }

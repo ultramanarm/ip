@@ -41,6 +41,11 @@ public class Ui {
     private final Scanner scanner;
 
     /**
+     * Records errors separately from text so GUI styling does not depend on wording.
+     */
+    private boolean hasError;
+
+    /**
      * Creates a user interface that reads commands from standard input.
      */
     public Ui() {
@@ -105,6 +110,25 @@ public class Ui {
      */
     public void showMissionList(List<Task> missions) {
         output.println("Mission log:");
+        showNumberedMissions(missions);
+    }
+
+    /**
+     * Confirms that missions were sorted and displays their new order.
+     *
+     * @param missions missions in chronological order.
+     */
+    public void showSortedMissions(List<Task> missions) {
+        output.println("Mission log sorted chronologically:");
+        showNumberedMissions(missions);
+    }
+
+    /**
+     * Displays missions with one-based positions.
+     *
+     * @param missions missions to display.
+     */
+    private void showNumberedMissions(List<Task> missions) {
         for (int i = 0; i < missions.size(); i++) {
             output.println((i + 1) + ". " + missions.get(i));
         }
@@ -175,7 +199,17 @@ public class Ui {
      * @param message explanation shown to the user.
      */
     public void showError(String message) {
+        hasError = true;
         printLines("Mission control alert!", message);
+    }
+
+    /**
+     * Returns whether this interface has displayed an error.
+     *
+     * @return true after an error has been displayed.
+     */
+    public boolean hasError() {
+        return hasError;
     }
 
     /**

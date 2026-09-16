@@ -104,4 +104,90 @@ class GlennonTest {
         assertEquals("Mission control alert!\nGlennon could not save the mission data.",
                 glennon.getResponse("todo blocked"));
     }
+
+    @Test
+    void getCommandResponse_validMission_returnsSuccessfulOutput() {
+        Glennon glennon = createGlennon();
+
+        CommandResponse response = glennon.getCommandResponse("todo typed response");
+
+        assertFalse(response.isError());
+        assertEquals("Mission added: [T][ ] typed response\nMission log now has 1 mission.", response.text());
+        assertEquals("Mission log:\n1. [T][ ] typed response", glennon.getResponse("list"));
+    }
+
+    @Test
+    void getCommandResponse_invalidInput_returnsErrorStatus() {
+        Glennon glennon = createGlennon();
+
+        CommandResponse response = glennon.getCommandResponse("todo");
+
+        assertTrue(response.isError());
+        assertEquals("Mission control alert!\nPlease enter a mission after todo.", response.text());
+        assertEquals("Mission log:", glennon.getResponse("list"));
+    }
+
+    @Test
+    void getCommandResponse_successAfterError_clearsErrorStatusAndPreservesMissions() {
+        Glennon glennon = createGlennon();
+        glennon.getCommandResponse("todo preserve during recovery");
+
+        assertTrue(glennon.getCommandResponse("delete 9").isError());
+        CommandResponse response = glennon.getCommandResponse("list");
+
+        assertFalse(response.isError());
+        assertEquals("Mission log:\n1. [T][ ] preserve during recovery", response.text());
+    }
+
+    @Test
+    void getCommandResponse_errorWordsInMission_remainsSuccessful() {
+        Glennon glennon = createGlennon();
+
+        CommandResponse added = glennon.getCommandResponse("todo Mission control alert!");
+        CommandResponse listed = glennon.getCommandResponse("list");
+
+        assertFalse(added.isError());
+        assertFalse(listed.isError());
+        assertEquals("Mission log:\n1. [T][ ] Mission control alert!", listed.text());
+    }
+
+    @Test
+    void getCommandResponse_corruptStorage_returnsErrorAndPreservesFile() throws IOException {
+        Path data = directory.resolve("missions.txt");
+        Files.writeString(data, "unreadable mission");
+        Glennon glennon = createGlennon();
+
+        CommandResponse response = glennon.getCommandResponse("todo cannot replace data");
+
+        assertTrue(response.isError());
+        assertTrue(glennon.hasStartupError());
+        assertEquals(glennon.getWelcome(), response.text());
+        assertEquals("unreadable mission", Files.readString(data));
+    }
+
+    @Test
+    void getCommandResponse_saveFailure_returnsErrorStatus() throws IOException {
+        Path parent = directory.resolve("blocked-parent");
+        Files.writeString(parent, "occupied");
+        Glennon glennon = new Glennon(parent.resolve("missions.txt").toString());
+
+        CommandResponse response = glennon.getCommandResponse("todo cannot save");
+
+        assertTrue(response.isError());
+        assertEquals("Mission control alert!\nGlennon could not save the mission data.", response.text());
+    }
+
+    @Test
+    void getCommandResponse_exit_returnsSuccessfulGoodbyeAndBlocksCommands() {
+        Glennon glennon = createGlennon();
+
+        CommandResponse goodbye = glennon.getCommandResponse("bye");
+        CommandResponse afterExit = glennon.getCommandResponse("todo too late for typed response");
+
+        assertFalse(goodbye.isError());
+        assertEquals("Signing off. Catch you on the next mission!", goodbye.text());
+        assertEquals(goodbye, afterExit);
+        assertTrue(glennon.hasExited());
+        assertEquals("Mission log:", createGlennon().getResponse("list"));
+    }
 }

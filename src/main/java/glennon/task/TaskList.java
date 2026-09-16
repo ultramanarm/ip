@@ -1,8 +1,10 @@
 package glennon.task;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import glennon.exception.GlennonException;
@@ -132,6 +134,32 @@ public class TaskList {
         return missions.stream()
                 .filter(mission -> mission.occursOn(date))
                 .toList();
+    }
+
+    /**
+     * Sorts scheduled missions chronologically and places unscheduled missions
+     * afterward. Missions with equal sort times retain their relative order.
+     */
+    public void sortChronologically() {
+        missions.sort(Comparator.comparing(
+                TaskList::getSortDateTime,
+                Comparator.nullsLast(Comparator.naturalOrder())));
+    }
+
+    /**
+     * Returns the date-time used to place a mission chronologically.
+     *
+     * @param mission mission whose sort date-time is required.
+     * @return deadline due time, event start time, or null for an unscheduled mission.
+     */
+    private static LocalDateTime getSortDateTime(Task mission) {
+        if (mission instanceof Deadline deadline) {
+            return deadline.getDueDateTime();
+        }
+        if (mission instanceof Event event) {
+            return event.getStartDateTime();
+        }
+        return null;
     }
 
     /**

@@ -23,6 +23,7 @@ class ParserTest {
     void parseCommandType_validCommands_returnsMatchingTypes() {
         assertEquals(Parser.CommandType.BYE, Parser.parseCommandType("bye"));
         assertEquals(Parser.CommandType.LIST, Parser.parseCommandType("list"));
+        assertEquals(Parser.CommandType.SORT, Parser.parseCommandType("sort"));
         assertEquals(Parser.CommandType.FIND, Parser.parseCommandType("find book"));
         assertEquals(Parser.CommandType.TODO, Parser.parseCommandType("todo read book"));
         assertEquals(Parser.CommandType.DEADLINE,
@@ -200,6 +201,7 @@ class ParserTest {
         assertInstanceOf(glennon.command.FindCommand.class, Parser.parse("find book"));
         assertInstanceOf(glennon.command.MarkCommand.class, Parser.parse("mark 1"));
         assertInstanceOf(glennon.command.OnCommand.class, Parser.parse("on 2/12/2019"));
+        assertInstanceOf(glennon.command.SortCommand.class, Parser.parse("sort"));
     }
 
     @Test
@@ -208,8 +210,8 @@ class ParserTest {
                 GlennonException.class, () -> Parser.parse("launch rocket"));
 
         assertEquals("Glennon doesn't recognize that command.\n"
-                        + "Try: todo, deadline, event, list, find, on, mark, unmark, "
-                        + "delete, or bye.",
+                        + "Try: todo, deadline, event, list, sort, find, on, mark, "
+                        + "unmark, delete, or bye.",
                 exception.getMessage());
     }
 }

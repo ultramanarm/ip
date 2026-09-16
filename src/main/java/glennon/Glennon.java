@@ -67,6 +67,16 @@ public class Glennon {
      * @return formatted response without console dividers.
      */
     public String getResponse(String input) {
+        return getCommandResponse(input).text();
+    }
+
+    /**
+     * Executes one GUI command and preserves its error status for presentation.
+     *
+     * @param input complete command entered by the user.
+     * @return formatted response and whether the command reported an error.
+     */
+    public CommandResponse getCommandResponse(String input) {
         initializeSession();
         StringWriter response = new StringWriter();
         Ui responseUi = new Ui(new PrintWriter(response, true));
@@ -77,7 +87,8 @@ public class Glennon {
         } else {
             hasExited = executeCommand(input, responseUi);
         }
-        return normalizeLineEndings(response.toString()).stripTrailing();
+        String text = normalizeLineEndings(response.toString()).stripTrailing();
+        return new CommandResponse(text, responseUi.hasError());
     }
 
     /**
