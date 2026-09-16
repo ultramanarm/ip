@@ -290,8 +290,13 @@ class StorageTest {
 
     @Test
     void loadMissions_blankDescriptions_reportsCorruptedLine() throws IOException {
-        for (String description : List.of("", " ", "\t\n", "\u2003")) {
+        String start = encode("2026-09-17T09:00");
+        String end = encode("2026-09-17T10:00");
+        for (String description : List.of("", " ", "\t\n", "\u2003", "\u00a0", "\u202f", "\u2007",
+                " \t\u00a0\u202f\u2007\u2003 ")) {
             assertCorruptedSecondLine("T\t0\t" + encode(description));
+            assertCorruptedSecondLine("D\t0\t" + encode(description) + "\t" + start);
+            assertCorruptedSecondLine("E\t0\t" + encode(description) + "\t" + start + "\t" + end);
         }
     }
 
@@ -383,14 +388,58 @@ class StorageTest {
     @Test
     void loadMissions_descriptionWhitespaceCreatesDuplicate_reportsCorruptedLine() throws IOException {
         Path dataPath = temporaryDirectory.resolve("missions.txt");
-        String contents = "T\t0\t" + encode("task") + "\nT\t1\t" + encode("\t task \u2003") + "\n";
+        String start = encode("2026-09-17T09:00");
+        String end = encode("2026-09-17T10:00");
+        List<String> records = List.of("T\t0\t" + encode("task"),
+                "D\t0\t" + encode("task") + "\t" + start,
+                "E\t0\t" + encode("task") + "\t" + start + "\t" + end);
+        for (String padding : List.of("\t \u2003", "\u00a0", "\u202f", "\u2007", " \t\u00a0\u202f\u2007 ")) {
+            for (String record : records) {
+                String paddedRecord = record.replace("\t0\t", "\t1\t")
+                        .replace(encode("task"), encode(padding + "task" + padding));
+                String contents = record + "\n" + paddedRecord + "\n";
+                Files.writeString(dataPath, contents);
+
+                GlennonException exception = assertThrows(
+                        GlennonException.class, () -> new Storage(dataPath).loadMissions());
+
+                assertEquals("Mission data is corrupted at line 2: duplicate mission.", exception.getMessage());
+                assertEquals(contents, Files.readString(dataPath));
+            }
+        }
+    }
+
+    @Test
+    void loadAndSaveMissions_unicodeSpacePadding_preservesInternalTextAndTaskDetails()
+            throws IOException, GlennonException {
+        Path dataPath = temporaryDirectory.resolve("missions.txt");
+        String description = "🚀 Café\u00a0\u202f\u2007  reading\t@図書館 😊";
+        String storedDescription = encode(" \t\u00a0\u202f\u2007" + description + "\u2007\u202f\u00a0\t ");
+        String start = encode("2026-09-17T09:00");
+        String end = encode("2026-09-17T10:00");
+        String contents = "T\t1\t" + storedDescription + "\nD\t1\t" + storedDescription + "\t" + start
+                + "\nE\t1\t" + storedDescription + "\t" + start + "\t" + end + "\n";
         Files.writeString(dataPath, contents);
+        Storage storage = new Storage(dataPath);
 
-        GlennonException exception = assertThrows(
-                GlennonException.class, () -> new Storage(dataPath).loadMissions());
+        List<Task> loaded = storage.loadMissions();
 
-        assertEquals("Mission data is corrupted at line 2: duplicate mission.", exception.getMessage());
+        assertEquals(3, loaded.size());
+        for (Task task : loaded) {
+            assertEquals(description, task.getDescription());
+            assertTrue(task.isDone());
+        }
         assertEquals(contents, Files.readString(dataPath));
+
+        storage.saveMissions(loaded);
+
+        List<Task> reloaded = new Storage(dataPath).loadMissions();
+        assertEquals(loaded.size(), reloaded.size());
+        for (int i = 0; i < loaded.size(); i++) {
+            assertTrue(loaded.get(i).hasSameDetails(reloaded.get(i)));
+            assertTrue(reloaded.get(i).isDone());
+        }
+        assertOnlyDataFileRemains(dataPath);
     }
 
     @Test

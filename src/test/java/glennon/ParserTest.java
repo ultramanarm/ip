@@ -101,10 +101,23 @@ class ParserTest {
 
     @Test
     void parseTodo_unicodeWhitespaceDescription_throwsHelpfulException() {
-        GlennonException exception = assertThrows(
-                GlennonException.class, () -> Parser.parseTodo("todo \u2003"));
+        for (String description : List.of("\u2003", "\u00a0", "\u202f", "\u2007",
+                " \t\u00a0\u202f\u2007\u2003 ")) {
+            GlennonException exception = assertThrows(
+                    GlennonException.class, () -> Parser.parseTodo("todo " + description));
 
-        assertEquals("Please enter a mission after todo.", exception.getMessage());
+            assertEquals("Please enter a mission after todo.", exception.getMessage());
+        }
+    }
+
+    @Test
+    void parseTodo_unicodeSpacePadding_trimsOnlyDescriptionEdges() throws GlennonException {
+        String expectedDescription = "🚀 学习\u00a0C++\u202f/\u2007Java  & café\tpractice";
+        for (String padding : List.of("\u00a0", "\u202f", "\u2007", " \t\u00a0\u202f\u2007 ")) {
+            Todo todo = Parser.parseTodo("todo " + padding + expectedDescription + padding);
+
+            assertEquals(expectedDescription, todo.getDescription());
+        }
     }
 
     @Test
@@ -166,6 +179,28 @@ class ParserTest {
 
         assertEquals("submit  report", deadline.getDescription());
         assertEquals(LocalDateTime.of(2019, 12, 2, 18, 0), deadline.getDueDateTime());
+    }
+
+    @Test
+    void parseDeadline_unicodeSpacePadding_trimsOnlyDescriptionEdges() throws GlennonException {
+        String expectedDescription = "🚀 学习\u00a0C++\u202f/\u2007Java  & café\tpractice";
+        for (String padding : List.of("\u00a0", "\u202f", "\u2007", " \t\u00a0\u202f\u2007 ")) {
+            Deadline deadline = Parser.parseDeadline(
+                    "deadline " + padding + expectedDescription + padding + " /by 2/12/2019 1800");
+
+            assertEquals(expectedDescription, deadline.getDescription());
+            assertEquals(LocalDateTime.of(2019, 12, 2, 18, 0), deadline.getDueDateTime());
+        }
+    }
+
+    @Test
+    void parseDeadline_unicodeBlankDescription_throwsUsageException() {
+        for (String description : List.of("\u00a0", "\u202f", "\u2007", " \t\u00a0\u202f\u2007 ")) {
+            GlennonException exception = assertThrows(GlennonException.class, () -> Parser.parseDeadline(
+                    "deadline " + description + " /by 2/12/2019 1800"));
+
+            assertEquals("Use: deadline <mission> /by <d/M/yyyy [HHmm]>.", exception.getMessage());
+        }
     }
 
     @Test
@@ -269,6 +304,30 @@ class ParserTest {
         assertEquals("C++/Java  学习", event.getDescription());
         assertEquals(LocalDateTime.of(2019, 12, 2, 14, 0), event.getStartDateTime());
         assertEquals(LocalDateTime.of(2019, 12, 2, 16, 0), event.getEndDateTime());
+    }
+
+    @Test
+    void parseEvent_unicodeSpacePadding_trimsOnlyDescriptionEdges() throws GlennonException {
+        String expectedDescription = "🚀 学习\u00a0C++\u202f/\u2007Java  & café\tpractice";
+        for (String padding : List.of("\u00a0", "\u202f", "\u2007", " \t\u00a0\u202f\u2007 ")) {
+            Event event = Parser.parseEvent("event " + padding + expectedDescription + padding
+                    + " /from 2/12/2019 1400 /to 2/12/2019 1600");
+
+            assertEquals(expectedDescription, event.getDescription());
+            assertEquals(LocalDateTime.of(2019, 12, 2, 14, 0), event.getStartDateTime());
+            assertEquals(LocalDateTime.of(2019, 12, 2, 16, 0), event.getEndDateTime());
+        }
+    }
+
+    @Test
+    void parseEvent_unicodeBlankDescription_throwsUsageException() {
+        for (String description : List.of("\u00a0", "\u202f", "\u2007", " \t\u00a0\u202f\u2007 ")) {
+            GlennonException exception = assertThrows(GlennonException.class, () -> Parser.parseEvent(
+                    "event " + description + " /from 2/12/2019 1400 /to 2/12/2019 1600"));
+
+            assertEquals("Use: event <mission> /from <d/M/yyyy [HHmm]> /to <d/M/yyyy [HHmm]>.",
+                    exception.getMessage());
+        }
     }
 
     @Test

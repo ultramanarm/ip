@@ -21,12 +21,12 @@ keep its local cases up to date when command behavior changes.
 | Area | Checks |
 | --- | --- |
 | Command parsing | Blank input, whitespace, parameter order and repetition, missing values, extra arguments, control characters, integer bounds, impossible dates, and event ordering |
-| Task identity | Type, case-sensitive description, internal spacing, schedule boundaries, completion status, deletion and re-addition, and equivalent date-only deadlines |
-| Task validation | Blank and unsafe descriptions, missing dates, reversed or equal event timestamps, Unicode, punctuation, and valid all-day events |
+| Task identity | Type, case-sensitive description, internal spacing, Unicode edge spaces, schedule boundaries, completion status, deletion and re-addition, and equivalent date-only deadlines |
+| Task validation | Blank descriptions including nonbreaking spaces, unsafe descriptions, missing dates, reversed or equal event timestamps, Unicode, punctuation, and valid all-day events |
 | Saved data | Malformed dates, invalid UTF-8 and Base64, wrong fields, invalid status, duplicate records, invalid event ranges, missing files, and access failures |
 | Save failures | Add, delete, mark, unmark, and sort preserve count, identity, order, status, and saved data; retries apply the intended change once |
 | File replacement | Replacement failure, interruption, unsupported atomic operations, denied access, temporary-file cleanup, directories, and symbolic links |
-| Application integration | Startup errors block mutations, duplicates remain rejected after restart, GUI error presentation, and correction after rejected commands |
+| Application integration | Filtered result numbers target the same missions for updates and deletion; startup errors block mutations; duplicates remain rejected after restart; GUI error presentation and correction after rejected commands |
 
 The JUnit tests exercise the complex parsing, collection, command, storage,
 and session methods through their public behavior. Assertions cover both

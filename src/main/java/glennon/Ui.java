@@ -135,27 +135,29 @@ public class Ui {
     }
 
     /**
-     * Displays missions whose descriptions contain a search keyword.
+     * Displays matching missions with their current positions in the full log.
      *
      * @param missions matching missions in their original order.
+     * @param allMissions all missions in their current log order.
      */
-    public void showMatchingMissions(List<Task> missions) {
+    public void showMatchingMissions(List<Task> missions, List<Task> allMissions) {
         output.println("Matching missions located:");
-        for (int i = 0; i < missions.size(); i++) {
-            output.println((i + 1) + "." + missions.get(i));
+        for (Task mission : missions) {
+            output.println((allMissions.indexOf(mission) + 1) + "." + mission);
         }
     }
 
     /**
-     * Displays the deadlines and events occurring on a particular date.
+     * Displays scheduled missions with their current positions in the full log.
      *
      * @param date date selected by the user.
      * @param missions missions scheduled on that date.
+     * @param allMissions all missions in their current log order.
      */
-    public void showScheduledMissions(LocalDate date, List<Task> missions) {
+    public void showScheduledMissions(LocalDate date, List<Task> missions, List<Task> allMissions) {
         output.println("Missions on " + date.format(DATE_DISPLAY_FORMAT) + ":");
-        for (int i = 0; i < missions.size(); i++) {
-            output.println((i + 1) + ". " + missions.get(i));
+        for (Task mission : missions) {
+            output.println((allMissions.indexOf(mission) + 1) + ". " + mission);
         }
     }
 

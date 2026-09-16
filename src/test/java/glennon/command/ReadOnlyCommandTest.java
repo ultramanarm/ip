@@ -41,13 +41,13 @@ class ReadOnlyCommandTest {
     }
 
     @Test
-    void execute_findMultipleMatches_renumbersOnlyMatchingMissions() throws GlennonException {
+    void execute_findMultipleMatches_preservesFullLogNumbers() throws GlennonException {
         todo.markAsDone();
         assertReadOnlyResponse(new FindCommand("read"), "Matching missions located:\n"
                 + "1.[T][X] read book\n"
                 + "2.[D][ ] read report (by: Sep 17 2026, 6:00 PM)\n");
         assertReadOnlyResponse(new FindCommand("report"), "Matching missions located:\n"
-                + "1.[D][ ] read report (by: Sep 17 2026, 6:00 PM)\n");
+                + "2.[D][ ] read report (by: Sep 17 2026, 6:00 PM)\n");
     }
 
     @Test
@@ -58,8 +58,8 @@ class ReadOnlyCommandTest {
     @Test
     void execute_onMatchingDate_displaysOnlyScheduledMissions() throws GlennonException {
         assertReadOnlyResponse(new OnCommand(LocalDate.of(2026, 9, 17)), "Missions on Sep 17 2026:\n"
-                + "1. [D][ ] read report (by: Sep 17 2026, 6:00 PM)\n"
-                + "2. [E][ ] meet team (from: Sep 17 2026, 9:00 AM to: Sep 18 2026, 10:00 AM)\n");
+                + "2. [D][ ] read report (by: Sep 17 2026, 6:00 PM)\n"
+                + "3. [E][ ] meet team (from: Sep 17 2026, 9:00 AM to: Sep 18 2026, 10:00 AM)\n");
     }
 
     @Test

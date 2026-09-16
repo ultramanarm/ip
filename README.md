@@ -60,7 +60,7 @@ provides the matching native JavaFX runtime.
 
 ### GUI checks
 
-`./gradlew clean test` runs the business logic tests and nineteen real JavaFX
+`./gradlew clean test` runs the business logic tests and twenty-one real JavaFX
 interaction tests. These tests need a desktop session and open temporary
 windows; their mission data is isolated from your files. See
 [the GUI regression plan](docs/gui-test-plan.md) for coverage and visual checks.
@@ -74,7 +74,7 @@ to rebuild, run all JUnit and Checkstyle checks, and measure core coverage.
 Open `build/reports/jacoco/test/html/index.html` for the coverage report and
 `build/reports/tests/test/index.html` for individual test results.
 
-The core report excludes JavaFX presentation classes; their nineteen interaction
+The core report excludes JavaFX presentation classes; their twenty-one interaction
 tests still run in the full suite. See [the testing guide](docs/testing.md) for
 the tested contracts, coverage limits, console regression command, and manual
 portability checks.

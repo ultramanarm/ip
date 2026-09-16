@@ -379,6 +379,53 @@ class MainWindowTest {
     }
 
     @Test
+    void handleUserInput_filteredNumbers_updatesOnlyDisplayedMissions() throws Exception {
+        String expectedList = "Mission log:\n1. [T][ ] keep first\n"
+                + "2. [D][X] choose second (by: Sep 17 2026, 11:59 PM)";
+        runScenario(() -> {
+            submit("todo keep first");
+            submit("deadline choose second /by 17/9/2026");
+            submit("todo remove third");
+            submit("find remove");
+            assertEquals("Matching missions located:\n3.[T][ ] remove third", lastResponse());
+            submit("delete 3");
+            assertEquals("Mission removed:\n  [T][ ] remove third\nMission log now has 2 missions.",
+                    lastResponse());
+            submit("on 17/9/2026");
+            assertEquals("Missions on Sep 17 2026:\n"
+                    + "2. [D][ ] choose second (by: Sep 17 2026, 11:59 PM)", lastResponse());
+            submit("mark 2");
+            submit("list");
+            assertEquals(expectedList, lastResponse());
+            assertNormalMessage();
+        });
+        assertEquals(expectedList, new Glennon(directory.resolve("missions.txt").toString()).getResponse("list"));
+    }
+
+    @Test
+    void handleUserInput_unicodeBlankDescriptions_keepsErrorsEditableAndRecovers() throws Exception {
+        String[] commands = {"todo \u00a0", "deadline \u202f /by 17/9/2026",
+            "event \u2007 /from 17/9/2026 /to 17/9/2026"};
+        runScenario(() -> {
+            submit("todo keep Unicode case");
+            for (String command : commands) {
+                submit(command);
+                assertTrue(lastResponse().startsWith("Mission control alert!\n"));
+                assertErrorMessage();
+                assertEquals(command, input.getText());
+                assertEquals(command, input.getSelectedText());
+            }
+            submit("list");
+            assertEquals("Mission log:\n1. [T][ ] keep Unicode case", lastResponse());
+            submit("todo \u00a0corrected mission\u202f");
+            assertEquals("Mission added: [T][ ] corrected mission\nMission log now has 2 missions.",
+                    lastResponse());
+            assertEquals("", input.getText());
+            assertNormalMessage();
+        });
+    }
+
+    @Test
     void initialize_corruptStorage_disablesInputAndPreservesData() throws Exception {
         Files.writeString(directory.resolve("missions.txt"), "corrupt");
         runScenario(() -> {

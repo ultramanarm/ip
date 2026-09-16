@@ -31,6 +31,6 @@ public final class OnCommand extends Command {
      */
     @Override
     public void execute(TaskList missions, Ui ui, Storage storage) {
-        ui.showScheduledMissions(date, missions.occurringOn(date));
+        ui.showScheduledMissions(date, missions.occurringOn(date), missions.asList());
     }
 }

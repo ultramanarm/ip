@@ -3,7 +3,8 @@
 Use Zulu JDK `25.0.3.fx-zulu`. Run `./gradlew clean test` in a desktop
 session; `MainWindowTest` loads real FXML and opens temporary windows.
 All test data lives in JUnit temporary directories, never the user's save file.
-The separate console plan remains unchanged and must also pass.
+The separate console plan must also pass, including filtered numbering and
+Unicode-description regression cases.
 The GUI scenarios allow real JavaFX layout pulses between interaction steps,
 including native stage resizing and deferred scrolling or focus updates.
 
@@ -30,8 +31,10 @@ including native stage resizing and deferred scrolling or focus updates.
 | GUI-17 | Positive | Reading position survives a resize, then a new command scrolls to its reply | `resize_readingHistory_preservesScrollUntilNextSubmission` |
 | GUI-18 | Positive | Focusable history responds to Page Up and keeps keyboard focus | `scrollPane_pageUp_readsOlderRepliesUsingKeyboard` |
 | GUI-19 | Positive | Narrowing the stage at the transcript bottom keeps the latest short reply visible | `resize_atTranscriptBottom_keepsLatestReplyVisible` |
+| GUI-20 | Positive | Find and date-filter results retain full-log numbers through deletion, marking, and restart | `handleUserInput_filteredNumbers_updatesOnlyDisplayedMissions` |
+| GUI-21 | Negative | Unicode-space-only descriptions across all task types stay selected for correction and preserve existing missions | `handleUserInput_unicodeBlankDescriptions_keepsErrorsEditableAndRecovers` |
 
-All fourteen positive and five negative scenarios exercise distinct paths.
+All fifteen positive and six negative scenarios exercise distinct paths.
 Their complete command sequences are unique. Error cases assert both the
 `error-card` role and a visible, managed `ATTENTION NEEDED` label. Successful
 recovery asserts normal styling and no space reserved for the error label.
@@ -42,8 +45,8 @@ that existing command logic rolls back an in-memory mutation after a failed save
 
 `GlennonTest` additionally tests all mission command families, restart
 persistence, and typed error status for validation, startup, and saving failures.
-These changes alter presentation and correction behavior only, so the exact
-console output plan does not change.
+The console plan also verifies the corrected filtered mission numbers and
+Unicode-description handling through exact output checks.
 
 Artwork assertions check the original resource URLs, successful image decoding,
 the avatar's transparent corner and preserved aspect ratio, and a background

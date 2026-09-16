@@ -2,6 +2,8 @@ package glennon.task;
 
 import java.time.LocalDate;
 
+import glennon.util.Text;
+
 /**
  * Represents a mission tracked by Glennon and its completion status.
  * Subclasses supply the type marker shown to the user, so this class is
@@ -22,14 +24,15 @@ public abstract class Task {
      *         line breaks or control characters other than tabs.
      */
     protected Task(String description) {
-        if (description == null || description.isBlank()) {
+        String normalizedDescription = description == null ? "" : Text.stripWhitespace(description);
+        if (normalizedDescription.isEmpty()) {
             throw new IllegalArgumentException("Mission descriptions must not be blank.");
         }
         if (description.codePoints().anyMatch(Task::isInvalidDescriptionCharacter)) {
             throw new IllegalArgumentException(
                     "Mission descriptions must be on one line without control characters.");
         }
-        this.description = description.strip();
+        this.description = normalizedDescription;
         this.isDone = false;
     }
 
