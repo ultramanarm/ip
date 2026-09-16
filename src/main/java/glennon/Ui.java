@@ -140,7 +140,7 @@ public class Ui {
      * @param missions matching missions in their original order.
      */
     public void showMatchingMissions(List<Task> missions) {
-        output.println("Here are the matching tasks in your list:");
+        output.println("Matching missions located:");
         for (int i = 0; i < missions.size(); i++) {
             output.println((i + 1) + "." + missions.get(i));
         }
