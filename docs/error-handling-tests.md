@@ -12,9 +12,10 @@ python3 test/run_ui_plan.py --plan test/ui-test-plan.md -- \
   "$JAVA_HOME/bin/java" -cp "$PWD/build/classes/java/main" glennon.Glennon
 ```
 
-The console command uses the repository's local `test-ui` skill and
-`test/ui-test-plan.md`. The plan is excluded from Git in this working copy;
-keep its local cases up to date when command behavior changes.
+The console command uses `test/run_ui_tests.py` and `test/ui-test-plan.md`, both
+included in the repository. It requires Python 3.9 or newer on macOS or Linux,
+with no additional Python packages or Codex skills. Keep the plan up to date
+when command behavior changes.
 
 ## Coverage
 
@@ -35,7 +36,7 @@ reported errors and state preservation.
 ## Console storage-failure fixtures
 
 `test/run_ui_plan.py` delegates exact output comparison and fail-fast process
-handling to the installed `test-ui` runner. Every case gets a fresh temporary
+handling to the repository's shared runner. Every case gets a fresh temporary
 working directory, so tests never modify the user's `data/glennon.txt`.
 
 A case can add these lines below its aim:

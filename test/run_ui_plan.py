@@ -1,35 +1,26 @@
 #!/usr/bin/env python3
-"""Run the skill's exact-output plan in isolated directories with storage faults.
+"""Run the repository's exact-output plan in isolated directories with storage faults.
 
-Requires the repository's test-ui skill. Optional case metadata can specify
+Uses the adjacent run_ui_tests module. Optional case metadata can specify
 ``- Block storage before command: N`` and ``- Restore storage before command: N``.
 The fixture moves the data file aside and puts a directory at its old path,
 then restores the untouched data file before a retry. Real application input
-and output are checked by the skill runner without substitutions.
+and output are checked by the shared runner without substitutions.
 """
 
-import importlib.util
 from pathlib import Path
 import re
 import sys
 import tempfile
 
-
-def load_runner(root):
-    """Load the installed skill runner without copying its comparison logic."""
-    path = root / '.agents/skills/test-ui/scripts/run_ui_tests.py'
-    spec = importlib.util.spec_from_file_location('glennon_ui_runner', path)
-    runner = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = runner
-    spec.loader.exec_module(runner)
-    return runner
+import run_ui_tests as runner
 
 
 def read_fixtures(plan_path, plan):
     """Read optional fault timing and reject incomplete fixture declarations."""
     fixtures = {}
     cases = {case.case_id: case for case in plan.cases}
-    sections = re.split(r'^### ', plan_path.read_text(), flags=re.MULTILINE)[1:]
+    sections = re.split(r'^### ', plan_path.read_text(encoding='utf-8'), flags=re.MULTILINE)[1:]
     for section in sections:
         case_id = section.split(':', 1)[0].strip()
         timings = {}
@@ -77,8 +68,6 @@ class FaultInput:
 
 
 def main():
-    root = Path(__file__).resolve().parents[1]
-    runner = load_runner(root)
     args = runner.parse_args(sys.argv[1:])
     plan = runner.parse_plan(args.plan)
     fixtures = read_fixtures(args.plan, plan)
