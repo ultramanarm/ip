@@ -7,7 +7,9 @@ accepts one command per line and saves changes in `data/glennon.txt`.
 
 Type a command and press Enter or click Send. Your commands appear on the
 right, while Glennon's replies use the available width for longer mission
-lists. Errors have an **ATTENTION NEEDED** heading and a contrasting color.
+lists. Glennon's robot avatar appears in the header, and a subtle orbital
+background sits behind the conversation. Errors have an **ATTENTION NEEDED**
+heading and a contrasting color.
 A rejected command stays selected in the input field so you can correct it
 immediately; successful commands clear the field.
 

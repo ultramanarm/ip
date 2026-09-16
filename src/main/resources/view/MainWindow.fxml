@@ -4,6 +4,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -18,7 +20,12 @@
             <top>
                 <HBox alignment="CENTER_LEFT" styleClass="header" spacing="12.0">
                     <children>
-                        <Label text="G" styleClass="app-mark" minWidth="36.0" minHeight="36.0" />
+                        <ImageView fx:id="glennonAvatar" fitWidth="48.0" fitHeight="48.0"
+                                   preserveRatio="true" smooth="true" accessibleText="Glennon avatar">
+                            <image>
+                                <Image url="@../images/glennon-avatar.png" />
+                            </image>
+                        </ImageView>
                         <VBox spacing="2.0">
                             <children>
                                 <Label text="Glennon" styleClass="title" />

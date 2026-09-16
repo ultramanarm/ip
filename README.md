@@ -49,8 +49,9 @@ The GUI follows the [SE-EDU JavaFX tutorial, Parts 1–5](https://se-education.o
   reuses the existing parser, commands, and output formatter.
 - `MainWindow.fxml` uses `AnchorPane`, `ScrollPane`, and `VBox`; `DialogBox.fxml`
   uses `fx:root` for the reusable `HBox` message component.
-- CSS controls colors, bubble shapes, and interaction states. Simple speaker
-  badges replace the tutorial's portrait images to suit Glennon's style.
+- CSS controls colors, bubble shapes, and interaction states. Glennon's robot
+  avatar appears once in the header, and an orbital background fills the
+  conversation area while message cards keep text readable.
 
 Open `src/main/resources/view/MainWindow.fxml` or `DialogBox.fxml` in Scene
 Builder to edit the layout. Keep the FXML namespace at JavaFX 17 for compatibility
@@ -59,7 +60,7 @@ provides the matching native JavaFX runtime.
 
 ### GUI checks
 
-`./gradlew clean test` runs the business logic tests and ten real JavaFX
+`./gradlew clean test` runs the business logic tests and nineteen real JavaFX
 interaction tests. These tests need a desktop session and open temporary
 windows; their mission data is isolated from your files. See
 [the GUI regression plan](docs/gui-test-plan.md) for coverage and visual checks.

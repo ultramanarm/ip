@@ -3,6 +3,7 @@ package glennon.gui;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,10 +31,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
@@ -198,6 +206,51 @@ class MainWindowTest {
         assertTrue(dialogContainer.getWidth() <= scroll.getViewportBounds().getWidth() + 1);
     }
 
+    /**
+     * Checks that the compact avatar and header remain inside the resized window.
+     */
+    private void assertHeaderFits() {
+        Node header = root.lookup(".header");
+        ImageView avatar = (ImageView) root.lookup("#glennonAvatar");
+        assertContainedIn(header, root);
+        assertContainedIn(avatar, header);
+        assertContainedIn(root.lookup(".title"), header);
+        assertContainedIn(root.lookup(".subtitle"), header);
+        assertTrue(avatar.getBoundsInLocal().getWidth() > 0);
+        assertTrue(avatar.getBoundsInLocal().getWidth() <= 48);
+        assertTrue(avatar.getBoundsInLocal().getHeight() > 0);
+        assertTrue(avatar.getBoundsInLocal().getHeight() <= 48);
+    }
+
+    /**
+     * Checks that the original artwork loads without obscuring the greeting.
+     */
+    private void assertOriginalArtworkLoads() {
+        ImageView avatar = (ImageView) root.lookup("#glennonAvatar");
+        Image avatarImage = avatar.getImage();
+        assertNotNull(avatarImage);
+        assertFalse(avatarImage.isError());
+        assertTrue(avatarImage.getWidth() > 0);
+        assertEquals(Main.class.getResource("/images/glennon-avatar.png").toExternalForm(), avatarImage.getUrl());
+        assertEquals(0.0, avatarImage.getPixelReader().getColor(0, 0).getOpacity());
+        assertTrue(avatar.isPreserveRatio());
+
+        Region viewport = (Region) root.lookup("#scrollPane").lookup(".viewport");
+        assertEquals(1, viewport.getBackground().getImages().size());
+        BackgroundImage background = viewport.getBackground().getImages().getFirst();
+        assertFalse(background.getImage().isError());
+        assertTrue(background.getImage().getWidth() > 0);
+        assertEquals(Main.class.getResource("/images/mission-background.png").toExternalForm(),
+                background.getImage().getUrl());
+        assertTrue(background.getSize().isCover());
+        assertEquals(BackgroundPosition.CENTER, background.getPosition());
+        assertEquals(BackgroundRepeat.NO_REPEAT, background.getRepeatX());
+        assertEquals(BackgroundRepeat.NO_REPEAT, background.getRepeatY());
+        Color replyFill = (Color) lastMessage().getBackground().getFills().getFirst().getFill();
+        assertEquals(1.0, replyFill.getOpacity());
+        assertHeaderFits();
+    }
+
     @Test
     void initialize_freshSession_displaysGreeting() throws Exception {
         runScenario(() -> {
@@ -206,6 +259,7 @@ class MainWindowTest {
             assertFalse(input.isDisabled());
             assertNormalMessage();
             assertSame(input, root.getScene().getFocusOwner());
+            assertOriginalArtworkLoads();
         });
     }
 
@@ -403,10 +457,12 @@ class MainWindowTest {
             stage.setHeight(360);
         }, () -> {
             assertComposerFits();
+            assertHeaderFits();
             stage.setWidth(900);
             stage.setHeight(800);
         }, () -> {
             assertComposerFits();
+            assertHeaderFits();
             assertTrue(root.getWidth() > 800);
             assertTrue(lastMessage().getWidth() > 600);
         });

@@ -15,15 +15,6 @@
     -fx-border-width: 0 0 1 0;
 }
 
-.app-mark {
-    -fx-background-color: #a9ddca;
-    -fx-background-radius: 11;
-    -fx-text-fill: #112d27;
-    -fx-font-size: 21px;
-    -fx-font-weight: bold;
-    -fx-alignment: center;
-}
-
 .title {
     -fx-font-size: 23px;
     -fx-font-weight: bold;
@@ -56,6 +47,13 @@
     -fx-background-color: #101d26;
     -fx-background-insets: 0;
     -fx-padding: 0;
+}
+
+.scroll-pane .viewport {
+    -fx-background-image: url("../images/mission-background.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
 }
 
 .scroll-pane {

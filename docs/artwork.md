@@ -1,22 +1,31 @@
 # Glennon GUI artwork
 
 Generated with the built-in image-generation tool for the navy and mint
-mission-control theme. These are standalone assets, ready for GUI integration.
-No Java, FXML, or CSS behavior changed when adding them.
+mission-control theme. The GUI uses the original avatar and background.
+
+## Active artwork
+
+- [Original avatar](../src/main/resources/images/glennon-avatar.png): loaded
+  in the header at 48 pixels with its transparency and aspect ratio preserved.
+- [Original background](../src/main/resources/images/mission-background.png):
+  fills the conversation viewport, scales to cover on resize, and stays fixed
+  while the conversation scrolls. Message cards retain opaque backgrounds
+  for readable text.
 
 ## Style-matched revision
 
 The revised assets use the actual Glennon GUI as their style reference:
 matte navy, muted mint, rounded shapes, and restrained mission-control detail.
-Use these versions for the current interface:
+These alternative versions are retained for comparison and are not used by
+the current interface:
 
 - [Revised avatar](../src/main/resources/images/glennon-avatar-v2.png):
   simplified shading and genuine alpha transparency.
 - [Revised background](../src/main/resources/images/mission-background-v2.png):
   a quieter navy surface with faint orbital contours.
 
-The first versions remain available for comparison. Both revisions were made
-with the built-in image-generation tool; application code is unchanged.
+Both revisions were made with the built-in image-generation tool. The original
+set was selected for the GUI.
 
 ### Avatar revision prompt
 
@@ -55,11 +64,10 @@ Constraints: opaque image; no stars, nebula clouds, bright streaks, dramatic gra
 ## Original assets
 
 - [Avatar](../src/main/resources/images/glennon-avatar.png): transparent PNG.
-  Use as a compact profile picture or header mark, around 36–40 pixels wide.
+  Used as a compact header image.
 - [Background](../src/main/resources/images/mission-background.png): portrait
   PNG with quiet central space and subtle orbital details toward the edges.
-  Keep message cards opaque to preserve contrast. The existing scroll viewport
-  has an opaque fill, so apply this artwork to that viewport when integrating it.
+  Used on the scroll viewport, behind opaque message cards.
 
 The original PNG files are preserved without resizing or recompression.
 

@@ -11,7 +11,7 @@ including native stage resizing and deferred scrolling or focus updates.
 
 | Case | Kind | Distinct behavior | JUnit method |
 | --- | --- | --- | --- |
-| GUI-01 | Positive | Fresh greeting uses normal reply styling and focuses input | `initialize_freshSession_displaysGreeting` |
+| GUI-01 | Positive | Fresh greeting focuses input; original transparent avatar and centered, covering background load behind an opaque reply | `initialize_freshSession_displaysGreeting` |
 | GUI-02 | Positive | Send button adds a normal exchange and clears successful input | `handleUserInput_sendButton_addsExchangeAndClearsInput` |
 | GUI-03 | Positive | Enter uses the same command path | `handleUserInput_enterKey_usesSameCommandHandler` |
 | GUI-04 | Positive | Compact right-aligned user cards differ from full-width app replies | `dialogBox_speakers_useDistinctAlignmentAndCardWidths` |
@@ -25,7 +25,7 @@ including native stage resizing and deferred scrolling or focus updates.
 | GUI-12 | Negative | Save failure shows a labeled error, keeps controls usable, and permits read-only recovery | `handleUserInput_saveFailure_highlightsErrorAndAllowsReadOnlyRecovery` |
 | GUI-13 | Positive | Error-like words in a mission do not trigger error styling | `handleUserInput_errorWordsInMission_keepsNormalPresentation` |
 | GUI-14 | Positive | Send returns keyboard focus to input for the next command | `handleUserInput_sendButton_returnsFocusToCommandField` |
-| GUI-15 | Positive | Narrow and wide stage sizes retain a visible composer and bounded transcript | `resize_narrowAndWideWindow_keepsComposerAndTranscriptWithinBounds` |
+| GUI-15 | Positive | Narrow and wide stage sizes retain a visible composer, bounded transcript, and compact avatar within the header | `resize_narrowAndWideWindow_keepsComposerAndTranscriptWithinBounds` |
 | GUI-16 | Positive | A long unbroken token wraps inside a narrow window | `handleUserInput_longUnbrokenMission_wrapsWithinNarrowWindow` |
 | GUI-17 | Positive | Reading position survives a resize, then a new command scrolls to its reply | `resize_readingHistory_preservesScrollUntilNextSubmission` |
 | GUI-18 | Positive | Focusable history responds to Page Up and keeps keyboard focus | `scrollPane_pageUp_readsOlderRepliesUsingKeyboard` |
@@ -45,18 +45,29 @@ persistence, and typed error status for validation, startup, and saving failures
 These changes alter presentation and correction behavior only, so the exact
 console output plan does not change.
 
+Artwork assertions check the original resource URLs, successful image decoding,
+the avatar's transparent corner and preserved aspect ratio, and a background
+that covers the viewport without repeating. The greeting's reply fill remains
+opaque. At both resize extremes, the avatar is at most 48 pixels per side and
+the avatar, title, and subtitle remain within the header and window.
+
 ## Visual and packaged checks
 
 1. Build `./gradlew shadowJar` and launch the JAR from a temporary directory.
 2. Check the greeting, compact header, input focus, and button states. User
    messages should be compact and right-aligned; app replies should use the
-   transcript width without avatars taking up text space.
+   transcript width without avatars taking up text space. Confirm the original
+   robot avatar has a transparent background and appears only in the header.
+   The original mission background should fill the conversation area without
+   tiling, while opaque message cards keep all text readable.
 3. Submit a long mission, a deadline, an event, `list`, and invalid input.
    Errors must have a clear `ATTENTION NEEDED` label as well as a distinct color.
    The invalid command should remain selected for immediate correction.
    Correct it and confirm the next reply uses normal styling and clears input.
 4. Resize down to the minimum and up to a large window. Check wrapping, no
    horizontal scroll, a visible input area, and no overlapping or clipped text.
+   Confirm the compact avatar and header text stay visible and the background
+   continues to cover the conversation area without stretching its aspect ratio.
    Include long text with no spaces. Confirm the wrapping command hint includes
    `sort` and remains above the window edge at the minimum height.
 5. Fill the chat and verify that the latest reply is visible after submission.
