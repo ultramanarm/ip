@@ -48,7 +48,7 @@ class GlennonTest {
         Glennon glennon = createGlennon();
         glennon.getResponse("deadline report /by 2/12/2019 1800");
         glennon.getResponse("event workshop /from 2/12/2019 /to 3/12/2019");
-        assertEquals("Matching missions located:\n1.[D][ ] report (by: Dec 2 2019, 6:00 PM)",
+        assertEquals("Matching missions located:\n1. [D][ ] report (by: Dec 2 2019, 6:00 PM)",
                 glennon.getResponse("find report"));
         assertTrue(glennon.getResponse("on 3/12/2019").contains("workshop"));
         assertFalse(glennon.getResponse("on 3/12/2019").contains("report"));

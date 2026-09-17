@@ -126,12 +126,12 @@ public final class Parser {
 
     /** Guidance shown when a scheduled date or date-time value is invalid. */
     private static final String DATE_TIME_USAGE =
-            "Please enter dates as d/M/yyyy with an optional HHmm time, "
+            "Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, "
                     + "for example 2/12/2019 or 2/12/2019 1800.";
 
     /** Guidance shown when a date-filter value is invalid. */
     private static final String DATE_USAGE =
-            "Please enter a date as d/M/yyyy, for example 2/12/2019.";
+            "Please enter a valid calendar date as d/M/yyyy, for example 2/12/2019.";
 
     /** Error shown when an event does not end after it starts. */
     private static final String EVENT_ORDER_ERROR =

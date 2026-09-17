@@ -387,7 +387,7 @@ class MainWindowTest {
             submit("deadline choose second /by 17/9/2026");
             submit("todo remove third");
             submit("find remove");
-            assertEquals("Matching missions located:\n3.[T][ ] remove third", lastResponse());
+            assertEquals("Matching missions located:\n3. [T][ ] remove third", lastResponse());
             submit("delete 3");
             assertEquals("Mission removed:\n  [T][ ] remove third\nMission log now has 2 missions.",
                     lastResponse());

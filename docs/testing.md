@@ -85,8 +85,37 @@ three negative cases, with unique complete input sequences.
 
 Automated checks on macOS, including Unicode data, Windows-style line endings,
 and Chinese format-locale assertions, do not substitute for running on another
-operating system. Windows/Linux and alternate OS language settings are not
-claimed as manually verified by this increment.
+operating system.
+
+### Reported JAR smoke tests
+
+The following results were reported in
+[forum issue #329](https://github.com/NUS-CS2103-AY2627-S1/forum/issues/329).
+Each tester reported successfully launching the JAR, adding a to-do, deadline,
+and event, listing missions, marking a mission, and deleting a mission. After
+restart from the same folder, the remaining missions and marked status were
+preserved, and the deleted mission did not return.
+
+| Tester | Reported OS | Reported Java version | Smoke-test result |
+| --- | --- | --- | --- |
+| cacklycrackle | Windows 11, 25H2 | Not supplied | Passed |
+| MarcusMa06-code | macOS 27.0 | Not supplied | Passed |
+| elsxyss | macOS 26.5 | Zulu OpenJDK 25.0.3 | Passed |
+
+elsxyss also reported successful checks of `unmark`, `find`, `on`, `sort`,
+duplicate-mission handling, date-only deadlines, all-day events, leap-year
+dates, and Unicode and punctuation in descriptions. Invalid input checks
+covered a missing to-do description, an impossible calendar date, an event
+ending before it starts, an invalid mission number, and extra arguments after
+`list`. The application remained usable after each error. The feedback suggested
+minor improvements to search-result spacing and invalid-date guidance.
+
+These reports concern the supplied JAR; its build identity was not provided,
+so they do not verify the current rebuilt artifact. Linux remains unverified.
+The reports also do not establish coverage of the display, keyboard, or
+alternate OS language checks below.
+
+### Checks for future manual runs
 
 Use a temporary folder for each manual run. Follow the
 [GUI visual and packaged checks](gui-test-plan.md#visual-and-packaged-checks),

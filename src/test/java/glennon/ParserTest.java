@@ -255,7 +255,7 @@ class ParserTest {
         GlennonException exception = assertThrows(
                 GlennonException.class, () -> Parser.parseDeadline("deadline submit report /by 31/2/2025 1800"));
 
-        assertEquals("Please enter dates as d/M/yyyy with an optional HHmm time, "
+        assertEquals("Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, "
                         + "for example 2/12/2019 or 2/12/2019 1800.",
                 exception.getMessage());
     }
@@ -268,7 +268,7 @@ class ParserTest {
             GlennonException exception = assertThrows(GlennonException.class, () -> Parser.parseDeadline(
                     "deadline report /by " + value));
 
-            assertEquals("Please enter dates as d/M/yyyy with an optional HHmm time, "
+            assertEquals("Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, "
                             + "for example 2/12/2019 or 2/12/2019 1800.",
                     exception.getMessage(), value);
         }
@@ -280,7 +280,7 @@ class ParserTest {
             GlennonException exception = assertThrows(
                     GlennonException.class, () -> Parser.parseDeadline("deadline report /by " + value));
 
-            assertEquals("Please enter dates as d/M/yyyy with an optional HHmm time, "
+            assertEquals("Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, "
                             + "for example 2/12/2019 or 2/12/2019 1800.",
                     exception.getMessage(), value);
         }
@@ -381,7 +381,7 @@ class ParserTest {
                 GlennonException exception = assertThrows(
                         GlennonException.class, () -> Parser.parseEvent(input));
 
-                assertEquals("Please enter dates as d/M/yyyy with an optional HHmm time, "
+                assertEquals("Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, "
                                 + "for example 2/12/2019 or 2/12/2019 1800.",
                         exception.getMessage(), input);
             }
@@ -518,7 +518,7 @@ class ParserTest {
         GlennonException wrongFormat = assertThrows(
                 GlennonException.class, () -> Parser.parseDate("on 2024-02-29"));
 
-        assertEquals("Please enter a date as d/M/yyyy, for example 2/12/2019.",
+        assertEquals("Please enter a valid calendar date as d/M/yyyy, for example 2/12/2019.",
                 impossibleDate.getMessage());
         assertEquals(impossibleDate.getMessage(), wrongFormat.getMessage());
     }
@@ -529,7 +529,7 @@ class ParserTest {
             GlennonException exception = assertThrows(
                     GlennonException.class, () -> Parser.parseDate("on " + value));
 
-            assertEquals("Please enter a date as d/M/yyyy, for example 2/12/2019.",
+            assertEquals("Please enter a valid calendar date as d/M/yyyy, for example 2/12/2019.",
                     exception.getMessage(), value);
         }
     }
@@ -591,7 +591,7 @@ class ParserTest {
         List<String> inputs = List.of("todo", "find", "on", "mark", "unmark", "delete", "deadline", "event");
         List<String> messages = List.of("Please enter a mission after todo.",
                 "Please enter a keyword after find.",
-                "Please enter a date as d/M/yyyy, for example 2/12/2019.",
+                "Please enter a valid calendar date as d/M/yyyy, for example 2/12/2019.",
                 "Please enter a valid mission number.", "Please enter a valid mission number.",
                 "Please enter a valid mission number.",
                 "Use: deadline <mission> /by <d/M/yyyy [HHmm]>.",

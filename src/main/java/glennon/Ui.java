@@ -143,7 +143,7 @@ public class Ui {
     public void showMatchingMissions(List<Task> missions, List<Task> allMissions) {
         output.println("Matching missions located:");
         for (Task mission : missions) {
-            output.println((allMissions.indexOf(mission) + 1) + "." + mission);
+            output.println((allMissions.indexOf(mission) + 1) + ". " + mission);
         }
     }
 
