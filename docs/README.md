@@ -10,10 +10,29 @@ at a time. Your tasks are called **missions**, and changes are saved automatical
 
 ## Quick start
 
-This guide describes the current project version. To launch it on macOS:
+This guide describes the current project version.
 
-1. Install **Zulu FX JDK 25.0.3** (`25.0.3.fx-zulu` in SDKMAN) and set
-   `JAVA_HOME` to that JDK. Check that `java -version` reports `25.0.3`.
+### Run the JAR
+
+1. Install **JDK 25** and ensure your terminal uses it. On macOS, use
+   **Zulu FX JDK 25.0.3** (`25.0.3.fx-zulu` in SDKMAN). Run `java -version`
+   to check the selected version; on macOS it should report `25.0.3`.
+2. Download the `Glennon.jar` attached to the release or smoke-testing request
+   and place it in an empty folder where you want to keep your missions.
+3. Open a terminal in that folder and launch Glennon:
+
+   ```shell
+   java -jar "Glennon.jar"
+   ```
+
+4. Type `todo read the project brief`, then press **Enter** or click **Send**.
+   Enter `list` to see it, then `mark 1` to complete it if it is your first mission.
+5. Enter `bye` to close Glennon. Launch it from the same folder next time to
+   restore your missions from `data/glennon.txt`.
+
+### Run from source on macOS
+
+1. Select **Zulu FX JDK 25.0.3** as described above.
 2. [Download the project](https://github.com/ultramanarm/ip/archive/refs/heads/master.zip),
    unzip it, and open a terminal in the extracted project folder. If you already
    have the project, use that folder.
@@ -26,11 +45,6 @@ This guide describes the current project version. To launch it on macOS:
    export PATH="$JAVA_HOME/bin:$PATH"
    ./gradlew run
    ```
-
-4. Type `todo read the project brief`, then press **Enter** or click **Send**.
-   Enter `list` to see it, then `mark 1` to complete it if it is your first mission.
-5. Enter `bye` to close Glennon. Your missions will be there when you next launch
-   it from the same folder.
 
 Prefer a terminal? Run `./gradlew runCli` instead; it accepts the same commands.
 For IntelliJ setup or building a standalone `Glennon.jar`, see the
