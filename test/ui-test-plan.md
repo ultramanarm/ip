@@ -2261,7 +2261,7 @@ deadline return book /by 2019-12-02 1800
 ```text
 ____________________________________________________________
 Mission control alert!
-Please enter dates as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
+Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
 ____________________________________________________________
 ```
 
@@ -2335,7 +2335,7 @@ event review /from 29/2/2025 1400 /to 29/2/2025 1600
 ```text
 ____________________________________________________________
 Mission control alert!
-Please enter dates as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
+Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
 ____________________________________________________________
 ```
 
@@ -2663,7 +2663,7 @@ on 29/2/2025
 ```text
 ____________________________________________________________
 Mission control alert!
-Please enter a date as d/M/yyyy, for example 2/12/2019.
+Please enter a valid calendar date as d/M/yyyy, for example 2/12/2019.
 ____________________________________________________________
 ```
 
@@ -3853,7 +3853,7 @@ deadline invalid format /by 2027-07-10
 ```text
 ____________________________________________________________
 Mission control alert!
-Please enter dates as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
+Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
 ____________________________________________________________
 ```
 
@@ -3908,7 +3908,7 @@ event impossible /from 31/4/2027 /to 1/5/2027
 ```text
 ____________________________________________________________
 Mission control alert!
-Please enter dates as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
+Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
 ____________________________________________________________
 ```
 
@@ -8897,7 +8897,7 @@ on 29/2/2025
 ```text
 ____________________________________________________________
 Mission control alert!
-Please enter a date as d/M/yyyy, for example 2/12/2019.
+Please enter a valid calendar date as d/M/yyyy, for example 2/12/2019.
 ____________________________________________________________
 ```
 
@@ -10256,6 +10256,348 @@ Signing off. Catch you on the next mission!
 ____________________________________________________________
 ```
 
+### TC-230: Reject an impossible February deadline with calendar guidance
+
+#### Aim
+
+Negatively verify the reported 31/2/2026 calendar error for both date-only
+and timed deadlines. Each rejection must retain the existing completed mission.
+
+#### Command 1
+
+##### Input
+
+```text
+todo preserve February deadline state
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission added: [T][ ] preserve February deadline state
+Mission log now has 1 mission.
+____________________________________________________________
+```
+
+#### Command 2
+
+##### Input
+
+```text
+mark 1
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission marked complete:
+  [T][X] preserve February deadline state
+____________________________________________________________
+```
+
+#### Command 3
+
+##### Input
+
+```text
+deadline impossible February /by 31/2/2026
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission control alert!
+Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
+____________________________________________________________
+```
+
+#### Command 4
+
+##### Input
+
+```text
+list
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission log:
+1. [T][X] preserve February deadline state
+____________________________________________________________
+```
+
+#### Command 5
+
+##### Input
+
+```text
+deadline impossible February time /by 31/2/2026 1800
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission control alert!
+Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
+____________________________________________________________
+```
+
+#### Command 6
+
+##### Input
+
+```text
+list
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission log:
+1. [T][X] preserve February deadline state
+____________________________________________________________
+```
+
+#### Command 7
+
+##### Input
+
+```text
+bye
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Signing off. Catch you on the next mission!
+____________________________________________________________
+```
+
+### TC-231: Reject an impossible event end with calendar guidance
+
+#### Aim
+
+Negatively verify a valid event start cannot conceal an impossible 31/2/2026
+end in either date-only or timed input. Each rejection must retain the existing
+completed mission.
+
+#### Command 1
+
+##### Input
+
+```text
+todo preserve February event state
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission added: [T][ ] preserve February event state
+Mission log now has 1 mission.
+____________________________________________________________
+```
+
+#### Command 2
+
+##### Input
+
+```text
+mark 1
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission marked complete:
+  [T][X] preserve February event state
+____________________________________________________________
+```
+
+#### Command 3
+
+##### Input
+
+```text
+event invalid February end /from 28/2/2026 /to 31/2/2026
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission control alert!
+Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
+____________________________________________________________
+```
+
+#### Command 4
+
+##### Input
+
+```text
+list
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission log:
+1. [T][X] preserve February event state
+____________________________________________________________
+```
+
+#### Command 5
+
+##### Input
+
+```text
+event invalid February timed end /from 28/2/2026 0900 /to 31/2/2026 1800
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission control alert!
+Please enter a valid calendar date as d/M/yyyy with an optional HHmm time, for example 2/12/2019 or 2/12/2019 1800.
+____________________________________________________________
+```
+
+#### Command 6
+
+##### Input
+
+```text
+list
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission log:
+1. [T][X] preserve February event state
+____________________________________________________________
+```
+
+#### Command 7
+
+##### Input
+
+```text
+bye
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Signing off. Catch you on the next mission!
+____________________________________________________________
+```
+
+### TC-232: Reject an impossible February filter with calendar guidance
+
+#### Aim
+
+Negatively verify on rejects the reported 31/2/2026 calendar date with
+date-only guidance and preserves the existing completed mission.
+
+#### Command 1
+
+##### Input
+
+```text
+todo preserve February filter state
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission added: [T][ ] preserve February filter state
+Mission log now has 1 mission.
+____________________________________________________________
+```
+
+#### Command 2
+
+##### Input
+
+```text
+mark 1
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission marked complete:
+  [T][X] preserve February filter state
+____________________________________________________________
+```
+
+#### Command 3
+
+##### Input
+
+```text
+on 31/2/2026
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission control alert!
+Please enter a valid calendar date as d/M/yyyy, for example 2/12/2019.
+____________________________________________________________
+```
+
+#### Command 4
+
+##### Input
+
+```text
+list
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Mission log:
+1. [T][X] preserve February filter state
+____________________________________________________________
+```
+
+#### Command 5
+
+##### Input
+
+```text
+bye
+```
+
+##### Expected output
+
+```text
+____________________________________________________________
+Signing off. Catch you on the next mission!
+____________________________________________________________
+```
+
 ## Coverage matrix
 
 Detailed parsing, persistence, collection, and date-boundary permutations are
@@ -10277,7 +10619,8 @@ that verify command integration and exact user-visible output.
 | Filtered mission numbering | TC-190 find/delete last; TC-191 nonadjacent first/last find/mark; TC-192 find/unmark middle completed deadline; TC-193 on/delete last event; TC-194 on/mark deadline; TC-195 on/unmark middle completed event; TC-196 sort/delete reindexing and first index; TC-197 empty/no-match results and later addition | TC-198 malformed mutation and recovery; TC-199 excessive index and recovery; TC-200 missing keyword and preserved status; TC-201 impossible date and recovery; all assert the full log is unchanged after rejection |
 | Unicode description whitespace | TC-210 U+00A0 to-do edges; TC-211 U+202F deadline edges; TC-212 U+2007 event edges; TC-213 mixed edges and one supplementary code point; TC-214 internal Unicode spaces in all task types; TC-215 significant internal spacing and non-ASCII text; TC-216 normalized descriptions across task types, sorting, and filtering | TC-217 U+00A0-only to-do; TC-218 U+202F-only deadline; TC-219 U+2007-only event; TC-220 completed to-do duplicate; TC-221 equivalent deadline duplicate; TC-222 event duplicate; TC-223 mixed whitespace-only descriptions; all assert preserved mission state |
 | Smoke feedback: find output spacing | TC-110 mixed types and status; TC-111 substring; TC-112 multi-word phrase; TC-113 symbols; TC-115 nonmatching first mission; TC-116 status transition; TC-119 surrounding whitespace; TC-191 nonadjacent indices; TC-192 completed deadline; all matching rows include a space after the mission number | TC-117 missing keyword; TC-118 wrong command case; TC-198 invalid update after a search; all assert unchanged missions |
+| Smoke feedback: valid calendar date guidance | TC-031 leap day; TC-032 upper-year boundary; TC-042 cross-day event; TC-120 date-only deadline; TC-121 leap-day filtering; TC-124 date-only event start; TC-125 date-only event end; TC-126 explicit-time compatibility | TC-090 malformed timed deadline; TC-095 impossible event start; TC-109 impossible filter date; TC-230 impossible February deadline in both representations; TC-231 impossible February event end in both representations; TC-232 impossible February filter; all assert unchanged missions |
 
-All 114 complete command sequences are unique. Every negative case lists the
+All 117 complete command sequences are unique. Every negative case lists the
 missions afterward when state preservation is applicable. TC-001 separately
 checks clean application exit.
