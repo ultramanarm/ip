@@ -44,10 +44,10 @@ class ReadOnlyCommandTest {
     void execute_findMultipleMatches_preservesFullLogNumbers() throws GlennonException {
         todo.markAsDone();
         assertReadOnlyResponse(new FindCommand("read"), "Matching missions located:\n"
-                + "1.[T][X] read book\n"
-                + "2.[D][ ] read report (by: Sep 17 2026, 6:00 PM)\n");
+                + "1. [T][X] read book\n"
+                + "2. [D][ ] read report (by: Sep 17 2026, 6:00 PM)\n");
         assertReadOnlyResponse(new FindCommand("report"), "Matching missions located:\n"
-                + "2.[D][ ] read report (by: Sep 17 2026, 6:00 PM)\n");
+                + "2. [D][ ] read report (by: Sep 17 2026, 6:00 PM)\n");
     }
 
     @Test

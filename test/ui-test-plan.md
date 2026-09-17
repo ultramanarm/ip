@@ -2805,9 +2805,9 @@ find book
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][X] read book
-2.[D][ ] return book (by: Jun 6 2026, 6:00 PM)
-3.[E][ ] book club (from: Jun 7 2026, 2:00 PM to: Jun 7 2026, 4:00 PM)
+1. [T][X] read book
+2. [D][ ] return book (by: Jun 6 2026, 6:00 PM)
+3. [E][ ] book club (from: Jun 7 2026, 2:00 PM to: Jun 7 2026, 4:00 PM)
 ____________________________________________________________
 ```
 
@@ -2881,7 +2881,7 @@ find port
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] write report
+1. [T][ ] write report
 ____________________________________________________________
 ```
 
@@ -2955,7 +2955,7 @@ find project book
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] read project book
+1. [T][ ] read project book
 ____________________________________________________________
 ```
 
@@ -3012,7 +3012,7 @@ find C++
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] read C++ book
+1. [T][ ] read C++ book
 ____________________________________________________________
 ```
 
@@ -3159,7 +3159,7 @@ find book
 ```text
 ____________________________________________________________
 Matching missions located:
-2.[T][ ] read book
+2. [T][ ] read book
 ____________________________________________________________
 ```
 
@@ -3216,7 +3216,7 @@ find book
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] book flight
+1. [T][ ] book flight
 ____________________________________________________________
 ```
 
@@ -3250,7 +3250,7 @@ find book
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][X] book flight
+1. [T][X] book flight
 ____________________________________________________________
 ```
 
@@ -3455,7 +3455,7 @@ ____________________________________________________________
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] preserve leading search
+1. [T][ ] preserve leading search
 ____________________________________________________________
 ```
 
@@ -7294,7 +7294,7 @@ find obsolete
 ```text
 ____________________________________________________________
 Matching missions located:
-2.[T][ ] obsolete task
+2. [T][ ] obsolete task
 ____________________________________________________________
 ```
 
@@ -7419,8 +7419,8 @@ find survey
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] survey coast
-3.[T][ ] survey forest
+1. [T][ ] survey coast
+3. [T][ ] survey forest
 ____________________________________________________________
 ```
 
@@ -7454,8 +7454,8 @@ find survey
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] survey coast
-3.[T][X] survey forest
+1. [T][ ] survey coast
+3. [T][X] survey forest
 ____________________________________________________________
 ```
 
@@ -7581,7 +7581,7 @@ find signed
 ```text
 ____________________________________________________________
 Matching missions located:
-2.[D][X] submit signed form (by: Dec 2 2019, 11:59 PM)
+2. [D][X] submit signed form (by: Dec 2 2019, 11:59 PM)
 ____________________________________________________________
 ```
 
@@ -8155,8 +8155,8 @@ find checkpoint
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[D][ ] late checkpoint (by: Dec 3 2019, 11:59 PM)
-2.[T][ ] unscheduled checkpoint
+1. [D][ ] late checkpoint (by: Dec 3 2019, 11:59 PM)
+2. [T][ ] unscheduled checkpoint
 ____________________________________________________________
 ```
 
@@ -8327,7 +8327,7 @@ find ordinary
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] ordinary unscheduled chore
+1. [T][ ] ordinary unscheduled chore
 ____________________________________________________________
 ```
 
@@ -8434,7 +8434,7 @@ find locate
 ```text
 ____________________________________________________________
 Matching missions located:
-2.[T][ ] locate recovery target
+2. [T][ ] locate recovery target
 ____________________________________________________________
 ```
 
@@ -8737,7 +8737,7 @@ find completed
 ```text
 ____________________________________________________________
 Matching missions located:
-2.[T][X] completed search recovery
+2. [T][X] completed search recovery
 ____________________________________________________________
 ```
 
@@ -9040,7 +9040,7 @@ find pasted
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] read pasted note
+1. [T][ ] read pasted note
 ____________________________________________________________
 ```
 
@@ -9259,7 +9259,7 @@ find 📚
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] 📚
+1. [T][ ] 📚
 ____________________________________________________________
 ```
 
@@ -9424,7 +9424,7 @@ find 学习  C++/Java
 ```text
 ____________________________________________________________
 Matching missions located:
-1.[T][ ] 学习  C++/Java
+1. [T][ ] 学习  C++/Java
 ____________________________________________________________
 ```
 
@@ -10270,15 +10270,13 @@ that verify command integration and exact user-visible output.
 | Find by keyword | TC-110 mixed types and status; TC-111 substring; TC-112 multi-word phrase; TC-113 symbols; TC-114 no matches; TC-115 case-sensitive descriptions; TC-116 repeated read-only searches | TC-117 missing keyword; TC-118 wrong command case; TC-145 blank input |
 | Date-only scheduling | TC-120 deadline default; TC-121 leap day and filtering; TC-122 single-day event; TC-123 multi-day filtering; TC-124 date-only start; TC-125 date-only end; TC-126 timed-input compatibility | TC-127 malformed representation; TC-128 impossible date; TC-129 reversed range |
 | Chronological sorting | TC-130 mixed types; TC-131 stable ties; TC-132 empty boundary; TC-133 single unscheduled item; TC-134 idempotent order; TC-135 completion state; TC-136 date-only comparison | TC-137 unsupported arguments; TC-138 wrong command case; TC-146 malformed exit |
-
 | Flexible command whitespace | TC-028 leading task; TC-119 search; TC-139 sort; TC-140 tab and Unicode description; TC-141 spaced date-time; TC-142 tabbed event; TC-143 trailing whitespace; TC-144 state transitions | TC-145 blank commands; TC-146 extra exit argument; TC-147 malformed numeric arguments |
 | Scheduling parameters | TC-120 date-only deadline; TC-121 leap day; TC-122 same-day all-day event; TC-123 multi-day event; TC-124 omitted start time; TC-125 omitted end time; TC-126 explicit times | TC-148 repeated deadline; TC-149 repeated start; TC-150 repeated end; TC-151 wrong task flag; TC-152 missing or out-of-order flags |
-
 | Task uniqueness | TC-160 task types; TC-161 dates; TC-162 end times; TC-163 case; TC-164 deletion and re-add; TC-165 Unicode and internal spacing; TC-166 start times | TC-167 completed or spaced duplicate; TC-168 equivalent deadline inputs; TC-169 duplicate event |
 | Save consistency | TC-002 status lifecycle; TC-003 mixed additions; TC-005 event status; TC-010 middle deletion; TC-011 sole deletion; TC-130 chronological sort; TC-135 completed sort | TC-180 add failure; TC-181 delete failure; TC-182 mark failure; TC-183 unmark failure; TC-184 sort failure; all verify unchanged state and safe retry |
-
 | Filtered mission numbering | TC-190 find/delete last; TC-191 nonadjacent first/last find/mark; TC-192 find/unmark middle completed deadline; TC-193 on/delete last event; TC-194 on/mark deadline; TC-195 on/unmark middle completed event; TC-196 sort/delete reindexing and first index; TC-197 empty/no-match results and later addition | TC-198 malformed mutation and recovery; TC-199 excessive index and recovery; TC-200 missing keyword and preserved status; TC-201 impossible date and recovery; all assert the full log is unchanged after rejection |
 | Unicode description whitespace | TC-210 U+00A0 to-do edges; TC-211 U+202F deadline edges; TC-212 U+2007 event edges; TC-213 mixed edges and one supplementary code point; TC-214 internal Unicode spaces in all task types; TC-215 significant internal spacing and non-ASCII text; TC-216 normalized descriptions across task types, sorting, and filtering | TC-217 U+00A0-only to-do; TC-218 U+202F-only deadline; TC-219 U+2007-only event; TC-220 completed to-do duplicate; TC-221 equivalent deadline duplicate; TC-222 event duplicate; TC-223 mixed whitespace-only descriptions; all assert preserved mission state |
+| Smoke feedback: find output spacing | TC-110 mixed types and status; TC-111 substring; TC-112 multi-word phrase; TC-113 symbols; TC-115 nonmatching first mission; TC-116 status transition; TC-119 surrounding whitespace; TC-191 nonadjacent indices; TC-192 completed deadline; all matching rows include a space after the mission number | TC-117 missing keyword; TC-118 wrong command case; TC-198 invalid update after a search; all assert unchanged missions |
 
 All 114 complete command sequences are unique. Every negative case lists the
 missions afterward when state preservation is applicable. TC-001 separately

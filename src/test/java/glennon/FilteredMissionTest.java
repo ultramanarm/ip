@@ -161,7 +161,7 @@ class FilteredMissionTest {
         assertEquals(expectedLogAfter(command), restored.getResponse("list"));
         if (command.equals("delete 2")) {
             String expected = filter.equals(FIND_COMMAND)
-                    ? "Matching missions located:\n3." + COMPLETED_EVENT
+                    ? "Matching missions located:\n3. " + COMPLETED_EVENT
                     : "Missions on Sep 17 2026:\n3. " + COMPLETED_EVENT;
             assertEquals(expected, restored.getResponse(filter));
         }
@@ -208,12 +208,11 @@ class FilteredMissionTest {
     }
 
     /**
-     * Formats two explicitly numbered expectations using each command's established spacing.
+     * Formats two explicitly numbered expectations with consistent spacing for both filters.
      */
     private String filterResponse(String filter, String firstNumber, String firstTask,
             String secondNumber, String secondTask) {
         String heading = filter.equals(FIND_COMMAND) ? "Matching missions located:" : "Missions on Sep 17 2026:";
-        String separator = filter.equals(FIND_COMMAND) ? "." : ". ";
-        return heading + "\n" + firstNumber + separator + firstTask + "\n" + secondNumber + separator + secondTask;
+        return heading + "\n" + firstNumber + ". " + firstTask + "\n" + secondNumber + ". " + secondTask;
     }
 }
